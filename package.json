@@ -1,11 +1,11 @@
 {
-  "name": "@koppajs/language-core",
+  "name": "koppajs-language-core",
   "version": "0.1.0",
   "description": "Shared KoppaJS language primitives, semantic service, and workspace graph.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/koppajs/language-core"
+    "url": "https://github.com/koppajs/koppajs-language-core"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
