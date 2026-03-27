@@ -1,14 +1,62 @@
-# @koppajs/koppajs-language-core
+<a id="readme-top"></a>
 
-`@koppajs/koppajs-language-core` is the editor-agnostic language package for KoppaJS `.kpa` files.
+<div align="center">
+  <img src="https://public-assets-1b57ca06-687a-4142-a525-0635f7649a5c.s3.eu-central-1.amazonaws.com/koppajs/koppajs-logo-text-900x226.png" width="500" alt="KoppaJS Logo">
+</div>
 
-It provides deterministic parsing, diagnostics, template semantics, workspace indexing, and a language-service facade that higher-level adapters can embed without taking a dependency on editor APIs.
+<br>
 
-Classification:
-- repository type: core package
-- runtime responsibility: `.kpa` parsing, diagnostics, template semantics, and workspace analysis
-- build-time responsibility: TypeScript compilation and package publishing only
-- UI surface: none
+<div align="center">
+  <a href="https://www.npmjs.com/package/@koppajs/koppajs-language-core"><img src="https://img.shields.io/npm/v/@koppajs/koppajs-language-core?style=flat-square" alt="npm version"></a>
+  <a href="https://github.com/koppajs/koppajs-language-core/actions"><img src="https://img.shields.io/github/actions/workflow/status/koppajs/koppajs-language-core/ci.yml?branch=main&style=flat-square" alt="CI Status"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue?style=flat-square" alt="License"></a>
+</div>
+
+<br>
+
+<div align="center">
+  <h1 align="center">@koppajs/koppajs-language-core</h1>
+  <h3 align="center">Shared language primitives, semantic service, and workspace graph for KoppaJS</h3>
+  <p align="center">
+    <i>Parser, diagnostics, template semantics, and workspace analysis in one editor-agnostic package.</i>
+  </p>
+</div>
+
+<br>
+
+<div align="center">
+  <p align="center">
+    <a href="https://github.com/koppajs/koppajs-documentation">Documentation</a>
+    &middot;
+    <a href="https://github.com/koppajs/koppajs-language-server">Language Server</a>
+    &middot;
+    <a href="https://github.com/koppajs/koppajs-kpa-check">KPA Check</a>
+    &middot;
+    <a href="https://github.com/koppajs/koppajs-vscode-extension">VS Code Extension</a>
+    &middot;
+    <a href="https://github.com/koppajs/koppajs-language-core/issues">Issues</a>
+  </p>
+</div>
+
+<br>
+
+<details>
+<summary>Table of Contents</summary>
+  <ol>
+    <li><a href="#purpose">Purpose</a></li>
+    <li><a href="#ownership-boundaries">Ownership Boundaries</a></li>
+    <li><a href="#public-contract">Public Contract</a></li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#ecosystem-fit">Ecosystem Fit</a></li>
+    <li><a href="#quality-baseline">Quality Baseline</a></li>
+    <li><a href="#release-model">Release Model</a></li>
+    <li><a href="#architecture-governance">Architecture & Governance</a></li>
+    <li><a href="#community-contribution">Community & Contribution</a></li>
+    <li><a href="#license">License</a></li>
+  </ol>
+</details>
+
+---
 
 ## Purpose
 
@@ -20,6 +68,8 @@ This repository exists to centralize the reusable language behavior for KoppaJS 
 - workspace symbol discovery and dependency tracking
 - a service facade for completions, hover, definitions, references, rename, and code actions
 
+---
+
 ## Ownership Boundaries
 
 This package owns:
@@ -27,7 +77,7 @@ This package owns:
 - runtime language logic for `.kpa` documents
 - TypeScript-backed semantic analysis for template expressions
 - filesystem-backed workspace indexing and component dependency tracking
-- the published root module contract in [`src/index.ts`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/src/index.ts)
+- the published root module contract in [`src/index.ts`](./src/index.ts)
 
 This package does not own:
 
@@ -37,9 +87,11 @@ This package does not own:
 - formatting, code generation, or compilation of `.kpa` files
 - browser UI or Playwright-driven workflows
 
+---
+
 ## Public Contract
 
-The published npm surface is a single root entry point defined by `package.json` `exports["."]` and implemented in [`src/index.ts`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/src/index.ts). There are no public subpath exports.
+The published npm surface is a single root entry point defined by `package.json` `exports["."]` and implemented in [`src/index.ts`](./src/index.ts). There are no public subpath exports.
 
 That root entry point intentionally groups the runtime contract into a few explicit families:
 
@@ -49,7 +101,9 @@ That root entry point intentionally groups the runtime contract into a few expli
 - workspace and project-config runtime helpers including `KpaWorkspaceIndex`, `KpaWorkspaceGraph`, and config-resolution cache controls
 - the high-level `KpaLanguageService` facade
 
-The exact runtime value exports are locked by [`src/test/unit/publicApi.test.ts`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/src/test/unit/publicApi.test.ts), and the root-only package manifest boundary is locked by [`src/test/unit/packageMetadata.test.ts`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/src/test/unit/packageMetadata.test.ts). Lower-level files that are not re-exported from the root module, such as [`src/diagnosticsEngine.ts`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/src/diagnosticsEngine.ts), are internal compatibility shims for repository use and are not part of the published package entry point.
+The exact runtime value exports are locked by [`src/test/unit/publicApi.test.ts`](./src/test/unit/publicApi.test.ts), and the root-only package manifest boundary is locked by [`src/test/unit/packageMetadata.test.ts`](./src/test/unit/packageMetadata.test.ts). Lower-level files that are not re-exported from the root module, such as [`src/diagnosticsEngine.ts`](./src/diagnosticsEngine.ts), are internal compatibility shims for repository use and are not part of the published package entry point.
+
+---
 
 ## Usage
 
@@ -82,11 +136,15 @@ const completions = service.getCompletions(
 );
 ```
 
+---
+
 ## Ecosystem Fit
 
 This repository is a KoppaJS core package. It is intended to sit below language-server, editor-adapter, and CLI packages so those packages can share one source of truth for `.kpa` language behavior.
 
 The package is runtime code, not build tooling. It executes in Node.js, requires Node.js `>=16`, and uses synchronous filesystem access where workspace indexing requires deterministic reads.
+
+---
 
 ## Quality Baseline
 
@@ -101,22 +159,57 @@ GitHub Actions runs `npm run validate` on pushes to `main` and `develop` and on 
 
 No dedicated lint or formatter is enforced today. That is intentional until a real consistency problem justifies more tooling.
 
+---
+
 ## Release Model
 
 Releases are manual and tag-driven. The release candidate is prepared on `develop`, moved through a `release/*` branch into `main`, tagged on `main` as `vX.Y.Z`, and then published by GitHub Actions. After a successful release, `main` is merged back into `develop`.
 
-The repository-specific release contract lives in [`RELEASE.md`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/RELEASE.md). Release notes are tracked in [`CHANGELOG.md`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/CHANGELOG.md).
+The repository-specific release contract lives in [`RELEASE.md`](./RELEASE.md). Release notes are tracked in [`CHANGELOG.md`](./CHANGELOG.md).
 
-## Governance
+---
 
-Repository governance is defined by the KoppaJS meta layer:
+## Architecture & Governance
 
-- [`AI_CONSTITUTION.md`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/AI_CONSTITUTION.md)
-- [`ARCHITECTURE.md`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/ARCHITECTURE.md)
-- [`DEVELOPMENT_RULES.md`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/DEVELOPMENT_RULES.md)
-- [`TESTING_STRATEGY.md`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/TESTING_STRATEGY.md)
-- [`DECISION_HIERARCHY.md`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/DECISION_HIERARCHY.md)
-- [`CONTRIBUTING.md`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/CONTRIBUTING.md)
-- [`ROADMAP.md`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/ROADMAP.md)
+Project intent, contributor rules, and documentation contracts live in the local repo meta layer:
 
-Detailed architecture, ADRs, specs, and quality references live under [`docs/`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/docs).
+- [AI_CONSTITUTION.md](./AI_CONSTITUTION.md)
+- [ARCHITECTURE.md](./ARCHITECTURE.md)
+- [DECISION_HIERARCHY.md](./DECISION_HIERARCHY.md)
+- [DEVELOPMENT_RULES.md](./DEVELOPMENT_RULES.md)
+- [TESTING_STRATEGY.md](./TESTING_STRATEGY.md)
+- [RELEASE.md](./RELEASE.md)
+- [ROADMAP.md](./ROADMAP.md)
+- [CHANGELOG.md](./CHANGELOG.md)
+- [CONTRIBUTING.md](./CONTRIBUTING.md)
+- [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)
+- [docs/specs/README.md](./docs/specs/README.md)
+- [docs/specs/repository-documentation-contract.md](./docs/specs/repository-documentation-contract.md)
+- [docs/architecture/README.md](./docs/architecture/README.md)
+- [docs/quality/README.md](./docs/quality/README.md)
+
+The file-shape contract for `README.md`, `CHANGELOG.md`, `CODE_OF_CONDUCT.md`, and `CONTRIBUTING.md` is defined in [docs/specs/repository-documentation-contract.md](./docs/specs/repository-documentation-contract.md).
+
+Run the local document guard before committing:
+
+```bash
+npm run check:docs
+```
+
+---
+
+## Community & Contribution
+
+Issues and pull requests are welcome:
+
+https://github.com/koppajs/koppajs-language-core/issues
+
+Contributor workflow details live in [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+Community expectations live in [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md).
+
+---
+
+## License
+
+Apache License 2.0 — © 2026 KoppaJS, Bastian Bensch

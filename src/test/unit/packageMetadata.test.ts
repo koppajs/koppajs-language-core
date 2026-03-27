@@ -10,6 +10,7 @@ interface PackageManifest {
   publishConfig?: {
     access?: string;
   };
+  type?: string;
   types: string;
 }
 
@@ -28,6 +29,7 @@ describe('package manifest', () => {
     expect(packageManifest.main).toBe('./dist/index.js');
     expect(packageManifest.types).toBe('./dist/index.d.ts');
     expect(packageManifest.publishConfig?.access).toBe('public');
+    expect(packageManifest.type).not.toBe('module');
     expect(packageManifest.files).toEqual([
       'dist',
       'README.md',
