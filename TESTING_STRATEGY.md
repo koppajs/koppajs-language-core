@@ -1,0 +1,43 @@
+# Testing Strategy
+
+## Current Baseline
+
+The repository enforces:
+
+- type checking with `tsc --noEmit`
+- unit tests with Vitest
+- production build compilation with `tsc -p tsconfig.build.json`
+
+The convenience entry point is `npm run validate`.
+
+## Test Scope
+
+Unit tests should cover:
+
+- parsing and source-position behavior
+- block and template diagnostics
+- template expression semantics backed by TypeScript
+- component import and API inference behavior
+- workspace indexing and dependency invalidation
+- public service-facade behavior
+- published package boundary behavior, including the root entry point and package manifest surface
+- root public export stability when contract changes are intentional
+
+## Test Design Rules
+
+- Prefer focused unit tests over broad integration fixtures.
+- Use temporary directories for filesystem-backed workspace behavior.
+- Assert exact behavior when the contract is explicit, including diagnostic messages when message text is part of the current contract.
+- Avoid fake coverage. Do not add tests that only restate implementation without protecting a real behavior.
+
+## Explicit Non-Goals
+
+- No Playwright coverage because the repository has no UI.
+- No snapshot-heavy golden suite unless the public API surface grows enough to justify it.
+- No lint-only tests because the repository does not currently enforce a linting tool.
+
+## Gaps To Watch
+
+- `KpaLanguageService` needs direct contract tests whenever new public methods are added.
+- code-action variants, multi-file rename edge cases, and workspace invalidation flows still deserve more direct contract coverage than the lower-level modules they orchestrate
+- Root export changes should be accompanied by public-surface assertions or equivalent explicit review.
