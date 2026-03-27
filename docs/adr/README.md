@@ -4,4 +4,4 @@ Architecture Decision Records capture durable decisions that affect how this rep
 
 Current ADRs:
 
-- [`0001-editor-agnostic-language-core.md`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/docs/adr/0001-editor-agnostic-language-core.md)
+- [`0001-editor-agnostic-language-core.md`](./0001-editor-agnostic-language-core.md)

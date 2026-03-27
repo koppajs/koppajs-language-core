@@ -20,8 +20,8 @@
 ## Documentation Rules
 
 - If behavior changes, update the relevant spec in `docs/specs/`.
-- If boundaries change, update [`ARCHITECTURE.md`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/ARCHITECTURE.md) and architecture docs.
-- If the public contract changes, update [`README.md`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/README.md), package-boundary tests, and any affected specs.
+- If boundaries change, update [`ARCHITECTURE.md`](./ARCHITECTURE.md) and architecture docs.
+- If the public contract changes, update [`README.md`](./README.md), package-boundary tests, and any affected specs.
 - Do not describe roadmap items as implemented behavior.
 
 ## Validation Rules
@@ -29,3 +29,9 @@
 - Run `npm run validate` for normal repository changes.
 - Add unit tests for new behavior or for bug fixes that affect the public contract.
 - Do not add Playwright or UI checks unless the repository gains a real UI surface.
+
+## Documentation Contract Rules
+
+- `README.md`, `CHANGELOG.md`, `CODE_OF_CONDUCT.md`, and `CONTRIBUTING.md` are governed by [docs/specs/repository-documentation-contract.md](./docs/specs/repository-documentation-contract.md).
+- If one of those files changes shape, update the spec and `scripts/check-doc-contract.mjs` in the same change.
+- Keep official KoppaJS branding, logo usage, and closing governance sections consistent across the governed root documents.
