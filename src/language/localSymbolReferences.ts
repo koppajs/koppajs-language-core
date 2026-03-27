@@ -2,7 +2,11 @@ import ts from 'typescript';
 import type { KpaBlockNode, KpaDocument, KpaLocatedRange } from './ast';
 import { getBlockAtOffset } from './documentModel';
 import { createLocatedRange } from './sourcePositions';
-import { collectLocalScriptSymbols, type KpaScriptSymbol } from './symbols';
+import {
+  collectLocalScriptSymbols,
+  collectTemplateContextSymbols,
+  type KpaScriptSymbol,
+} from './symbols';
 import {
   collectCanonicalTemplateIdentifierReferences,
   getCanonicalTemplateIdentifierReferenceAtOffset,
@@ -42,7 +46,7 @@ export function resolveLocalSymbolOccurrenceAtOffset(
 
   return {
     range: templateReference.range,
-    symbols: collectLocalScriptSymbols(document).templateVisible.filter(
+    symbols: collectTemplateContextSymbols(document).filter(
       (symbol) => symbol.name === templateReference.name,
     ),
   };
@@ -122,6 +126,10 @@ function collectScriptReferenceRangesForSymbol(
   document: KpaDocument,
   symbol: KpaScriptSymbol,
 ): readonly KpaLocatedRange[] {
+  if (symbol.origin !== 'script') {
+    return [symbol.range];
+  }
+
   const block = findScriptBlockForSymbol(document, symbol);
 
   if (!block) {
@@ -172,7 +180,7 @@ function collectTemplateReferenceRangesForSymbols(
   symbols: readonly KpaScriptSymbol[],
 ): readonly KpaLocatedRange[] {
   const templateVisibleNames = new Set(
-    symbols.filter((symbol) => symbol.isTemplateVisible).map((symbol) => symbol.name),
+    symbols.filter((symbol) => symbol.origin !== 'script').map((symbol) => symbol.name),
   );
 
   if (templateVisibleNames.size === 0) {

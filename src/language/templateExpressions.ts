@@ -39,7 +39,8 @@ export function getCanonicalTemplateExpressionAtOffset(
   offset: number,
 ): KpaTemplateExpression | undefined {
   return collectCanonicalTemplateExpressions(document).find(
-    (expression) => offset > expression.range.start.offset && offset < expression.range.end.offset,
+    (expression) =>
+      offset >= expression.contentRange.start.offset && offset <= expression.contentRange.end.offset,
   );
 }
 
@@ -96,100 +97,159 @@ function collectExpressionsFromBlock(
     block.contentRange.end.offset,
   );
   const expressions: KpaTemplateExpression[] = [];
-  const expressionStack: number[] = [];
-  let insideTag = false;
-  let tagQuote: '"' | "'" | undefined;
-  let expressionQuote: '"' | "'" | '`' | undefined;
-  let escaped = false;
 
   for (let index = 0; index < content.length; index++) {
-    const character = content[index];
-
-    if (expressionStack.length > 0) {
-      if (expressionQuote) {
-        if (escaped) {
-          escaped = false;
-          continue;
-        }
-
-        if (character === '\\') {
-          escaped = true;
-          continue;
-        }
-
-        if (character === expressionQuote) {
-          expressionQuote = undefined;
-        }
-
-        continue;
-      }
-
-      if (character === "'" || character === '"' || character === '`') {
-        expressionQuote = character;
-        continue;
-      }
-
-      if (character === '{') {
-        expressionStack.push(index);
-        continue;
-      }
-
-      if (character === '}') {
-        const startOffset = expressionStack.pop();
-
-        if (startOffset !== undefined && expressionStack.length === 0) {
-          expressions.push(createTemplateExpression(document, block, startOffset, index + 1));
-        }
+    if (!startsMustacheExpression(content, index)) {
+      if (content[index] === '<') {
+        expressions.push(...collectDynamicBindingExpressionsAt(document, block, content, index));
       }
 
       continue;
     }
 
-    if (tagQuote) {
-      if (character === tagQuote) {
-        tagQuote = undefined;
-      }
+    const expressionEnd = findMustacheExpressionEnd(content, index + 2);
 
-      continue;
+    if (expressionEnd === undefined) {
+      expressions.push(createTemplateExpression(document, block, index, content.length));
+      break;
     }
 
-    if (insideTag) {
-      if (character === "'" || character === '"') {
-        tagQuote = character;
-        continue;
-      }
-
-      if (character === '>') {
-        insideTag = false;
-        continue;
-      }
-
-      if (character === '{') {
-        expressionStack.push(index);
-      }
-
-      continue;
-    }
-
-    if (character === '<') {
-      insideTag = true;
-      continue;
-    }
-
-    if (character === '{') {
-      expressionStack.push(index);
-    }
+    expressions.push(createTemplateExpression(document, block, index, expressionEnd + 2));
+    index = Math.max(index, expressionEnd + 1);
   }
 
-  const unclosedExpressionStartOffset = expressionStack[0];
+  return expressions;
+}
 
-  if (unclosedExpressionStartOffset !== undefined) {
+function collectDynamicBindingExpressionsAt(
+  document: KpaDocument,
+  block: KpaBlockNode,
+  content: string,
+  index: number,
+): readonly KpaTemplateExpression[] {
+  let cursor = index + 1;
+
+  if (content[cursor] === '/') {
+    return [];
+  }
+
+  while (isWhitespace(content[cursor])) {
+    cursor++;
+  }
+
+  if (!isTagNameStart(content[cursor])) {
+    return [];
+  }
+
+  cursor++;
+
+  while (isTagNameCharacter(content[cursor])) {
+    cursor++;
+  }
+
+  const expressions: KpaTemplateExpression[] = [];
+
+  while (cursor < content.length) {
+    while (isWhitespace(content[cursor])) {
+      cursor++;
+    }
+
+    if (content[cursor] === '>') {
+      return expressions;
+    }
+
+    if (content[cursor] === '/' && content[cursor + 1] === '>') {
+      return expressions;
+    }
+
+    const parsedAttribute = readAttributeAt(content, cursor);
+
+    if (!parsedAttribute) {
+      cursor++;
+      continue;
+    }
+
+    cursor = parsedAttribute.nextIndex;
+
+    if (!parsedAttribute.expressionRange) {
+      continue;
+    }
+
     expressions.push(
-      createTemplateExpression(document, block, unclosedExpressionStartOffset, content.length),
+      createRawTemplateExpression(
+        document,
+        block,
+        parsedAttribute.expressionRange.startOffsetInBlock,
+        parsedAttribute.expressionRange.endOffsetInBlock,
+      ),
     );
   }
 
   return expressions;
+}
+
+function startsMustacheExpression(content: string, index: number): boolean {
+  return content[index] === '{' && content[index + 1] === '{';
+}
+
+function findMustacheExpressionEnd(content: string, startIndex: number): number | undefined {
+  let cursor = startIndex;
+  let nestedBraceDepth = 0;
+  let quote: '"' | "'" | '`' | undefined;
+  let escaped = false;
+
+  while (cursor < content.length) {
+    const character = content[cursor];
+
+    if (quote) {
+      if (escaped) {
+        escaped = false;
+        cursor++;
+        continue;
+      }
+
+      if (character === '\\') {
+        escaped = true;
+        cursor++;
+        continue;
+      }
+
+      if (character === quote) {
+        quote = undefined;
+      }
+
+      cursor++;
+      continue;
+    }
+
+    if (character === "'" || character === '"' || character === '`') {
+      quote = character;
+      cursor++;
+      continue;
+    }
+
+    if (character === '{') {
+      nestedBraceDepth++;
+      cursor++;
+      continue;
+    }
+
+    if (character === '}') {
+      if (nestedBraceDepth > 0) {
+        nestedBraceDepth--;
+        cursor++;
+        continue;
+      }
+
+      if (content[cursor + 1] === '}') {
+        return cursor;
+      }
+    }
+
+    cursor++;
+  }
+
+  return undefined;
 }
 
 function createTemplateExpression(
@@ -201,15 +261,38 @@ function createTemplateExpression(
   const blockStartOffset = block.contentRange.start.offset;
   const startOffset = blockStartOffset + startOffsetInBlock;
   const endOffset = blockStartOffset + endOffsetInBlock;
-  const hasClosingBrace = document.text[endOffset - 1] === '}';
-  const contentEndOffset = hasClosingBrace ? endOffset - 1 : endOffset;
+  const hasClosingDelimiter =
+    endOffset - startOffset >= 4 &&
+    document.text[endOffset - 2] === '}' &&
+    document.text[endOffset - 1] === '}';
+  const contentEndOffset = hasClosingDelimiter ? endOffset - 2 : endOffset;
 
   return {
     block,
     range: createLocatedRange(document.lineStarts, startOffset, endOffset),
-    contentRange: createLocatedRange(document.lineStarts, startOffset + 1, contentEndOffset),
+    contentRange: createLocatedRange(document.lineStarts, startOffset + 2, contentEndOffset),
     text: document.text.slice(startOffset, endOffset),
-    contentText: document.text.slice(startOffset + 1, contentEndOffset),
+    contentText: document.text.slice(startOffset + 2, contentEndOffset),
+  };
+}
+
+function createRawTemplateExpression(
+  document: KpaDocument,
+  block: KpaBlockNode,
+  startOffsetInBlock: number,
+  endOffsetInBlock: number,
+): KpaTemplateExpression {
+  const blockStartOffset = block.contentRange.start.offset;
+  const startOffset = blockStartOffset + startOffsetInBlock;
+  const endOffset = blockStartOffset + endOffsetInBlock;
+  const text = document.text.slice(startOffset, endOffset);
+
+  return {
+    block,
+    range: createLocatedRange(document.lineStarts, startOffset, endOffset),
+    contentRange: createLocatedRange(document.lineStarts, startOffset, endOffset),
+    text,
+    contentText: text,
   };
 }
 
@@ -264,6 +347,119 @@ function unwrapParenthesizedExpression(expression: ts.Expression): ts.Expression
   }
 
   return currentExpression;
+}
+
+function readAttributeAt(
+  content: string,
+  index: number,
+): {
+  expressionRange?: {
+    startOffsetInBlock: number;
+    endOffsetInBlock: number;
+  };
+  nextIndex: number;
+} | undefined {
+  let cursor = index;
+
+  if (!isAttributeNameStart(content[cursor])) {
+    return undefined;
+  }
+
+  cursor++;
+
+  while (isAttributeNameCharacter(content[cursor])) {
+    cursor++;
+  }
+
+  const name = content.slice(index, cursor);
+  const isDynamicBinding = name.startsWith(':') || name.startsWith('bind:');
+
+  while (isWhitespace(content[cursor])) {
+    cursor++;
+  }
+
+  if (content[cursor] !== '=') {
+    return { nextIndex: cursor };
+  }
+
+  cursor++;
+
+  while (isWhitespace(content[cursor])) {
+    cursor++;
+  }
+
+  const quote = content[cursor];
+
+  if (quote === '"' || quote === "'") {
+    const valueStart = cursor + 1;
+    const valueEnd = findQuotedAttributeValueEnd(content, valueStart, quote);
+
+    return {
+      expressionRange:
+        isDynamicBinding && valueEnd > valueStart
+          ? {
+              startOffsetInBlock: valueStart,
+              endOffsetInBlock: valueEnd,
+            }
+          : undefined,
+      nextIndex: valueEnd < content.length && content[valueEnd] === quote ? valueEnd + 1 : valueEnd,
+    };
+  }
+
+  const valueStart = cursor;
+
+  while (
+    cursor < content.length &&
+    !isWhitespace(content[cursor]) &&
+    content[cursor] !== '>' &&
+    !(content[cursor] === '/' && content[cursor + 1] === '>')
+  ) {
+    cursor++;
+  }
+
+  return {
+    expressionRange:
+      isDynamicBinding && cursor > valueStart
+        ? {
+            startOffsetInBlock: valueStart,
+            endOffsetInBlock: cursor,
+          }
+        : undefined,
+    nextIndex: cursor,
+  };
+}
+
+function findQuotedAttributeValueEnd(
+  content: string,
+  startIndex: number,
+  quote: '"' | "'",
+): number {
+  let cursor = startIndex;
+  let escaped = false;
+
+  while (cursor < content.length) {
+    const character = content[cursor];
+
+    if (escaped) {
+      escaped = false;
+      cursor++;
+      continue;
+    }
+
+    if (character === '\\') {
+      escaped = true;
+      cursor++;
+      continue;
+    }
+
+    if (character === quote) {
+      return cursor;
+    }
+
+    cursor++;
+  }
+
+  return cursor;
 }
 
 function isNestedTemplateScopeBoundary(node: ts.Node): boolean {
@@ -343,4 +539,24 @@ function toExpressionDocumentRange(
   const endOffset = expression.contentRange.start.offset + node.end - parsePrefixLength;
 
   return createLocatedRange(document.lineStarts, startOffset, endOffset);
+}
+
+function isTagNameStart(character: string | undefined): boolean {
+  return character !== undefined && /[A-Za-z]/.test(character);
+}
+
+function isTagNameCharacter(character: string | undefined): boolean {
+  return character !== undefined && /[A-Za-z0-9:_-]/.test(character);
+}
+
+function isAttributeNameStart(character: string | undefined): boolean {
+  return character !== undefined && /[A-Za-z_:@]/.test(character);
+}
+
+function isAttributeNameCharacter(character: string | undefined): boolean {
+  return character !== undefined && /[A-Za-z0-9_:@.-]/.test(character);
+}
+
+function isWhitespace(character: string | undefined): boolean {
+  return character === ' ' || character === '\t' || character === '\n' || character === '\r';
 }

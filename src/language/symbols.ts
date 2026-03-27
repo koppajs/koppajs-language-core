@@ -1,5 +1,9 @@
 import ts from 'typescript';
 import type { KpaBlockKind, KpaBlockNode, KpaDocument, KpaLocatedRange } from './ast';
+import {
+  collectRuntimeTemplateContextBindings,
+  type KpaTemplateContextBindingOrigin,
+} from './componentContract';
 import { createLocatedRange } from './sourcePositions';
 
 type ScriptBlockKind = Extract<KpaBlockKind, 'script-ts' | 'script-js'>;
@@ -21,7 +25,11 @@ export interface KpaScriptSymbol {
   blockKind: ScriptBlockKind;
   isExported: boolean;
   isTemplateVisible: boolean;
+  origin: 'script' | KpaTemplateContextBindingOrigin;
+  optional?: boolean;
   range: KpaLocatedRange;
+  typeText?: string;
+  valueText?: string;
 }
 
 export interface KpaLocalScriptSymbolTable {
@@ -50,6 +58,45 @@ export function collectLocalScriptSymbols(document: KpaDocument): KpaLocalScript
     exported: allSymbols.filter((symbol) => symbol.isExported),
     templateVisible: allSymbols.filter((symbol) => symbol.isTemplateVisible),
   };
+}
+
+export function collectTemplateContextSymbols(document: KpaDocument): readonly KpaScriptSymbol[] {
+  const block = document.blocks.find(isScriptBlock);
+
+  if (!block) {
+    return [];
+  }
+
+  const content = document.text.slice(
+    block.contentRange.start.offset,
+    block.contentRange.end.offset,
+  );
+  const sourceFile = ts.createSourceFile(
+    createEmbeddedFileName(block.kind),
+    content,
+    ts.ScriptTarget.Latest,
+    true,
+    block.kind === 'script-ts' ? ts.ScriptKind.TS : ts.ScriptKind.JS,
+  );
+
+  return collectRuntimeTemplateContextBindings(sourceFile).map((binding) => ({
+    blockName: block.name,
+    blockKind: block.kind,
+    isExported: false,
+    isTemplateVisible: true,
+    kind: binding.kind === 'function' ? 'function' : 'variable',
+    name: binding.name,
+    optional: binding.optional,
+    origin: binding.origin,
+    range: createDocumentRange(
+      document,
+      block,
+      binding.nameStart,
+      binding.nameEnd,
+    ),
+    typeText: binding.typeText,
+    valueText: binding.valueText,
+  }));
 }
 
 function collectSymbolsFromScriptBlock(
@@ -254,6 +301,7 @@ function addSymbol(
     blockKind: context.block.kind,
     isExported,
     isTemplateVisible: isTemplateVisible(kind),
+    origin: 'script',
     range: createDocumentRange(
       context.document,
       context.block,

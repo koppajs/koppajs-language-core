@@ -27,7 +27,7 @@ describe('workspace index', () => {
       [
         '[template]',
         '  <UserCard />',
-        '  <div>{missing}</div>',
+        '  <div>{{missing}}</div>',
         '[/template]',
         '',
         '[ts]',

@@ -5,11 +5,13 @@ describe('collectBlockDiagnostics', () => {
   it('returns no diagnostics for a well-formed document', () => {
     const text = [
       '[template]',
-      '  <div>{count}</div>',
+      '  <div>{{count}}</div>',
       '[/template]',
       '',
       '[ts]',
-      'const count = 1;',
+      'return {',
+      '  state: { count: 1 },',
+      '};',
       '[/ts]',
     ].join('\n');
 
@@ -51,7 +53,7 @@ describe('collectBlockDiagnostics', () => {
   });
 
   it('ignores compatibility aliases until they are explicitly promoted to runtime diagnostics', () => {
-    const text = ['[html]', '<div>{missing}</div>', '[/html]'].join('\n');
+    const text = ['[html]', '<div>{{missing}}</div>', '[/html]'].join('\n');
 
     expect(collectBlockDiagnostics(text)).toEqual([]);
   });
@@ -64,26 +66,67 @@ describe('collectBlockDiagnostics', () => {
   });
 
   it('flags missing local template symbols in simple canonical expressions', () => {
-    const text = ['[template]', '  <div>{missing}</div>', '[/template]'].join('\n');
+    const text = ['[template]', '  <div>{{missing}}</div>', '[/template]'].join('\n');
     const [diagnostic] = collectBlockDiagnostics(text);
 
     expect(diagnostic?.message).toBe('Lokales Template-Symbol [missing] wurde nicht gefunden.');
     expect(diagnostic?.range).toEqual({
       line: 1,
-      startChar: 8,
-      endChar: 15,
+      startChar: 9,
+      endChar: 16,
     });
+  });
+
+  it('flags missing local template symbols in dynamic binding expressions', () => {
+    const text = ['[template]', '  <div :hidden="!missing"></div>', '[/template]'].join('\n');
+    const [diagnostic] = collectBlockDiagnostics(text);
+
+    expect(diagnostic?.message).toBe('Lokales Template-Symbol [missing] wurde nicht gefunden.');
+  });
+
+  it('does not treat top-level script helpers as template-visible', () => {
+    const text = [
+      '[template]',
+      '  <div>{{count}}</div>',
+      '[/template]',
+      '',
+      '[ts]',
+      'const count = 1;',
+      'return { state: {} };',
+      '[/ts]',
+    ].join('\n');
+    const [diagnostic] = collectBlockDiagnostics(text);
+
+    expect(diagnostic?.message).toBe('Lokales Template-Symbol [count] wurde nicht gefunden.');
+  });
+
+  it('does not flag loop bindings or loop helper names as missing template symbols', () => {
+    const text = [
+      '[template]',
+      '  <option loop="option in options" :value="option.value">{{ index }} {{ option.label }}</option>',
+      '[/template]',
+      '',
+      '[ts]',
+      '  return {',
+      '    state: { options: [] },',
+      '  };',
+      '[/ts]',
+    ].join('\n');
+
+    expect(collectBlockDiagnostics(text)).toEqual([]);
   });
 
   it('ignores known local template symbols and known globals', () => {
     const text = [
       '[template]',
-      '  <div>{count}</div>',
-      '  <div>{Math}</div>',
+      '  <div>{{count}}</div>',
+      '  <div>{{Math}}</div>',
       '[/template]',
       '',
       '[ts]',
-      'const count = 1;',
+      'return {',
+      '  state: { count: 1 },',
+      '};',
       '[/ts]',
     ].join('\n');
 
@@ -93,11 +136,13 @@ describe('collectBlockDiagnostics', () => {
   it('flags missing local template symbols in compound expressions when the identifier is top-level', () => {
     const text = [
       '[template]',
-      '  <div>{count + missing}</div>',
+      '  <div>{{count + missing}}</div>',
       '[/template]',
       '',
       '[ts]',
-      'const count = 1;',
+      'return {',
+      '  state: { count: 1 },',
+      '};',
       '[/ts]',
     ].join('\n');
     const [diagnostic] = collectBlockDiagnostics(text);
@@ -108,11 +153,13 @@ describe('collectBlockDiagnostics', () => {
   it('avoids warning on identifiers inside nested function scopes in template expressions', () => {
     const text = [
       '[template]',
-      '  <div>{items.map((item) => item.name)}</div>',
+      '  <div>{{items.map((item) => item.name)}}</div>',
       '[/template]',
       '',
       '[ts]',
-      'const items = [];',
+      'return {',
+      '  state: { items: [] },',
+      '};',
       '[/ts]',
     ].join('\n');
 

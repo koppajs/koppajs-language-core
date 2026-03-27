@@ -2,16 +2,21 @@ import path from 'path';
 import ts from 'typescript';
 import type { KpaBlockNode, KpaDocument, KpaLocatedRange } from './ast';
 import { createLineStarts, createLocatedRange } from './sourcePositions';
-import { collectLocalScriptSymbols } from './symbols';
+import { collectTemplateContextSymbols, type KpaScriptSymbol } from './symbols';
 import {
   getCanonicalTemplateExpressionAtOffset,
+  getCanonicalTemplateIdentifierReferenceAtOffset,
   type KpaTemplateExpression,
 } from './templateExpressions';
+import {
+  collectTemplateLoopScopeDeclarationsAtOffset,
+  collectTemplateLoopScopeNamesAtOffset,
+} from './templateLoopScopes';
 
 type ScriptBlock = KpaBlockNode & { kind: 'script-ts' | 'script-js' };
 
 interface VirtualSegment {
-  kind: 'script' | 'expression';
+  kind: 'binding' | 'expression' | 'script';
   virtualStart: number;
   virtualEnd: number;
   sourceStart: number;
@@ -253,6 +258,15 @@ export function getTemplateSemanticRenameInfo(
   sourcePath: string | undefined,
   offset: number,
 ): TemplateSemanticRenameInfo | undefined {
+  const identifierReference = getCanonicalTemplateIdentifierReferenceAtOffset(document, offset);
+
+  if (
+    identifierReference &&
+    collectTemplateContextSymbols(document).some((symbol) => symbol.name === identifierReference.name)
+  ) {
+    return undefined;
+  }
+
   const context = createTemplateSemanticContext(document, sourcePath, offset);
 
   if (!context) {
@@ -289,6 +303,15 @@ export function getTemplateSemanticRenameRanges(
   sourcePath: string | undefined,
   offset: number,
 ): readonly TemplateSemanticRenameRange[] | undefined {
+  const identifierReference = getCanonicalTemplateIdentifierReferenceAtOffset(document, offset);
+
+  if (
+    identifierReference &&
+    collectTemplateContextSymbols(document).some((symbol) => symbol.name === identifierReference.name)
+  ) {
+    return undefined;
+  }
+
   const context = createTemplateSemanticContext(document, sourcePath, offset);
 
   if (!context) {
@@ -335,23 +358,26 @@ function createTemplateSemanticContext(
     return undefined;
   }
 
+  const templateContextSymbols = collectTemplateContextSymbols(document);
   const visibleNames = new Set(
-    collectUniqueTemplateVisibleNames(
-      collectLocalScriptSymbols(document).templateVisible.map((symbol) => symbol.name),
-    ),
+    collectUniqueTemplateVisibleNames([
+      ...templateContextSymbols.map((symbol) => symbol.name),
+      ...collectTemplateLoopScopeNamesAtOffset(document, offset),
+    ]),
   );
+  const loopScopeDeclarations = collectTemplateLoopScopeDeclarationsAtOffset(document, offset);
   const virtualFileName = createTemplateSemanticVirtualFileName(sourcePath);
   const lineStartsByFileName = new Map<string, readonly number[]>();
   const parts: string[] = [];
   const segments: VirtualSegment[] = [];
-  const scriptBlocks = document.blocks.filter(isScriptBlock);
+  const scriptBlock = document.blocks.find(isScriptBlock);
 
   lineStartsByFileName.set(virtualFileName, []);
 
-  for (const block of scriptBlocks) {
+  if (scriptBlock) {
     const content = document.text.slice(
-      block.contentRange.start.offset,
-      block.contentRange.end.offset,
+      scriptBlock.contentRange.start.offset,
+      scriptBlock.contentRange.end.offset,
     );
     const virtualStart = getCombinedLength(parts);
     parts.push(content);
@@ -361,14 +387,23 @@ function createTemplateSemanticContext(
       kind: 'script',
       virtualStart,
       virtualEnd,
-      sourceStart: block.contentRange.start.offset,
-      sourceEnd: block.contentRange.end.offset,
+      sourceStart: scriptBlock.contentRange.start.offset,
+      sourceEnd: scriptBlock.contentRange.end.offset,
     });
 
     parts.push('\n');
+
+    for (const symbol of templateContextSymbols) {
+      appendTemplateContextDeclaration(parts, segments, symbol);
+    }
   }
 
   parts.push('function __kpa_template__() {\n');
+
+  for (const declaration of loopScopeDeclarations) {
+    parts.push(`  ${declaration}\n`);
+  }
+
   parts.push('  return (\n');
 
   const expressionVirtualStart = getCombinedLength(parts);
@@ -404,6 +439,40 @@ function createTemplateSemanticContext(
   };
 }
 
+function appendTemplateContextDeclaration(
+  parts: string[],
+  segments: VirtualSegment[],
+  symbol: KpaScriptSymbol,
+): void {
+  parts.push('const ');
+  const virtualStart = getCombinedLength(parts);
+  parts.push(symbol.name);
+  const virtualEnd = getCombinedLength(parts);
+
+  segments.push({
+    kind: 'binding',
+    virtualStart,
+    virtualEnd,
+    sourceStart: symbol.range.start.offset,
+    sourceEnd: symbol.range.end.offset,
+  });
+
+  parts.push(' = ');
+
+  if (symbol.valueText) {
+    parts.push(`${symbol.valueText};\n`);
+    return;
+  }
+
+  parts.push(`undefined as unknown as ${getTemplatePropValueType(symbol)};\n`);
+}
+
+function getTemplatePropValueType(symbol: KpaScriptSymbol): string {
+  const baseType = symbol.typeText?.trim() || 'unknown';
+
+  return symbol.optional ? `${baseType} | undefined` : baseType;
+}
+
 function createTemplateLanguageService(context: TemplateSemanticContext): ts.LanguageService {
   const compilerOptions = loadCompilerOptions(context.virtualFileName);
   const virtualFileName = context.virtualFileName;
@@ -434,25 +503,32 @@ function createTemplateLanguageService(context: TemplateSemanticContext): ts.Lan
     useCaseSensitiveFileNames: () => ts.sys.useCaseSensitiveFileNames,
     getNewLine: () => ts.sys.newLine,
   };
-
   return ts.createLanguageService(languageServiceHost);
 }
 
+function isScriptBlock(block: KpaBlockNode): block is ScriptBlock {
+  return block.kind === 'script-ts' || block.kind === 'script-js';
+}
+
 function loadCompilerOptions(virtualFileName: string): ts.CompilerOptions {
-  const configFile = ts.findConfigFile(path.dirname(virtualFileName), ts.sys.fileExists);
+  const configFilePath = ts.findConfigFile(
+    path.dirname(virtualFileName),
+    ts.sys.fileExists,
+    'tsconfig.json',
+  );
 
-  if (configFile) {
-    const configFileResult = ts.readConfigFile(configFile, ts.sys.readFile);
+  if (configFilePath) {
+    const configFile = ts.readConfigFile(configFilePath, ts.sys.readFile);
 
-    if (!configFileResult.error) {
-      const parsedConfig = ts.parseJsonConfigFileContent(
-        configFileResult.config,
+    if (!configFile.error) {
+      const parsed = ts.parseJsonConfigFileContent(
+        configFile.config,
         ts.sys,
-        path.dirname(configFile),
+        path.dirname(configFilePath),
       );
 
       return {
-        ...parsedConfig.options,
+        ...parsed.options,
         allowJs: true,
         checkJs: true,
       };
@@ -547,10 +623,6 @@ function getOrCreateFileLineStarts(
   }
 
   return createLineStarts(sourceText);
-}
-
-function isScriptBlock(block: KpaBlockNode): block is ScriptBlock {
-  return block.kind === 'script-ts' || block.kind === 'script-js';
 }
 
 function deduplicateSemanticFileRanges<T extends { fileName: string; range: KpaLocatedRange }>(

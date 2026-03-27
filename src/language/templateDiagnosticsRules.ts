@@ -1,7 +1,8 @@
 import type { KpaDocument } from './ast';
 import type { KpaBlockDiagnostic } from './diagnosticsRules';
-import { collectLocalScriptSymbols } from './symbols';
+import { collectTemplateContextSymbols } from './symbols';
 import { collectCanonicalTemplateIdentifierReferences } from './templateExpressions';
+import { collectTemplateLoopScopeNamesAtOffset } from './templateLoopScopes';
 
 const knownGlobalTemplateNames = new Set([
   'Array',
@@ -30,7 +31,6 @@ const knownGlobalTemplateNames = new Set([
   'null',
   'parseFloat',
   'parseInt',
-  'this',
   'true',
   'undefined',
 ]);
@@ -39,11 +39,19 @@ export function collectTemplateDiagnosticsFromDocument(
   document: KpaDocument,
 ): KpaBlockDiagnostic[] {
   const templateVisibleNames = new Set(
-    collectLocalScriptSymbols(document).templateVisible.map((symbol) => symbol.name),
+    collectTemplateContextSymbols(document).map((symbol) => symbol.name),
   );
 
   return collectCanonicalTemplateIdentifierReferences(document).flatMap((reference) => {
-    if (templateVisibleNames.has(reference.name) || knownGlobalTemplateNames.has(reference.name)) {
+    const loopScopeNames = new Set(
+      collectTemplateLoopScopeNamesAtOffset(document, reference.range.start.offset),
+    );
+
+    if (
+      templateVisibleNames.has(reference.name) ||
+      loopScopeNames.has(reference.name) ||
+      knownGlobalTemplateNames.has(reference.name)
+    ) {
       return [];
     }
 

@@ -19,10 +19,10 @@ describe('resolveLocalSymbolOccurrenceAtOffset', () => {
 });
 
 describe('collectLocalReferenceRangesForSymbols', () => {
-  it('collects local script references together with canonical template references', () => {
+  it('collects only script references for top-level script symbols', () => {
     const text = [
       '[template]',
-      '  <div>{count}</div>',
+      '  <div>{{count}}</div>',
       '[/template]',
       '',
       '[ts]',
@@ -31,12 +31,34 @@ describe('collectLocalReferenceRangesForSymbols', () => {
       '[/ts]',
     ].join('\n');
     const document = parseKpaDocument(text);
-    const occurrence = resolveLocalSymbolOccurrenceAtOffset(document, text.indexOf('{count}') + 2);
+    const occurrence = resolveLocalSymbolOccurrenceAtOffset(document, text.indexOf('count);') + 2);
 
     const references = collectLocalReferenceRangesForSymbols(document, occurrence?.symbols ?? []);
 
     expect(references.map((range) => text.slice(range.start.offset, range.end.offset))).toEqual([
       'count',
+      'count',
+    ]);
+  });
+
+  it('collects return-contract declarations together with template references for component state', () => {
+    const text = [
+      '[template]',
+      '  <div>{{count}}</div>',
+      '[/template]',
+      '',
+      '[ts]',
+      '  return {',
+      '    state: { count: 1 },',
+      '  };',
+      '[/ts]',
+    ].join('\n');
+    const document = parseKpaDocument(text);
+    const occurrence = resolveLocalSymbolOccurrenceAtOffset(document, text.indexOf('{{count') + 3);
+
+    const references = collectLocalReferenceRangesForSymbols(document, occurrence?.symbols ?? []);
+
+    expect(references.map((range) => text.slice(range.start.offset, range.end.offset))).toEqual([
       'count',
       'count',
     ]);

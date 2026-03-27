@@ -17,14 +17,19 @@ import {
 } from './language/localSymbolReferences';
 import { parseKpaDocument } from './language/parser';
 import {
+  collectKnownTemplateComponents,
   collectImportedKpaComponents,
   collectCanonicalTemplateTagsForComponent,
   findImportedKpaComponentForSymbol,
   getImportedKpaComponentApi,
   getImportedKpaComponentLocalSymbols,
+  getResolvedTemplateComponentApi,
   normalizeComponentRenameTarget,
   resolveCanonicalTemplateComponentAtOffset,
+  resolveTemplateComponentAtOffset,
+  toKebabCase,
   type KpaImportedComponent,
+  type KpaResolvedTemplateComponent,
   type KpaTemplateTag,
 } from './language/templateComponents';
 import {
@@ -38,7 +43,12 @@ import {
   type TemplateSemanticCompletion,
 } from './language/templateSemantics';
 import { getCanonicalTemplateIdentifierReferenceAtOffset } from './language/templateExpressions';
-import { collectLocalScriptSymbols, type KpaScriptSymbol } from './language/symbols';
+import { collectTemplateLoopScopeNamesAtOffset } from './language/templateLoopScopes';
+import {
+  collectLocalScriptSymbols,
+  collectTemplateContextSymbols,
+  type KpaScriptSymbol,
+} from './language/symbols';
 import { collectKpaDiagnosticsFromText, type KpaWorkspaceSymbolEntry } from './language/core';
 import { getOpeningHtmlTagNameAtOffset, isOffsetInsideOpeningHtmlTag } from './utils/htmlUtils';
 import {
@@ -209,9 +219,26 @@ export class KpaLanguageService {
       return semanticCompletions.map((completion) => createSemanticCompletion(completion));
     }
 
-    return getUniqueTemplateVisibleSymbols(
-      collectLocalScriptSymbols(templateExpressionContext.document).templateVisible,
+    const completions = getUniqueTemplateVisibleSymbols(
+      collectTemplateContextSymbols(templateExpressionContext.document),
     ).map((symbol) => createLocalCompletion(symbol));
+    const seenLabels = new Set(completions.map((completion) => completion.label));
+
+    for (const name of collectTemplateLoopScopeNamesAtOffset(templateExpressionContext.document, offset)) {
+      if (seenLabels.has(name)) {
+        continue;
+      }
+
+      seenLabels.add(name);
+      completions.push({
+        documentation: 'Template-local loop binding from a parent `loop="..."` directive.',
+        kind: 'local',
+        label: name,
+        detail: 'Template loop binding',
+      });
+    }
+
+    return completions;
   }
 
   private getTemplateTagCompletions(
@@ -226,19 +253,16 @@ export class KpaLanguageService {
 
     const completions: KpaServiceCompletion[] = [];
     const seenLabels = new Set<string>();
-    const importedComponents = collectImportedKpaComponents(
-      templateContext.document,
-      state.sourcePath,
-    );
+    const knownComponents = collectKnownTemplateComponents(templateContext.document, state.sourcePath);
 
-    for (const component of importedComponents) {
+    for (const component of knownComponents) {
       for (const tagName of component.tagNames) {
         if (seenLabels.has(tagName)) {
           continue;
         }
 
         seenLabels.add(tagName);
-        completions.push(createComponentTagCompletion(tagName, component.importPath));
+        completions.push(createComponentTagCompletion(tagName, component));
       }
     }
 
@@ -276,10 +300,11 @@ export class KpaLanguageService {
 
     const completions: KpaServiceCompletion[] = [];
     const seenLabels = new Set<string>();
-    const component = collectImportedKpaComponents(templateContext.document, state.sourcePath).find(
-      (candidate) => candidate.tagNames.includes(tagName),
-    );
-    const componentApi = component ? getImportedKpaComponentApi(component) : undefined;
+    const component = collectKnownTemplateComponents(
+      templateContext.document,
+      state.sourcePath,
+    ).find((candidate) => candidate.tagNames.includes(tagName));
+    const componentApi = component ? getResolvedTemplateComponentApi(component) : undefined;
 
     for (const prop of componentApi?.props ?? []) {
       if (seenLabels.has(prop.name)) {
@@ -317,7 +342,7 @@ export class KpaLanguageService {
       return undefined;
     }
 
-    const componentReference = resolveCanonicalTemplateComponentAtOffset(
+    const componentReference = resolveTemplateComponentAtOffset(
       templateContext.document,
       state.sourcePath,
       offset,
@@ -327,7 +352,7 @@ export class KpaLanguageService {
       return {
         contents: createComponentHoverContents(
           componentReference.component,
-          getImportedKpaComponentApi(componentReference.component),
+          getResolvedTemplateComponentApi(componentReference.component),
         ),
         range: componentReference.tag.range,
       };
@@ -348,7 +373,7 @@ export class KpaLanguageService {
       offset,
     );
     const matchingSymbols = identifierReference
-      ? collectLocalScriptSymbols(templateExpressionContext.document).templateVisible.filter(
+      ? collectTemplateContextSymbols(templateExpressionContext.document).filter(
           (symbol) => symbol.name === identifierReference.name,
         )
       : [];
@@ -394,7 +419,7 @@ export class KpaLanguageService {
       return undefined;
     }
 
-    const componentReference = resolveCanonicalTemplateComponentAtOffset(
+    const componentReference = resolveTemplateComponentAtOffset(
       templateContext.document,
       state.sourcePath,
       offset,
@@ -442,15 +467,15 @@ export class KpaLanguageService {
       return undefined;
     }
 
-    const matchingSymbols = collectLocalScriptSymbols(
+    const templateContextSymbols = collectTemplateContextSymbols(
       templateExpressionContext.document,
-    ).templateVisible.filter((symbol) => symbol.name === identifierReference.name);
+    ).filter((symbol) => symbol.name === identifierReference.name);
 
-    if (matchingSymbols.length === 0) {
+    if (templateContextSymbols.length === 0) {
       return undefined;
     }
 
-    return matchingSymbols.map((symbol) => ({
+    return templateContextSymbols.map((symbol) => ({
       range: symbol.range,
       uri,
     }));
@@ -565,6 +590,18 @@ export class KpaLanguageService {
       };
     }
 
+    const occurrence = resolveLocalSymbolOccurrenceAtOffset(state.document, offset);
+
+    if (
+      occurrence?.symbols.some(
+        (symbol) =>
+          symbol.origin !== 'script' &&
+          !findImportedKpaComponentForSymbol(state.document, state.sourcePath, symbol),
+      )
+    ) {
+      return undefined;
+    }
+
     const semanticRenameInfo = getTemplateSemanticRenameInfo(
       state.document,
       state.sourcePath,
@@ -574,8 +611,6 @@ export class KpaLanguageService {
     if (semanticRenameInfo) {
       return semanticRenameInfo;
     }
-
-    const occurrence = resolveLocalSymbolOccurrenceAtOffset(state.document, offset);
 
     if (!occurrence || occurrence.symbols.length === 0) {
       return undefined;
@@ -631,6 +666,18 @@ export class KpaLanguageService {
       );
     }
 
+    const occurrence = resolveLocalSymbolOccurrenceAtOffset(state.document, offset);
+
+    if (
+      occurrence?.symbols.some(
+        (symbol) =>
+          symbol.origin !== 'script' &&
+          !findImportedKpaComponentForSymbol(state.document, state.sourcePath, symbol),
+      )
+    ) {
+      return undefined;
+    }
+
     const currentVirtualFileName = createTemplateSemanticVirtualFileName(state.sourcePath);
     const semanticRenameRanges = getTemplateSemanticRenameRanges(
       state.document,
@@ -645,8 +692,6 @@ export class KpaLanguageService {
         uri: range.fileName === currentVirtualFileName ? uri : toFileUri(range.fileName),
       }));
     }
-
-    const occurrence = resolveLocalSymbolOccurrenceAtOffset(state.document, offset);
 
     if (!occurrence || occurrence.symbols.length === 0) {
       return undefined;
@@ -917,7 +962,7 @@ export class KpaLanguageService {
       diagnosticCodes: diagnostic.code !== undefined ? [String(diagnostic.code)] : [],
       edits: [
         {
-          newText: ` ${data.propName}={${createPropPlaceholder(data.propTypeText)}}`,
+          newText: ` :${toKebabCase(data.propName)}="${createPropPlaceholder(data.propTypeText)}"`,
           range: createInsertionRange(data.insertOffset),
           uri,
         },
@@ -973,8 +1018,38 @@ function createLocalCompletion(symbol: KpaScriptSymbol): KpaServiceCompletion {
     documentation: createLocalSymbolDocumentation(symbol),
     kind: symbol.kind,
     label: symbol.name,
-    detail: `Local ${symbol.kind} from [${symbol.blockName}]`,
+    detail: createLocalCompletionDetail(symbol),
   };
+}
+
+function createLocalHoverSignature(symbol: KpaScriptSymbol): string {
+  if (symbol.kind === 'function') {
+    return `function ${symbol.name}`;
+  }
+
+  if (symbol.typeText) {
+    return `const ${symbol.name}: ${symbol.typeText}${symbol.optional ? ' | undefined' : ''}`;
+  }
+
+  return `const ${symbol.name}`;
+}
+
+function createLocalCompletionDetail(symbol: KpaScriptSymbol): string {
+  if (symbol.origin === 'component-state') {
+    return 'Component state';
+  }
+
+  if (symbol.origin === 'component-prop') {
+    return symbol.typeText
+      ? `Component prop value: ${symbol.typeText}${symbol.optional ? ' | undefined' : ''}`
+      : 'Component prop value';
+  }
+
+  if (symbol.origin === 'component-method') {
+    return 'Component method';
+  }
+
+  return `Local ${symbol.kind} from [${symbol.blockName}]`;
 }
 
 function createHtmlTagCompletion(
@@ -991,10 +1066,22 @@ function createHtmlTagCompletion(
   };
 }
 
-function createComponentTagCompletion(label: string, importPath: string): KpaServiceCompletion {
+function createComponentTagCompletion(
+  label: string,
+  component: KpaResolvedTemplateComponent,
+): KpaServiceCompletion {
+  const detail =
+    component.kind === 'workspace-registration'
+      ? 'Workspace-registered Koppa component'
+      : 'Imported Koppa component';
+  const documentation =
+    component.kind === 'workspace-registration'
+      ? `Workspace-registered Koppa component via \`Core.take(..., "${label}")\`.`
+      : `Imported Koppa component from \`${component.importPath}\`.`;
+
   return {
-    detail: 'Imported Koppa component',
-    documentation: `Imported Koppa component from \`${importPath}\`.`,
+    detail,
+    documentation,
     insertText: `<${label}>$0</${label}>`,
     insertTextFormat: 'snippet',
     kind: 'module',
@@ -1007,12 +1094,14 @@ function createComponentPropCompletion(prop: {
   typeText?: string;
   optional: boolean;
 }): KpaServiceCompletion {
+  const attributeName = toKebabCase(prop.name);
+
   return {
     detail: prop.typeText
       ? `Component prop${prop.optional ? ' (optional)' : ''}: ${prop.typeText}`
       : `Component prop${prop.optional ? ' (optional)' : ''}`,
-    documentation: `Imported component prop \`${prop.name}\`${prop.typeText ? ` of type \`${prop.typeText}\`` : ''}.`,
-    insertText: `${prop.name}={$1}`,
+    documentation: `Koppa component prop \`${prop.name}\`${prop.typeText ? ` of type \`${prop.typeText}\`` : ''}.`,
+    insertText: `:${attributeName}="$1"`,
     insertTextFormat: 'snippet',
     kind: 'property',
     label: prop.name,
@@ -1050,35 +1139,34 @@ function createLocalHoverContent(symbol: KpaScriptSymbol): KpaServiceMarkupConte
     kind: 'markdown',
     value: [
       '```typescript',
-      `${symbol.kind} ${symbol.name}`,
+      createLocalHoverSignature(symbol),
       '```',
       '',
-      `Template-visible local ${symbol.kind} from \`[${symbol.blockName}]\` block.${
-        symbol.isExported ? '\n\nExported from this file.' : ''
-      }`,
+      createLocalSymbolDocumentation(symbol),
     ].join('\n'),
   };
 }
 
 function createComponentHoverContents(
-  component: {
-    name: string;
-    tagNames: readonly string[];
-    importPath: string;
-    resolvedFilePath?: string;
-  },
+  component: KpaResolvedTemplateComponent,
   api?: {
     props: readonly { name: string; typeText?: string; optional: boolean }[];
     emits: readonly { name: string }[];
     slots: readonly { name: string }[];
   },
 ): readonly KpaServiceMarkupContent[] {
+  const sourceDescription =
+    component.kind === 'workspace-registration'
+      ? component.registration
+        ? `Registered via \`Core.take(..., "${component.registration.tagName}")\` in \`${component.registration.registrationFilePath}\`.`
+        : 'Registered via a workspace `Core.take(...)` call.'
+      : `Imported Koppa component from \`${component.importPath}\`.`;
   const parts = [
     '```typescript',
     `component ${component.name}`,
     '```',
     '',
-    `Imported Koppa component from \`${component.importPath}\`.`,
+    sourceDescription,
   ];
 
   if (component.tagNames.length > 1) {
@@ -1137,6 +1225,18 @@ function createSemanticHoverContent(hover: {
 
 function createLocalSymbolDocumentation(symbol: KpaScriptSymbol): string {
   const exportText = symbol.isExported ? ' Exported from this file.' : '';
+
+  if (symbol.origin === 'component-state') {
+    return `Template-visible component state from the \`state\` return contract in \`[${symbol.blockName}]\`.${exportText}`;
+  }
+
+  if (symbol.origin === 'component-prop') {
+    return `Template-visible component prop value from the \`props\` return contract in \`[${symbol.blockName}]\`.${exportText}`;
+  }
+
+  if (symbol.origin === 'component-method') {
+    return `Template-visible component method from the \`methods\` return contract in \`[${symbol.blockName}]\`.${exportText}`;
+  }
 
   return `Template-visible local ${symbol.kind} from \`[${symbol.blockName}]\` block.${exportText}`;
 }
@@ -1367,7 +1467,7 @@ function createPropPlaceholder(typeText: string | undefined): string {
   const normalizedTypeText = typeText?.replace(/\s+/g, '') ?? '';
 
   if (normalizedTypeText.includes('string') || /'[^']*'|"[^"]*"/.test(typeText ?? '')) {
-    return '""';
+    return "''";
   }
 
   if (normalizedTypeText.includes('number')) {

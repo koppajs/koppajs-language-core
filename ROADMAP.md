@@ -7,8 +7,8 @@ The repository is in a stabilization phase. The goal is to make the language cor
 ## Near-Term Priorities
 
 1. Keep the root public contract stable and well-documented.
-2. Expand direct tests around `KpaLanguageService` when new public behaviors are added.
-3. Continue filling feature specs so implementation, tests, and documentation stay aligned.
+2. Keep higher-level `KpaLanguageService` contract tests current as the service evolves, with current emphasis on code-action and invalidation edge cases.
+3. Keep feature specs complete when new public helpers or behaviors are added.
 
 ## Deferred Work
 

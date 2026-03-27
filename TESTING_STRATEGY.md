@@ -20,6 +20,7 @@ Unit tests should cover:
 - component import and API inference behavior
 - workspace indexing and dependency invalidation
 - public service-facade behavior
+- published package boundary behavior, including the root entry point and package manifest surface
 - root public export stability when contract changes are intentional
 
 ## Test Design Rules
@@ -38,4 +39,5 @@ Unit tests should cover:
 ## Gaps To Watch
 
 - `KpaLanguageService` needs direct contract tests whenever new public methods are added.
+- code-action variants, multi-file rename edge cases, and workspace invalidation flows still deserve more direct contract coverage than the lower-level modules they orchestrate
 - Root export changes should be accompanied by public-surface assertions or equivalent explicit review.

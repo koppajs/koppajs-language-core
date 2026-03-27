@@ -3,15 +3,19 @@
   "version": "0.1.0",
   "description": "Shared KoppaJS language primitives, semantic service, and workspace graph.",
   "license": "Apache-2.0",
+  "engines": {
+    "node": ">=16"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/koppajs/koppajs-language-core"
+    "url": "git+https://github.com/koppajs/koppajs-language-core.git"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "exports": {
@@ -22,6 +26,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
+    "prepack": "npm run validate",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "validate": "npm run typecheck && npm run test && npm run build"

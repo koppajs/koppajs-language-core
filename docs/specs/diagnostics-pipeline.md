@@ -16,7 +16,7 @@ Produce structural and semantic diagnostics for `.kpa` documents by composing ex
 
 - raw `.kpa` text or a pre-parsed `KpaDocument`
 - optional `knownBlocks` override for structural validation
-- optional `sourcePath` for component import resolution and TypeScript-backed analysis
+- optional `sourcePath` for component import resolution, workspace `Core.take(...)` discovery, and TypeScript-backed analysis
 
 ## Outputs
 
@@ -27,8 +27,8 @@ Produce structural and semantic diagnostics for `.kpa` documents by composing ex
 ## Behavior
 
 1. Structural diagnostics validate canonical block ordering and closure.
-2. Template diagnostics flag unresolved local template identifiers while allowing a fixed set of known globals.
-3. Component diagnostics validate imported `.kpa` component usage, including:
+2. Template diagnostics flag unresolved local template identifiers inside canonical `{{ ... }}` expressions and canonical dynamic binding expressions while allowing a fixed set of known globals and active loop-scope bindings.
+3. Component diagnostics validate imported or workspace-registered `.kpa` component usage, including:
    - unresolved component imports
    - unresolved component tags
    - missing required props
@@ -41,14 +41,17 @@ Produce structural and semantic diagnostics for `.kpa` documents by composing ex
 ## Constraints
 
 - Structural diagnostics only consider known block names.
+- Canonical template expression diagnostics are driven by `{{ ... }}` syntax and dynamic binding attribute expressions introduced by `:` or `bind:`, not legacy single-brace interpolation.
 - Compatibility aliases such as `[html]` are intentionally ignored by structural runtime diagnostics today.
+- Workspace registration discovery is limited to explicit `Core.take(componentSource, "tag-name")` patterns that reference imported `.kpa` files.
 - Some diagnostic messages are currently emitted in German because that is the implemented contract.
 
 ## Edge Cases
 
 - Unknown open blocks do not satisfy canonical closing-tag expectations.
 - Nested identifier scopes inside template expressions avoid false-positive unresolved-symbol diagnostics.
-- Component diagnostics depend on `sourcePath` when imports need filesystem resolution.
+- Component diagnostics depend on `sourcePath` when imports or workspace registrations need filesystem resolution.
+- Loop bindings introduced by `loop="item in items"` and implicit runtime helpers such as `index` or `isFirst` do not produce unresolved-symbol diagnostics inside the active loop scope.
 
 ## Acceptance Criteria
 

@@ -5,6 +5,7 @@ When repository materials disagree, resolve them in this order:
 1. KoppaJS Engineering Doctrine and this repository's binding constitution
 2. Published package contract
    - `package.json` exports
+   - `package.json` published entry-point metadata (`main`, `types`, `files`)
    - root module exports in `src/index.ts`
    - tests that lock public behavior
 3. Feature specs in `docs/specs/`

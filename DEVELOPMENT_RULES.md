@@ -4,7 +4,7 @@
 
 1. Start from the existing implementation and tests. Do not redesign the package from doctrine alone.
 2. Keep public behavior explicit. A new fallback, alias, or inferred behavior must be visible in code and documented if public.
-3. Root-module export changes are contract changes. Do not add or remove root exports silently.
+3. Root-module export changes and published package-manifest boundary changes are contract changes. Do not add or remove root exports, entry points, or published package files silently.
 4. Keep module seams narrow. Prefer extending an existing module over adding a new layer for a single call site.
 5. Do not replace the current TypeScript and Vitest baseline without a demonstrated problem.
 
@@ -20,7 +20,7 @@
 
 - If behavior changes, update the relevant spec in `docs/specs/`.
 - If boundaries change, update [`ARCHITECTURE.md`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/ARCHITECTURE.md) and architecture docs.
-- If the public contract changes, update [`README.md`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/README.md) and add or adjust tests.
+- If the public contract changes, update [`README.md`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/README.md), package-boundary tests, and any affected specs.
 - Do not describe roadmap items as implemented behavior.
 
 ## Validation Rules

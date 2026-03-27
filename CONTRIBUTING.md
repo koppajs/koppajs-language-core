@@ -8,6 +8,23 @@
 4. Update specs and documentation in the same change when behavior or boundaries move.
 5. Run `npm run validate`.
 
+## Release Workflow
+
+The canonical release process for this repository is documented in [`RELEASE.md`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/RELEASE.md).
+
+Release happens manually and is tag-driven:
+
+1. Prepare the release on `develop`, including the `package.json` version and the matching `CHANGELOG.md` entry.
+2. Run `npm run validate` on the release candidate.
+3. Create a `release/*` branch from `develop`.
+4. Merge that release branch into `main`.
+5. Create tag `vX.Y.Z` on the release commit that is now on `main`.
+6. Push `main` and then push the tag.
+7. Let the GitHub Actions `Release` workflow validate, create the GitHub Release, and publish to npm.
+8. Merge the updated `main` back into `develop` after the release succeeds.
+
+The repository must have an `NPM_TOKEN` Actions secret with publish rights before starting this flow.
+
 ## Pull Request Expectations
 
 - Explain the user-visible or contract-visible change.

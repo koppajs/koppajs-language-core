@@ -77,6 +77,39 @@ describe('template components', () => {
     ).toBe(true);
   });
 
+  it('does not flag kebab-case components that are registered through Core.take in the workspace', () => {
+    const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'kpa-template-components-'));
+    const sourcePath = path.join(tempDirectory, 'app-view.kpa');
+    const componentPath = path.join(tempDirectory, 'counter-component.kpa');
+    const bootstrapPath = path.join(tempDirectory, 'main.ts');
+
+    fs.writeFileSync(path.join(tempDirectory, 'tsconfig.json'), '{}\n');
+    fs.writeFileSync(componentPath, '[template]\n  <div></div>\n[/template]\n');
+    fs.writeFileSync(
+      bootstrapPath,
+      [
+        "import { Core } from '@koppajs/koppajs-core';",
+        "import counterComponent from './counter-component.kpa';",
+        '',
+        "Core.take(counterComponent, 'counter-component');",
+      ].join('\n'),
+    );
+
+    const text = ['[template]', '  <counter-component></counter-component>', '[/template]'].join(
+      '\n',
+    );
+    const diagnostics = collectCanonicalTemplateComponentDiagnostics(
+      parseKpaDocument(text),
+      sourcePath,
+    );
+
+    expect(
+      diagnostics.some(
+        (diagnostic) => diagnostic.code === kpaDiagnosticCodes.unresolvedComponentTag,
+      ),
+    ).toBe(false);
+  });
+
   it('normalizes component rename targets from kebab-case to symbol and tag names', () => {
     expect(normalizeComponentRenameTarget('profile-card')).toEqual({
       symbolName: 'ProfileCard',
@@ -88,7 +121,7 @@ describe('template components', () => {
     });
   });
 
-  it('extracts props, emits, and slots from an imported .kpa component API', () => {
+  it('extracts runtime props together with typed emits and slots from an imported .kpa component API', () => {
     const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'kpa-template-components-'));
     const componentPath = path.join(tempDirectory, 'UserCard.kpa');
     const sourcePath = path.join(tempDirectory, 'Page.kpa');
@@ -101,10 +134,12 @@ describe('template components', () => {
         '[/template]',
         '',
         '[ts]',
-        '  interface Props {',
-        '    title: string;',
-        '    count?: number;',
-        '  }',
+        '  return {',
+        '    props: {',
+        '      title: { type: String, required: true },',
+        '      count: { type: Number },',
+        '    },',
+        '  };',
         '  type Emits = {',
         '    save: [id: number];',
         '  };',
@@ -129,12 +164,47 @@ describe('template components', () => {
     const api = getImportedKpaComponentApi(component);
 
     expect(api?.props.map((entry) => entry.name)).toEqual(['title', 'count']);
-    expect(api?.props.find((entry) => entry.name === 'count')?.optional).toBe(true);
+    expect(api?.props.find((entry) => entry.name === 'title')?.optional).toBe(false);
+    expect(api?.props.find((entry) => entry.name === 'count')?.typeText).toBe('number');
     expect(api?.emits.map((entry) => entry.name)).toEqual(['save']);
     expect(api?.slots.map((entry) => entry.name)).toEqual(['default']);
   });
 
-  it('reports missing required props with quick-fix metadata', () => {
+  it('extracts slot definitions from template slot elements when no Slots interface is present', () => {
+    const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'kpa-template-components-'));
+    const componentPath = path.join(tempDirectory, 'PanelFrame.kpa');
+    const sourcePath = path.join(tempDirectory, 'Page.kpa');
+
+    fs.writeFileSync(
+      componentPath,
+      [
+        '[template]',
+        '  <section>',
+        '    <slot name="header"></slot>',
+        '    <slot></slot>',
+        '  </section>',
+        '[/template]',
+      ].join('\n'),
+    );
+
+    const pageText = [
+      '[template]',
+      '  <PanelFrame />',
+      '[/template]',
+      '',
+      '[ts]',
+      "  import PanelFrame from './PanelFrame';",
+      '[/ts]',
+    ].join('\n');
+    const document = parseKpaDocument(pageText);
+    const component = collectImportedKpaComponents(document, sourcePath)[0];
+    const api = getImportedKpaComponentApi(component);
+
+    expect(api?.slots.map((entry) => entry.name)).toEqual(['header', 'default']);
+    expect(api?.slots.every((entry) => entry.optional)).toBe(true);
+  });
+
+  it('reports missing required runtime props with quick-fix metadata', () => {
     const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'kpa-template-components-'));
     const componentPath = path.join(tempDirectory, 'UserCard.kpa');
     const sourcePath = path.join(tempDirectory, 'Page.kpa');
@@ -147,9 +217,11 @@ describe('template components', () => {
         '[/template]',
         '',
         '[ts]',
-        '  interface Props {',
-        '    title: string;',
-        '  }',
+        '  return {',
+        '    props: {',
+        '      title: { type: String, required: true },',
+        '    },',
+        '  };',
         '[/ts]',
       ].join('\n'),
     );
@@ -178,7 +250,7 @@ describe('template components', () => {
     });
   });
 
-  it('reports unknown props and simple prop type mismatches for imported components', () => {
+  it('reports unknown props and simple prop type mismatches for runtime component props', () => {
     const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'kpa-template-components-'));
     const componentPath = path.join(tempDirectory, 'UserCard.kpa');
     const sourcePath = path.join(tempDirectory, 'Page.kpa');
@@ -191,16 +263,18 @@ describe('template components', () => {
         '[/template]',
         '',
         '[ts]',
-        '  interface Props {',
-        '    title: string;',
-        '  }',
+        '  return {',
+        '    props: {',
+        '      title: { type: String, required: true },',
+        '    },',
+        '  };',
         '[/ts]',
       ].join('\n'),
     );
 
     const text = [
       '[template]',
-      '  <UserCard title={1} extra="yes" />',
+      '  <UserCard :title="1" extra="yes" />',
       '[/template]',
       '',
       '[ts]',
@@ -270,7 +344,7 @@ describe('template components', () => {
 
     const text = [
       '[template]',
-      '  <UserCard @close={handleClose}>',
+      '  <UserCard onClose="handleClose">',
       '    <div>Body</div>',
       '  </UserCard>',
       '[/template]',
@@ -288,6 +362,9 @@ describe('template components', () => {
     expect(
       diagnostics.some((diagnostic) => diagnostic.code === kpaDiagnosticCodes.unknownComponentEmit),
     ).toBe(true);
+    expect(
+      diagnostics.some((diagnostic) => diagnostic.code === kpaDiagnosticCodes.unknownComponentProp),
+    ).toBe(false);
     expect(
       diagnostics.some((diagnostic) => diagnostic.code === kpaDiagnosticCodes.missingComponentSlot),
     ).toBe(true);

@@ -13,6 +13,9 @@ Current specs:
 
 - [`document-parsing.md`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/docs/specs/document-parsing.md)
 - [`diagnostics-pipeline.md`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/docs/specs/diagnostics-pipeline.md)
+- [`project-config-resolution.md`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/docs/specs/project-config-resolution.md)
+- [`symbol-discovery-and-references.md`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/docs/specs/symbol-discovery-and-references.md)
 - [`template-component-analysis.md`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/docs/specs/template-component-analysis.md)
+- [`template-semantics.md`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/docs/specs/template-semantics.md)
 - [`workspace-index-and-graph.md`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/docs/specs/workspace-index-and-graph.md)
 - [`language-service.md`](/Users/thesortex/git-repos/koppajs/koppajs-language-core/docs/specs/language-service.md)

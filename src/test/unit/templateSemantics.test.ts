@@ -4,6 +4,7 @@ import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { parseKpaDocument } from '../../language/parser';
 import {
+  createTemplateSemanticVirtualFileName,
   getTemplateSemanticCompletions,
   getTemplateSemanticDefinitions,
   getTemplateSemanticHover,
@@ -16,11 +17,13 @@ describe('getTemplateSemanticCompletions', () => {
   it('returns typed member completions inside canonical template expressions', () => {
     const text = [
       '[template]',
-      '  <div>{user.}</div>',
+      '  <div>{{user.}}</div>',
       '[/template]',
       '',
       '[ts]',
-      '  const user = { name: "Ada", age: 32 };',
+      '  return {',
+      '    state: { user: { name: "Ada", age: 32 } },',
+      '  };',
       '[/ts]',
     ].join('\n');
     const document = parseKpaDocument(text);
@@ -35,23 +38,51 @@ describe('getTemplateSemanticCompletions', () => {
   it('filters root completions to template-visible local names', () => {
     const text = [
       '[template]',
-      '  <div>{co}</div>',
+      '  <div>{{co}}</div>',
       '[/template]',
       '',
       '[ts]',
-      '  const count = 1;',
-      '  function increment() {}',
+      '  const helper = 1;',
+      '  return {',
+      '    state: { count: 1 },',
+      '    methods: {',
+      '      increment() {},',
+      '    },',
+      '  };',
       '[/ts]',
     ].join('\n');
     const document = parseKpaDocument(text);
-    const offset = text.indexOf('{co}') + 3;
+    const offset = text.indexOf('co') + 1;
 
     const completions = getTemplateSemanticCompletions(document, '/tmp/example.kpa', offset);
     const names = completions?.map((completion) => completion.name) ?? [];
 
     expect(names).toContain('count');
     expect(names).toContain('increment');
+    expect(names).not.toContain('helper');
     expect(names).not.toContain('Array');
+  });
+
+  it('includes loop bindings in root completions for loop-scoped expressions', () => {
+    const text = [
+      '[template]',
+      '  <option loop="loopItem in options">{{lo}}</option>',
+      '[/template]',
+      '',
+      '[ts]',
+      '  return {',
+      '    state: { options: [] },',
+      '  };',
+      '[/ts]',
+    ].join('\n');
+    const document = parseKpaDocument(text);
+    const offset = text.indexOf('{{lo') + 3;
+
+    const completions = getTemplateSemanticCompletions(document, '/tmp/example.kpa', offset);
+    const names = completions?.map((completion) => completion.name) ?? [];
+
+    expect(names).toContain('loopItem');
+    expect(names).toContain('index');
   });
 });
 
@@ -59,11 +90,13 @@ describe('getTemplateSemanticHover', () => {
   it('returns typed hover information for template member access', () => {
     const text = [
       '[template]',
-      '  <div>{user.name}</div>',
+      '  <div>{{user.name}}</div>',
       '[/template]',
       '',
       '[ts]',
-      '  const user = { name: "Ada", age: 32 };',
+      '  return {',
+      '    state: { user: { name: "Ada", age: 32 } },',
+      '  };',
       '[/ts]',
     ].join('\n');
     const document = parseKpaDocument(text);
@@ -76,35 +109,47 @@ describe('getTemplateSemanticHover', () => {
   });
 });
 
-describe('workspace-aware semantic mapping', () => {
-  it('resolves definitions, references, and rename ranges across imported files', () => {
+describe('component-contract semantic mapping', () => {
+  it('resolves definitions and references for state bindings from the return contract', () => {
     const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'kpa-template-semantics-'));
-    const depPath = path.join(tempDirectory, 'dep.ts');
     const sourcePath = path.join(tempDirectory, 'component.kpa');
-
-    fs.writeFileSync(depPath, 'export const externalCount = 123;\n');
-
     const text = [
       '[template]',
-      '  <div>{externalCount}</div>',
+      '  <div>{{count}}</div>',
       '[/template]',
       '',
       '[ts]',
-      "  import { externalCount } from './dep';",
+      '  return {',
+      '    state: { count: 1 },',
+      '    methods: {',
+      '      increment() {',
+      '        this.count++;',
+      '      },',
+      '    },',
+      '  };',
       '[/ts]',
     ].join('\n');
     const document = parseKpaDocument(text);
-    const offset = text.indexOf('externalCount') + 1;
+    const offset = text.indexOf('{{count') + 3;
 
     const definitions = getTemplateSemanticDefinitions(document, sourcePath, offset);
     const references = getTemplateSemanticReferences(document, sourcePath, offset);
     const renameInfo = getTemplateSemanticRenameInfo(document, sourcePath, offset);
     const renameRanges = getTemplateSemanticRenameRanges(document, sourcePath, offset);
 
-    expect(definitions?.some((definition) => definition.fileName === depPath)).toBe(true);
-    expect(references?.some((reference) => reference.fileName === depPath)).toBe(true);
-    expect(references?.some((reference) => reference.fileName.endsWith('.template.ts'))).toBe(true);
-    expect(renameInfo?.placeholder).toBe('externalCount');
-    expect(renameRanges?.every((range) => range.fileName.endsWith('.template.ts'))).toBe(true);
+    expect(
+      definitions?.some(
+        (definition) =>
+          definition.fileName === createTemplateSemanticVirtualFileName(sourcePath) ||
+          text.slice(definition.range.start.offset, definition.range.end.offset) === 'count',
+      ),
+    ).toBe(true);
+    expect(
+      references?.some(
+        (reference) => text.slice(reference.range.start.offset, reference.range.end.offset) === 'count',
+      ),
+    ).toBe(true);
+    expect(renameInfo).toBeUndefined();
+    expect(renameRanges).toBeUndefined();
   });
 });
