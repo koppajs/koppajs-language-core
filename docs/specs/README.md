@@ -1,6 +1,6 @@
 # Feature Specs
 
-These specs describe the implemented feature set for `koppajs-language-core`.
+These specs describe the implemented feature set for `@koppajs/koppajs-language-core`.
 
 Each spec records:
 

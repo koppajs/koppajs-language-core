@@ -1,0 +1,25 @@
+name: NPM Package Cleanup
+
+on:
+  workflow_dispatch:
+
+jobs:
+  remove-unscoped-package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - name: Remove accidentally unscoped package
+        run: |
+          if npm view koppajs-language-core version >/dev/null 2>&1; then
+            npm unpublish koppajs-language-core --force
+          else
+            echo "Unscoped package does not exist."
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

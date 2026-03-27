@@ -9,7 +9,7 @@ This package is shared by higher-level KoppaJS tooling. Parser behavior, diagnos
 
 ## Decision
 
-Keep `koppajs-language-core` focused on runtime language analysis only.
+Keep `@koppajs/koppajs-language-core` focused on runtime language analysis only.
 
 The package may expose a language-service facade, but that facade must remain editor-agnostic and must not depend on VS Code APIs, browser APIs, or LSP transport objects.
 
