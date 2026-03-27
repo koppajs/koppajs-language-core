@@ -1,6 +1,6 @@
-# koppajs-language-core
+# @koppajs/koppajs-language-core
 
-`koppajs-language-core` is the editor-agnostic language package for KoppaJS `.kpa` files.
+`@koppajs/koppajs-language-core` is the editor-agnostic language package for KoppaJS `.kpa` files.
 
 It provides deterministic parsing, diagnostics, template semantics, workspace indexing, and a language-service facade that higher-level adapters can embed without taking a dependency on editor APIs.
 
@@ -58,7 +58,7 @@ import {
   KpaLanguageService,
   collectKpaDiagnosticsFromText,
   parseKpaDocument,
-} from 'koppajs-language-core';
+} from '@koppajs/koppajs-language-core';
 
 const text = [
   '[template]',

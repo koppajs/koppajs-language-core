@@ -1,6 +1,12 @@
 # Changelog
 
-All notable changes to `koppajs-language-core` are recorded here.
+All notable changes to `@koppajs/koppajs-language-core` are recorded here.
+
+## [0.1.1]
+
+- Correct the published npm package identity to `@koppajs/koppajs-language-core`.
+- Add an explicit cleanup workflow for the accidentally published unscoped package
+  `koppajs-language-core`.
 
 ## [0.1.0]
 

@@ -1,7 +1,7 @@
-# Release Process for `koppajs-language-core`
+# Release Process for `@koppajs/koppajs-language-core`
 
 This document describes the repository-specific release workflow for
-`koppajs-language-core`.
+`@koppajs/koppajs-language-core`.
 
 The project uses a manual, tag-driven release process.
 Only tagged versions are official releases.
@@ -46,6 +46,7 @@ Tag only the release commit that is already on `main`.
 Before cutting a release, ensure all of the following are true:
 
 - the intended release scope is already complete on `develop`
+- `package.json.name` is exactly `@koppajs/koppajs-language-core`
 - `package.json` contains the target version
 - `CHANGELOG.md` contains the corresponding release notes
 - `package-lock.json` is up to date

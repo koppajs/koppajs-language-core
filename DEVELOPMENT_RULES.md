@@ -7,6 +7,7 @@
 3. Root-module export changes and published package-manifest boundary changes are contract changes. Do not add or remove root exports, entry points, or published package files silently.
 4. Keep module seams narrow. Prefer extending an existing module over adding a new layer for a single call site.
 5. Do not replace the current TypeScript and Vitest baseline without a demonstrated problem.
+6. KoppaJS npm packages must publish under the `@koppajs/` scope. An unscoped package name is a release blocker.
 
 ## Code Rules
 
