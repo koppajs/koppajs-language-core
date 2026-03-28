@@ -9,7 +9,9 @@ export function collectKpaDiagnostics(
   knownBlocks: readonly string[] = supportedKpaBlocks,
   sourcePath?: string,
 ): KpaBlockDiagnostic[] {
-  return [...collectKpaDiagnosticsFromText(text, knownBlocks, sourcePath).diagnostics];
+  return [
+    ...collectKpaDiagnosticsFromText(text, knownBlocks, sourcePath).diagnostics,
+  ];
 }
 
 export const collectBlockDiagnostics = collectKpaDiagnostics;

@@ -6,7 +6,9 @@ import { KpaWorkspaceGraph } from '../../workspaceGraph';
 
 describe('workspace graph', () => {
   it('invalidates dependent importer files when a component file changes', () => {
-    const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'kpa-workspace-graph-'));
+    const tempDirectory = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'kpa-workspace-graph-'),
+    );
     const componentPath = path.join(tempDirectory, 'UserCard.kpa');
     const pagePath = path.join(tempDirectory, 'Page.kpa');
 
@@ -24,7 +26,9 @@ describe('workspace graph', () => {
       ].join('\n'),
     );
 
-    const workspaceGraph = new KpaWorkspaceGraph({ rootPaths: [tempDirectory] });
+    const workspaceGraph = new KpaWorkspaceGraph({
+      rootPaths: [tempDirectory],
+    });
 
     expect(
       workspaceGraph

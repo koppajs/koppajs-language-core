@@ -45,7 +45,9 @@ describe('getCanonicalTemplateExpressionAtOffset', () => {
     const document = parseKpaDocument(text);
     const offset = text.indexOf('count') + 1;
 
-    expect(getCanonicalTemplateExpressionAtOffset(document, offset)?.text).toBe('{{count}}');
+    expect(getCanonicalTemplateExpressionAtOffset(document, offset)?.text).toBe(
+      '{{count}}',
+    );
   });
 
   it('returns dynamic binding expressions at the current cursor offset', () => {
@@ -53,26 +55,34 @@ describe('getCanonicalTemplateExpressionAtOffset', () => {
     const document = parseKpaDocument(text);
     const offset = text.indexOf('menuOpen') + 2;
 
-    expect(getCanonicalTemplateExpressionAtOffset(document, offset)?.text).toBe('menuOpen');
+    expect(getCanonicalTemplateExpressionAtOffset(document, offset)?.text).toBe(
+      'menuOpen',
+    );
   });
 });
 
 describe('collectCanonicalTemplateIdentifierReferences', () => {
   it('collects top-level identifier references from canonical template expressions', () => {
-    const text = '[template]\n  <div>{{ user?.format(count) + suffix }}</div>\n[/template]';
+    const text =
+      '[template]\n  <div>{{ user?.format(count) + suffix }}</div>\n[/template]';
     const document = parseKpaDocument(text);
 
     expect(
-      collectCanonicalTemplateIdentifierReferences(document).map((reference) => reference.name),
+      collectCanonicalTemplateIdentifierReferences(document).map(
+        (reference) => reference.name,
+      ),
     ).toEqual(['user', 'count', 'suffix']);
   });
 
   it('ignores property names and nested function scopes in canonical template expressions', () => {
-    const text = '[template]\n  <div>{{items.map((item) => item.name)}}</div>\n[/template]';
+    const text =
+      '[template]\n  <div>{{items.map((item) => item.name)}}</div>\n[/template]';
     const document = parseKpaDocument(text);
 
     expect(
-      collectCanonicalTemplateIdentifierReferences(document).map((reference) => reference.name),
+      collectCanonicalTemplateIdentifierReferences(document).map(
+        (reference) => reference.name,
+      ),
     ).toEqual(['items']);
   });
 });
@@ -83,7 +93,9 @@ describe('getCanonicalTemplateIdentifierReferenceAtOffset', () => {
     const document = parseKpaDocument(text);
     const offset = text.indexOf('other') + 2;
 
-    expect(getCanonicalTemplateIdentifierReferenceAtOffset(document, offset)?.name).toBe('other');
+    expect(
+      getCanonicalTemplateIdentifierReferenceAtOffset(document, offset)?.name,
+    ).toBe('other');
   });
 });
 
@@ -97,7 +109,9 @@ describe('getTemplateExpressionRootReference', () => {
       : undefined;
 
     expect(reference?.name).toBe('user');
-    expect(text.slice(reference!.range.start.offset, reference!.range.end.offset)).toBe('user');
+    expect(
+      text.slice(reference!.range.start.offset, reference!.range.end.offset),
+    ).toBe('user');
   });
 
   it('returns no root reference for compound expressions', () => {
@@ -105,6 +119,8 @@ describe('getTemplateExpressionRootReference', () => {
     const document = parseKpaDocument(text);
     const [expression] = collectCanonicalTemplateExpressions(document);
 
-    expect(expression && getTemplateExpressionRootReference(document, expression)).toBeUndefined();
+    expect(
+      expression && getTemplateExpressionRootReference(document, expression),
+    ).toBeUndefined();
   });
 });

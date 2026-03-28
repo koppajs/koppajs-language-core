@@ -42,28 +42,33 @@ export function collectTemplateDiagnosticsFromDocument(
     collectTemplateContextSymbols(document).map((symbol) => symbol.name),
   );
 
-  return collectCanonicalTemplateIdentifierReferences(document).flatMap((reference) => {
-    const loopScopeNames = new Set(
-      collectTemplateLoopScopeNamesAtOffset(document, reference.range.start.offset),
-    );
+  return collectCanonicalTemplateIdentifierReferences(document).flatMap(
+    (reference) => {
+      const loopScopeNames = new Set(
+        collectTemplateLoopScopeNamesAtOffset(
+          document,
+          reference.range.start.offset,
+        ),
+      );
 
-    if (
-      templateVisibleNames.has(reference.name) ||
-      loopScopeNames.has(reference.name) ||
-      knownGlobalTemplateNames.has(reference.name)
-    ) {
-      return [];
-    }
+      if (
+        templateVisibleNames.has(reference.name) ||
+        loopScopeNames.has(reference.name) ||
+        knownGlobalTemplateNames.has(reference.name)
+      ) {
+        return [];
+      }
 
-    return [
-      {
-        range: {
-          line: reference.range.start.line,
-          startChar: reference.range.start.character,
-          endChar: reference.range.end.character,
+      return [
+        {
+          range: {
+            line: reference.range.start.line,
+            startChar: reference.range.start.character,
+            endChar: reference.range.end.character,
+          },
+          message: `Lokales Template-Symbol [${reference.name}] wurde nicht gefunden.`,
         },
-        message: `Lokales Template-Symbol [${reference.name}] wurde nicht gefunden.`,
-      },
-    ];
-  });
+      ];
+    },
+  );
 }

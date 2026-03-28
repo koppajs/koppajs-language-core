@@ -11,7 +11,8 @@ export const supportedKpaBlocks = [
 ] as const;
 
 export type SupportedKpaBlock = (typeof supportedKpaBlocks)[number];
-export type CompatibilityTemplateBlockAlias = (typeof compatibilityTemplateBlockAliases)[number];
+export type CompatibilityTemplateBlockAlias =
+  (typeof compatibilityTemplateBlockAliases)[number];
 
 export const structuralKpaBlocks = [
   canonicalTemplateBlock,

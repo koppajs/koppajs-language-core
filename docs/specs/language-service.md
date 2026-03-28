@@ -56,6 +56,7 @@ Expose a single editor-agnostic runtime facade for open-document and workspace-b
 - URIs are expected to be file URIs when filesystem-backed behavior is required.
 - Offsets are absolute character offsets into the document text.
 - The service remains transport-agnostic and does not emit LSP objects directly.
+- Cross-repository assumptions about `Core.take(...)`, component return contracts, and plugin-emitted component shape are governed by `core-plugin-integration-contract.md`.
 
 ## Edge Cases
 

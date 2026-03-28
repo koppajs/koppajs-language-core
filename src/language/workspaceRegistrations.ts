@@ -2,7 +2,10 @@ import fs from 'fs';
 import path from 'path';
 import ts from 'typescript';
 import type { KpaLocatedRange } from './ast';
-import { getNearestProjectConfigPath, resolveWorkspaceImportPath } from './projectConfig';
+import {
+  getNearestProjectConfigPath,
+  resolveWorkspaceImportPath,
+} from './projectConfig';
 import { createLocatedRange, createLineStarts } from './sourcePositions';
 
 export interface KpaWorkspaceComponentRegistration {
@@ -13,8 +16,23 @@ export interface KpaWorkspaceComponentRegistration {
   tagName: string;
 }
 
-const excludedDirectoryNames = new Set(['.git', 'coverage', 'dist', 'node_modules', 'out']);
-const supportedScriptExtensions = new Set(['.cjs', '.cts', '.js', '.jsx', '.mjs', '.mts', '.ts', '.tsx']);
+const excludedDirectoryNames = new Set([
+  '.git',
+  'coverage',
+  'dist',
+  'node_modules',
+  'out',
+]);
+const supportedScriptExtensions = new Set([
+  '.cjs',
+  '.cts',
+  '.js',
+  '.jsx',
+  '.mjs',
+  '.mts',
+  '.ts',
+  '.tsx',
+]);
 
 export function collectWorkspaceComponentRegistrations(
   sourcePath: string | undefined,
@@ -27,8 +45,12 @@ export function collectWorkspaceComponentRegistrations(
   const registrations: KpaWorkspaceComponentRegistration[] = [];
   const seenKeys = new Set<string>();
 
-  for (const scriptFilePath of collectScriptFilePathsRecursively(workspaceRoot)) {
-    for (const registration of collectComponentRegistrationsFromScriptFile(scriptFilePath)) {
+  for (const scriptFilePath of collectScriptFilePathsRecursively(
+    workspaceRoot,
+  )) {
+    for (const registration of collectComponentRegistrationsFromScriptFile(
+      scriptFilePath,
+    )) {
       const registrationKey = [
         registration.registrationFilePath,
         registration.resolvedFilePath,
@@ -53,9 +75,9 @@ export function findWorkspaceComponentRegistrationByTagName(
   sourcePath: string | undefined,
   tagName: string,
 ): KpaWorkspaceComponentRegistration | undefined {
-  const registrations = collectWorkspaceComponentRegistrations(sourcePath).filter(
-    (registration) => registration.tagName === tagName,
-  );
+  const registrations = collectWorkspaceComponentRegistrations(
+    sourcePath,
+  ).filter((registration) => registration.tagName === tagName);
 
   if (registrations.length === 0) {
     return undefined;
@@ -63,7 +85,8 @@ export function findWorkspaceComponentRegistrationByTagName(
 
   return [...registrations].sort((left, right) => {
     const scoreDifference =
-      scoreRegistrationCandidate(sourcePath, left) - scoreRegistrationCandidate(sourcePath, right);
+      scoreRegistrationCandidate(sourcePath, left) -
+      scoreRegistrationCandidate(sourcePath, right);
 
     if (scoreDifference !== 0) {
       return scoreDifference;
@@ -102,20 +125,31 @@ function collectComponentRegistrationsFromScriptFile(
 
     const [componentArgument, tagArgument] = node.arguments;
 
-    if (!componentArgument || !tagArgument || !ts.isIdentifier(componentArgument)) {
+    if (
+      !componentArgument ||
+      !tagArgument ||
+      !ts.isIdentifier(componentArgument)
+    ) {
       return;
     }
 
     const resolvedFilePath = importedKpaBindings.get(componentArgument.text);
 
-    if (!resolvedFilePath || !isSupportedStringLiteral(tagArgument) || tagArgument.text.length === 0) {
+    if (
+      !resolvedFilePath ||
+      !isSupportedStringLiteral(tagArgument) ||
+      tagArgument.text.length === 0
+    ) {
       return;
     }
 
     registrations.push({
       componentName: toPascalCase(tagArgument.text),
       registrationFilePath: filePath,
-      registrationRange: createStringLiteralContentRange(lineStarts, tagArgument),
+      registrationRange: createStringLiteralContentRange(
+        lineStarts,
+        tagArgument,
+      ),
       resolvedFilePath,
       tagName: tagArgument.text,
     });
@@ -131,7 +165,10 @@ function collectImportedKpaBindings(
   const bindings = new Map<string, string>();
 
   for (const statement of sourceFile.statements) {
-    if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) {
+    if (
+      !ts.isImportDeclaration(statement) ||
+      !ts.isStringLiteral(statement.moduleSpecifier)
+    ) {
       continue;
     }
 
@@ -155,7 +192,10 @@ function collectImportedKpaBindings(
       bindings.set(importClause.name.text, resolvedFilePath);
     }
 
-    if (importClause.namedBindings && ts.isNamedImports(importClause.namedBindings)) {
+    if (
+      importClause.namedBindings &&
+      ts.isNamedImports(importClause.namedBindings)
+    ) {
       for (const element of importClause.namedBindings.elements) {
         if (!element.isTypeOnly) {
           bindings.set(element.name.text, resolvedFilePath);
@@ -173,7 +213,9 @@ function visitNodes(node: ts.Node, callback: (node: ts.Node) => void): void {
 }
 
 function isCoreTakeCall(expression: ts.LeftHandSideExpression): boolean {
-  return ts.isPropertyAccessExpression(expression) && expression.name.text === 'take';
+  return (
+    ts.isPropertyAccessExpression(expression) && expression.name.text === 'take'
+  );
 }
 
 function isSupportedStringLiteral(
@@ -198,7 +240,9 @@ function getWorkspaceRootPath(sourcePath: string): string {
   return configPath ? path.dirname(configPath) : path.dirname(sourcePath);
 }
 
-function collectScriptFilePathsRecursively(rootPath: string): readonly string[] {
+function collectScriptFilePathsRecursively(
+  rootPath: string,
+): readonly string[] {
   if (!fs.existsSync(rootPath)) {
     return [];
   }
@@ -210,7 +254,10 @@ function collectScriptFilePathsRecursively(rootPath: string): readonly string[] 
   return scriptFilePaths;
 }
 
-function visitDirectory(directoryPath: string, scriptFilePaths: string[]): void {
+function visitDirectory(
+  directoryPath: string,
+  scriptFilePaths: string[],
+): void {
   for (const entry of fs.readdirSync(directoryPath, { withFileTypes: true })) {
     const entryPath = path.join(directoryPath, entry.name);
 
@@ -223,7 +270,10 @@ function visitDirectory(directoryPath: string, scriptFilePaths: string[]): void 
       continue;
     }
 
-    if (entry.isFile() && supportedScriptExtensions.has(path.extname(entry.name))) {
+    if (
+      entry.isFile() &&
+      supportedScriptExtensions.has(path.extname(entry.name))
+    ) {
       scriptFilePaths.push(entryPath);
     }
   }
@@ -262,10 +312,15 @@ function scoreRegistrationCandidate(
 }
 
 function scorePathDistance(sourcePath: string, targetPath: string): number {
-  const relativePath = path.relative(path.dirname(sourcePath), targetPath).replace(/\\/g, '/');
-  const segmentCount = relativePath.split('/').filter((segment) => segment.length > 0).length;
+  const relativePath = path
+    .relative(path.dirname(sourcePath), targetPath)
+    .replace(/\\/g, '/');
+  const segmentCount = relativePath
+    .split('/')
+    .filter((segment) => segment.length > 0).length;
   const parentPenalty = relativePath.startsWith('..') ? 50 : 0;
-  const sameDirectoryBonus = path.dirname(sourcePath) === path.dirname(targetPath) ? -10 : 0;
+  const sameDirectoryBonus =
+    path.dirname(sourcePath) === path.dirname(targetPath) ? -10 : 0;
 
   return parentPenalty + segmentCount + sameDirectoryBonus;
 }

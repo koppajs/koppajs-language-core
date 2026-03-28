@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { getOpeningHtmlTagNameAtOffset, isOffsetInsideOpeningHtmlTag } from '../../utils/htmlUtils';
+import {
+  getOpeningHtmlTagNameAtOffset,
+  isOffsetInsideOpeningHtmlTag,
+} from '../../utils/htmlUtils';
 
 describe('isOffsetInsideOpeningHtmlTag', () => {
   it('returns true while editing an opening tag', () => {

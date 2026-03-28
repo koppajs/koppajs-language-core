@@ -7,3 +7,6 @@ if ! command -v npm >/dev/null 2>&1; then
 fi
 
 npm run check:docs
+npm run check:meta
+npm run format:check
+npm run lint

@@ -142,7 +142,7 @@ const completions = service.getCompletions(
 
 This repository is a KoppaJS core package. It is intended to sit below language-server, editor-adapter, and CLI packages so those packages can share one source of truth for `.kpa` language behavior.
 
-The package is runtime code, not build tooling. It executes in Node.js, requires Node.js `>=16`, and uses synchronous filesystem access where workspace indexing requires deterministic reads.
+The package is runtime code, not build tooling. It executes in Node.js, requires Node.js `>=22`, and uses synchronous filesystem access where workspace indexing requires deterministic reads.
 
 ---
 
@@ -150,14 +150,19 @@ The package is runtime code, not build tooling. It executes in Node.js, requires
 
 The enforced repository checks are:
 
+- `npm run check:docs`
+- `npm run check:meta`
+- `npm run format:check`
+- `npm run lint`
 - `npm run typecheck`
 - `npm run test`
+- `npm run check`
 - `npm run build`
 - `npm run validate`
 
-GitHub Actions runs `npm run validate` on pushes to `main` and `develop` and on pull requests. Tagged releases publish to npm only after the git tag version matches `package.json`.
+GitHub Actions runs `npm run validate` on Node.js 22 and 24 for pushes to `main` and `develop` and for pull requests. Tagged releases rerun `npm run validate` and `npm run release:check` on Node.js 22 before publish, and only continue when the git tag version matches `package.json`.
 
-No dedicated lint or formatter is enforced today. That is intentional until a real consistency problem justifies more tooling.
+`npm run check:docs` includes both the governed root-document contract and a semantic consistency check that keeps version, workflow, and quality-gate claims aligned with the actual repository state.
 
 ---
 
@@ -185,15 +190,17 @@ Project intent, contributor rules, and documentation contracts live in the local
 - [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)
 - [docs/specs/README.md](./docs/specs/README.md)
 - [docs/specs/repository-documentation-contract.md](./docs/specs/repository-documentation-contract.md)
+- [docs/meta/README.md](./docs/meta/README.md)
 - [docs/architecture/README.md](./docs/architecture/README.md)
 - [docs/quality/README.md](./docs/quality/README.md)
 
 The file-shape contract for `README.md`, `CHANGELOG.md`, `CODE_OF_CONDUCT.md`, and `CONTRIBUTING.md` is defined in [docs/specs/repository-documentation-contract.md](./docs/specs/repository-documentation-contract.md).
 
-Run the local document guard before committing:
+Run the local repository guards before committing:
 
 ```bash
 npm run check:docs
+npm run check:meta
 ```
 
 ---

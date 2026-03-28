@@ -75,7 +75,8 @@ export function collectRuntimeComponentProps(
       ? readBooleanLiteralProperty(propDefinition, 'required') === true
       : false;
     const hasDefault = propDefinition
-      ? getObjectLiteralPropertyAssignment(propDefinition, 'default') !== undefined
+      ? getObjectLiteralPropertyAssignment(propDefinition, 'default') !==
+        undefined
       : false;
 
     return [
@@ -85,7 +86,9 @@ export function collectRuntimeComponentProps(
         nameEnd: propertyName.end,
         nameStart: propertyName.getStart(sourceFile),
         optional: !required,
-        typeText: propDefinition ? inferRuntimePropTypeText(propDefinition, sourceFile) : undefined,
+        typeText: propDefinition
+          ? inferRuntimePropTypeText(propDefinition, sourceFile)
+          : undefined,
       } satisfies KpaRuntimeComponentPropEntry,
     ];
   });
@@ -103,7 +106,10 @@ export function collectRuntimeTemplateContextBindings(
   const seenNames = new Set<string>();
   const bindings: KpaTemplateContextBinding[] = [];
 
-  for (const methodEntry of collectRuntimeMethodEntries(componentReturn, sourceFile)) {
+  for (const methodEntry of collectRuntimeMethodEntries(
+    componentReturn,
+    sourceFile,
+  )) {
     seenNames.add(methodEntry.name);
     bindings.push({
       kind: 'function',
@@ -116,7 +122,10 @@ export function collectRuntimeTemplateContextBindings(
     });
   }
 
-  for (const stateEntry of collectRuntimeStateEntries(componentReturn, sourceFile)) {
+  for (const stateEntry of collectRuntimeStateEntries(
+    componentReturn,
+    sourceFile,
+  )) {
     if (seenNames.has(stateEntry.name)) {
       continue;
     }
@@ -185,7 +194,10 @@ function collectRuntimeMethodEntries(
   componentReturn: ts.ObjectLiteralExpression,
   sourceFile: ts.SourceFile,
 ): readonly RuntimeComponentMethodEntry[] {
-  const methodsObject = getNamedObjectLiteralProperty(componentReturn, 'methods');
+  const methodsObject = getNamedObjectLiteralProperty(
+    componentReturn,
+    'methods',
+  );
 
   if (!methodsObject) {
     return [];
@@ -252,7 +264,9 @@ function getObjectLiteralPropertyAssignment(
 function getPropertyAssignmentObjectLiteral(
   property: ts.ObjectLiteralElementLike | undefined,
 ): ts.ObjectLiteralExpression | undefined {
-  return property && ts.isPropertyAssignment(property) && ts.isObjectLiteralExpression(property.initializer)
+  return property &&
+    ts.isPropertyAssignment(property) &&
+    ts.isObjectLiteralExpression(property.initializer)
     ? property.initializer
     : undefined;
 }
@@ -276,16 +290,28 @@ function inferRuntimePropTypeText(
   propDefinition: ts.ObjectLiteralExpression,
   sourceFile: ts.SourceFile,
 ): string | undefined {
-  const explicitTypeAssignment = getObjectLiteralPropertyAssignment(propDefinition, 'type');
+  const explicitTypeAssignment = getObjectLiteralPropertyAssignment(
+    propDefinition,
+    'type',
+  );
 
   if (explicitTypeAssignment) {
-    return inferTypeTextFromTypeInitializer(explicitTypeAssignment.initializer, sourceFile);
+    return inferTypeTextFromTypeInitializer(
+      explicitTypeAssignment.initializer,
+      sourceFile,
+    );
   }
 
-  const defaultAssignment = getObjectLiteralPropertyAssignment(propDefinition, 'default');
+  const defaultAssignment = getObjectLiteralPropertyAssignment(
+    propDefinition,
+    'default',
+  );
 
   if (defaultAssignment) {
-    return inferTypeTextFromValueExpression(defaultAssignment.initializer, sourceFile);
+    return inferTypeTextFromValueExpression(
+      defaultAssignment.initializer,
+      sourceFile,
+    );
   }
 
   return undefined;
@@ -296,16 +322,24 @@ function inferTypeTextFromTypeInitializer(
   sourceFile: ts.SourceFile,
 ): string | undefined {
   if (ts.isIdentifier(initializer)) {
-    return supportedRuntimePropTypeNames.get(initializer.text) ?? initializer.text;
+    return (
+      supportedRuntimePropTypeNames.get(initializer.text) ?? initializer.text
+    );
   }
 
   if (ts.isStringLiteralLike(initializer)) {
-    return supportedRuntimePropTypeNames.get(initializer.text) ?? initializer.text;
+    return (
+      supportedRuntimePropTypeNames.get(initializer.text) ?? initializer.text
+    );
   }
 
   if (ts.isArrayLiteralExpression(initializer)) {
     const memberTypes = initializer.elements
-      .flatMap((element) => inferTypeTextFromTypeInitializer(asExpression(element), sourceFile) ?? [])
+      .flatMap(
+        (element) =>
+          inferTypeTextFromTypeInitializer(asExpression(element), sourceFile) ??
+          [],
+      )
       .filter((typeText, index, values) => values.indexOf(typeText) === index);
 
     if (memberTypes.length > 0) {
@@ -320,15 +354,24 @@ function inferTypeTextFromValueExpression(
   initializer: ts.Expression,
   sourceFile: ts.SourceFile,
 ): string | undefined {
-  if (ts.isStringLiteralLike(initializer) || ts.isNoSubstitutionTemplateLiteral(initializer)) {
+  if (
+    ts.isStringLiteralLike(initializer) ||
+    ts.isNoSubstitutionTemplateLiteral(initializer)
+  ) {
     return 'string';
   }
 
-  if (ts.isNumericLiteral(initializer) || isNegativeNumericLiteral(initializer)) {
+  if (
+    ts.isNumericLiteral(initializer) ||
+    isNegativeNumericLiteral(initializer)
+  ) {
     return 'number';
   }
 
-  if (initializer.kind === ts.SyntaxKind.TrueKeyword || initializer.kind === ts.SyntaxKind.FalseKeyword) {
+  if (
+    initializer.kind === ts.SyntaxKind.TrueKeyword ||
+    initializer.kind === ts.SyntaxKind.FalseKeyword
+  ) {
     return 'boolean';
   }
 
@@ -355,7 +398,10 @@ function readBooleanLiteralProperty(
   objectLiteral: ts.ObjectLiteralExpression,
   propertyName: string,
 ): boolean | undefined {
-  const property = getObjectLiteralPropertyAssignment(objectLiteral, propertyName);
+  const property = getObjectLiteralPropertyAssignment(
+    objectLiteral,
+    propertyName,
+  );
 
   if (!property) {
     return undefined;
@@ -386,14 +432,17 @@ function getRuntimeContractPropertyName(
   return undefined;
 }
 
-function isRuntimeMethodProperty(property: ts.ObjectLiteralElementLike): boolean {
+function isRuntimeMethodProperty(
+  property: ts.ObjectLiteralElementLike,
+): boolean {
   if (ts.isMethodDeclaration(property)) {
     return true;
   }
 
   return (
     ts.isPropertyAssignment(property) &&
-    (ts.isArrowFunction(property.initializer) || ts.isFunctionExpression(property.initializer))
+    (ts.isArrowFunction(property.initializer) ||
+      ts.isFunctionExpression(property.initializer))
   );
 }
 
@@ -412,7 +461,9 @@ function createMethodValueText(
   return 'function () {}';
 }
 
-function isNegativeNumericLiteral(node: ts.Node): node is ts.PrefixUnaryExpression {
+function isNegativeNumericLiteral(
+  node: ts.Node,
+): node is ts.PrefixUnaryExpression {
   return (
     ts.isPrefixUnaryExpression(node) &&
     node.operator === ts.SyntaxKind.MinusToken &&

@@ -29,7 +29,10 @@ export function resolveLocalSymbolOccurrenceAtOffset(
   document: KpaDocument,
   offset: number,
 ): KpaLocalSymbolOccurrence | undefined {
-  const scriptOccurrence = resolveScriptSymbolOccurrenceAtOffset(document, offset);
+  const scriptOccurrence = resolveScriptSymbolOccurrenceAtOffset(
+    document,
+    offset,
+  );
 
   if (scriptOccurrence) {
     return {
@@ -38,7 +41,10 @@ export function resolveLocalSymbolOccurrenceAtOffset(
     };
   }
 
-  const templateReference = getCanonicalTemplateIdentifierReferenceAtOffset(document, offset);
+  const templateReference = getCanonicalTemplateIdentifierReferenceAtOffset(
+    document,
+    offset,
+  );
 
   if (!templateReference) {
     return undefined;
@@ -57,7 +63,9 @@ export function collectLocalReferenceRangesForSymbols(
   symbols: readonly KpaScriptSymbol[],
 ): readonly KpaLocatedRange[] {
   const ranges = [
-    ...symbols.flatMap((symbol) => collectScriptReferenceRangesForSymbol(document, symbol)),
+    ...symbols.flatMap((symbol) =>
+      collectScriptReferenceRangesForSymbol(document, symbol),
+    ),
     ...collectTemplateReferenceRangesForSymbols(document, symbols),
   ];
 
@@ -81,20 +89,24 @@ function resolveScriptSymbolOccurrenceAtOffset(
 
   const semanticModel = createScriptSemanticModel(document, block);
   const blockOffset = offset - block.contentRange.start.offset;
-  const occurrenceNode = findIdentifierNodeAtOffset(semanticModel.sourceFile, blockOffset);
+  const occurrenceNode = findIdentifierNodeAtOffset(
+    semanticModel.sourceFile,
+    blockOffset,
+  );
 
   if (!occurrenceNode) {
     return undefined;
   }
 
-  const occurrenceSymbol = semanticModel.checker.getSymbolAtLocation(occurrenceNode);
+  const occurrenceSymbol =
+    semanticModel.checker.getSymbolAtLocation(occurrenceNode);
 
   if (!occurrenceSymbol) {
     return undefined;
   }
 
-  const localSymbols = collectLocalScriptSymbols(document).all.filter((symbol) =>
-    isSymbolInsideBlock(symbol, block),
+  const localSymbols = collectLocalScriptSymbols(document).all.filter(
+    (symbol) => isSymbolInsideBlock(symbol, block),
   );
 
   for (const symbol of localSymbols) {
@@ -104,7 +116,8 @@ function resolveScriptSymbolOccurrenceAtOffset(
       continue;
     }
 
-    const declarationSymbol = semanticModel.checker.getSymbolAtLocation(declarationNode);
+    const declarationSymbol =
+      semanticModel.checker.getSymbolAtLocation(declarationNode);
 
     if (declarationSymbol === occurrenceSymbol) {
       return {
@@ -143,7 +156,8 @@ function collectScriptReferenceRangesForSymbol(
     return [symbol.range];
   }
 
-  const declarationSymbol = semanticModel.checker.getSymbolAtLocation(declarationNode);
+  const declarationSymbol =
+    semanticModel.checker.getSymbolAtLocation(declarationNode);
 
   if (!declarationSymbol) {
     return [symbol.range];
@@ -180,7 +194,9 @@ function collectTemplateReferenceRangesForSymbols(
   symbols: readonly KpaScriptSymbol[],
 ): readonly KpaLocatedRange[] {
   const templateVisibleNames = new Set(
-    symbols.filter((symbol) => symbol.origin !== 'script').map((symbol) => symbol.name),
+    symbols
+      .filter((symbol) => symbol.origin !== 'script')
+      .map((symbol) => symbol.name),
   );
 
   if (templateVisibleNames.size === 0) {
@@ -192,8 +208,12 @@ function collectTemplateReferenceRangesForSymbols(
     .map((reference) => reference.range);
 }
 
-function createScriptSemanticModel(document: KpaDocument, block: ScriptBlock): ScriptSemanticModel {
-  const fileName = block.kind === 'script-ts' ? 'embedded.kpa.ts' : 'embedded.kpa.js';
+function createScriptSemanticModel(
+  document: KpaDocument,
+  block: ScriptBlock,
+): ScriptSemanticModel {
+  const fileName =
+    block.kind === 'script-ts' ? 'embedded.kpa.ts' : 'embedded.kpa.js';
   const content = document.text.slice(
     block.contentRange.start.offset,
     block.contentRange.end.offset,
@@ -219,7 +239,8 @@ function createScriptSemanticModel(document: KpaDocument, block: ScriptBlock): S
     requestedFileName === fileName ? sourceFile : undefined;
   compilerHost.readFile = (requestedFileName) =>
     requestedFileName === fileName ? content : undefined;
-  compilerHost.fileExists = (requestedFileName) => requestedFileName === fileName;
+  compilerHost.fileExists = (requestedFileName) =>
+    requestedFileName === fileName;
   compilerHost.writeFile = () => undefined;
   compilerHost.getDefaultLibFileName = () => 'lib.d.ts';
   compilerHost.getCurrentDirectory = () => '';
@@ -241,10 +262,16 @@ function findIdentifierNodeForSymbol(
   semanticModel: ScriptSemanticModel,
   symbol: KpaScriptSymbol,
 ): ts.Identifier | undefined {
-  const startOffset = symbol.range.start.offset - semanticModel.block.contentRange.start.offset;
-  const endOffset = symbol.range.end.offset - semanticModel.block.contentRange.start.offset;
+  const startOffset =
+    symbol.range.start.offset - semanticModel.block.contentRange.start.offset;
+  const endOffset =
+    symbol.range.end.offset - semanticModel.block.contentRange.start.offset;
 
-  return findIdentifierNodeByExactRange(semanticModel.sourceFile, startOffset, endOffset);
+  return findIdentifierNodeByExactRange(
+    semanticModel.sourceFile,
+    startOffset,
+    endOffset,
+  );
 }
 
 function findIdentifierNodeAtOffset(
@@ -258,7 +285,11 @@ function findIdentifierNodeAtOffset(
   return matchingNode;
 
   function visit(node: ts.Node): void {
-    if (ts.isIdentifier(node) && offset >= node.getStart(sourceFile) && offset <= node.end) {
+    if (
+      ts.isIdentifier(node) &&
+      offset >= node.getStart(sourceFile) &&
+      offset <= node.end
+    ) {
       matchingNode = node;
     }
 
@@ -304,7 +335,10 @@ function toDocumentRange(
   );
 }
 
-function getScriptBlockAtOffset(document: KpaDocument, offset: number): ScriptBlock | undefined {
+function getScriptBlockAtOffset(
+  document: KpaDocument,
+  offset: number,
+): ScriptBlock | undefined {
   const block = getBlockAtOffset(document, offset, ['ts', 'js']);
 
   if (!block) {
@@ -329,14 +363,19 @@ function findScriptBlockForSymbol(
   );
 }
 
-function isSymbolInsideBlock(symbol: KpaScriptSymbol, block: KpaBlockNode): boolean {
+function isSymbolInsideBlock(
+  symbol: KpaScriptSymbol,
+  block: KpaBlockNode,
+): boolean {
   return (
     symbol.range.start.offset >= block.contentRange.start.offset &&
     symbol.range.end.offset <= block.contentRange.end.offset
   );
 }
 
-function deduplicateRanges(ranges: readonly KpaLocatedRange[]): readonly KpaLocatedRange[] {
+function deduplicateRanges(
+  ranges: readonly KpaLocatedRange[],
+): readonly KpaLocatedRange[] {
   const seen = new Set<string>();
 
   return ranges.filter((range) => {

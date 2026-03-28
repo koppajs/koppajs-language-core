@@ -10,7 +10,8 @@ export const htmlAttributes = [
   {
     label: 'class',
     snippet: 'class="$0"',
-    documentation: 'Definiert eine oder mehrere Klassen für ein Element (CSS-Styling).',
+    documentation:
+      'Definiert eine oder mehrere Klassen für ein Element (CSS-Styling).',
   },
   {
     label: 'id',
@@ -25,17 +26,20 @@ export const htmlAttributes = [
   {
     label: 'title',
     snippet: 'title="$0"',
-    documentation: 'Zeigt einen Tooltip, wenn man mit der Maus über das Element fährt.',
+    documentation:
+      'Zeigt einen Tooltip, wenn man mit der Maus über das Element fährt.',
   },
   {
     label: 'src',
     snippet: 'src="$0"',
-    documentation: 'Definiert die URL einer Ressource (z.B. <img>, <script>, <iframe>).',
+    documentation:
+      'Definiert die URL einer Ressource (z.B. <img>, <script>, <iframe>).',
   },
   {
     label: 'alt',
     snippet: 'alt="$0"',
-    documentation: 'Alternativtext (wird angezeigt, falls das Bild nicht geladen werden kann).',
+    documentation:
+      'Alternativtext (wird angezeigt, falls das Bild nicht geladen werden kann).',
   },
   {
     label: 'href',
@@ -45,17 +49,20 @@ export const htmlAttributes = [
   {
     label: 'type',
     snippet: 'type="$0"',
-    documentation: 'Legt den Typ eines Elements fest (z. B. <button type="button">).',
+    documentation:
+      'Legt den Typ eines Elements fest (z. B. <button type="button">).',
   },
   {
     label: 'name',
     snippet: 'name="$0"',
-    documentation: 'Definiert den Namen eines Elements (häufig in Formularen oder <map>).',
+    documentation:
+      'Definiert den Namen eines Elements (häufig in Formularen oder <map>).',
   },
   {
     label: 'value',
     snippet: 'value="$0"',
-    documentation: 'Der Wert eines Formular-Elements (<input>, <option>, etc.).',
+    documentation:
+      'Der Wert eines Formular-Elements (<input>, <option>, etc.).',
   },
   {
     label: 'placeholder',
@@ -65,7 +72,8 @@ export const htmlAttributes = [
   {
     label: 'disabled',
     snippet: 'disabled',
-    documentation: 'Deaktiviert ein Eingabefeld, Button etc. (nicht anklickbar).',
+    documentation:
+      'Deaktiviert ein Eingabefeld, Button etc. (nicht anklickbar).',
   },
   {
     label: 'readonly',
@@ -80,22 +88,26 @@ export const htmlAttributes = [
   {
     label: 'checked',
     snippet: 'checked',
-    documentation: 'Aktiviert vorab ein Kontrollkästchen oder einen Radiobutton.',
+    documentation:
+      'Aktiviert vorab ein Kontrollkästchen oder einen Radiobutton.',
   },
   {
     label: 'selected',
     snippet: 'selected',
-    documentation: 'Wählt eine <option> als Standardwert in einem <select> aus.',
+    documentation:
+      'Wählt eine <option> als Standardwert in einem <select> aus.',
   },
   {
     label: 'multiple',
     snippet: 'multiple',
-    documentation: 'Erlaubt Mehrfachauswahl bei <select> oder <input type="file">.',
+    documentation:
+      'Erlaubt Mehrfachauswahl bei <select> oder <input type="file">.',
   },
   {
     label: 'autocomplete',
     snippet: 'autocomplete="$0"',
-    documentation: 'Legt fest, ob und wie der Browser Eingaben automatisch vervollständigt.',
+    documentation:
+      'Legt fest, ob und wie der Browser Eingaben automatisch vervollständigt.',
   },
   {
     label: 'autofocus',
@@ -105,7 +117,8 @@ export const htmlAttributes = [
   {
     label: 'min',
     snippet: 'min="$0"',
-    documentation: 'Kleinster möglicher Wert (z. B. für <input type="number">).',
+    documentation:
+      'Kleinster möglicher Wert (z. B. für <input type="number">).',
   },
   {
     label: 'max',
@@ -125,7 +138,8 @@ export const htmlAttributes = [
   {
     label: 'accept',
     snippet: 'accept="$0"',
-    documentation: 'Legt Dateitypen für <input type="file"> fest (z. B. "image/*").',
+    documentation:
+      'Legt Dateitypen für <input type="file"> fest (z. B. "image/*").',
   },
   {
     label: 'method',
@@ -140,7 +154,8 @@ export const htmlAttributes = [
   {
     label: 'enctype',
     snippet: 'enctype="$0"',
-    documentation: 'Datenformat für das Senden eines Formulars (z.B. multipart/form-data).',
+    documentation:
+      'Datenformat für das Senden eines Formulars (z.B. multipart/form-data).',
   },
   {
     label: 'aria-label',
@@ -161,12 +176,14 @@ export const htmlAttributes = [
   {
     label: 'tabindex',
     snippet: 'tabindex="$0"',
-    documentation: 'Position in der Tabulator-Reihenfolge für Tastaturbedienung.',
+    documentation:
+      'Position in der Tabulator-Reihenfolge für Tastaturbedienung.',
   },
   {
     label: 'data-$1',
     snippet: 'data-${1:attribute}="$0"',
-    documentation: 'Benutzerdefiniertes Datensatz-Attribut (z. B. data-info="...").',
+    documentation:
+      'Benutzerdefiniertes Datensatz-Attribut (z. B. data-info="...").',
   },
 
   // ---------------------------------------
@@ -212,7 +229,8 @@ export const htmlAttributes = [
   {
     label: 'onwheel',
     snippet: 'onwheel="$0"',
-    documentation: 'Feuert, wenn sich das Mausrad oder ein ähnliches Eingabegerät bewegt.',
+    documentation:
+      'Feuert, wenn sich das Mausrad oder ein ähnliches Eingabegerät bewegt.',
   },
   // Tastatur-Events
   {
@@ -223,7 +241,8 @@ export const htmlAttributes = [
   {
     label: 'onkeypress',
     snippet: 'onkeypress="$0"',
-    documentation: 'Feuert, wenn eine Taste gedrückt wurde und ein Zeichencode generiert wird.',
+    documentation:
+      'Feuert, wenn eine Taste gedrückt wurde und ein Zeichencode generiert wird.',
   },
   {
     label: 'onkeyup',
@@ -247,7 +266,8 @@ export const htmlAttributes = [
   {
     label: 'oncopy',
     snippet: 'oncopy="$0"',
-    documentation: 'Wird ausgelöst, wenn Text in die Zwischenablage kopiert wird.',
+    documentation:
+      'Wird ausgelöst, wenn Text in die Zwischenablage kopiert wird.',
   },
   {
     label: 'oncut',
@@ -257,7 +277,8 @@ export const htmlAttributes = [
   {
     label: 'onpaste',
     snippet: 'onpaste="$0"',
-    documentation: 'Wird ausgelöst, wenn Inhalte in das Element eingefügt werden.',
+    documentation:
+      'Wird ausgelöst, wenn Inhalte in das Element eingefügt werden.',
   },
 
   // Drag&Drop-Events
@@ -295,14 +316,16 @@ export const htmlAttributes = [
   {
     label: 'ondrop',
     snippet: 'ondrop="$0"',
-    documentation: 'Wird aufgerufen, wenn das gezogene Element fallen gelassen wird (Drop).',
+    documentation:
+      'Wird aufgerufen, wenn das gezogene Element fallen gelassen wird (Drop).',
   },
 
   // Form-Events
   {
     label: 'onchange',
     snippet: 'onchange="$0"',
-    documentation: 'Ausgelöst, wenn sich der Wert eines Elements ändert (z. B. <select>, <input>).',
+    documentation:
+      'Ausgelöst, wenn sich der Wert eines Elements ändert (z. B. <select>, <input>).',
   },
   {
     label: 'oninput',
@@ -318,7 +341,8 @@ export const htmlAttributes = [
   {
     label: 'onreset',
     snippet: 'onreset="$0"',
-    documentation: 'Wird aufgerufen, wenn ein Formular zurückgesetzt wird (<form onreset>).',
+    documentation:
+      'Wird aufgerufen, wenn ein Formular zurückgesetzt wird (<form onreset>).',
   },
   {
     label: 'onsearch',
@@ -329,7 +353,8 @@ export const htmlAttributes = [
   {
     label: 'onselect',
     snippet: 'onselect="$0"',
-    documentation: 'Feuert, wenn der Benutzer Text in einem Eingabefeld markiert.',
+    documentation:
+      'Feuert, wenn der Benutzer Text in einem Eingabefeld markiert.',
   },
   {
     label: 'onsubmit',
@@ -346,7 +371,8 @@ export const htmlAttributes = [
   {
     label: 'onresize',
     snippet: 'onresize="$0"',
-    documentation: 'Ausgelöst, wenn die Größe des Fensters/eines Elements geändert wird.',
+    documentation:
+      'Ausgelöst, wenn die Größe des Fensters/eines Elements geändert wird.',
   },
   {
     label: 'onload',
@@ -363,7 +389,8 @@ export const htmlAttributes = [
   {
     label: 'onbeforeunload',
     snippet: 'onbeforeunload="$0"',
-    documentation: 'Ausgelöst, bevor die Seite verlassen wird (z. B. Warnung bei Änderungen).',
+    documentation:
+      'Ausgelöst, bevor die Seite verlassen wird (z. B. Warnung bei Änderungen).',
   },
   {
     label: 'onhashchange',
@@ -373,17 +400,20 @@ export const htmlAttributes = [
   {
     label: 'onpopstate',
     snippet: 'onpopstate="$0"',
-    documentation: 'Wird aufgerufen, wenn das aktive Verlaufseintrag (History-API) wechselt.',
+    documentation:
+      'Wird aufgerufen, wenn das aktive Verlaufseintrag (History-API) wechselt.',
   },
   {
     label: 'oncanplay',
     snippet: 'oncanplay="$0"',
-    documentation: 'Media-Event, wenn genug Daten geladen sind, um Medien abspielen zu können.',
+    documentation:
+      'Media-Event, wenn genug Daten geladen sind, um Medien abspielen zu können.',
   },
   {
     label: 'onplay',
     snippet: 'onplay="$0"',
-    documentation: 'Wird aufgerufen, wenn die Wiedergabe eines Videos/Audios beginnt.',
+    documentation:
+      'Wird aufgerufen, wenn die Wiedergabe eines Videos/Audios beginnt.',
   },
   {
     label: 'onpause',
@@ -398,6 +428,7 @@ export const htmlAttributes = [
   {
     label: 'onvolumechange',
     snippet: 'onvolumechange="$0"',
-    documentation: 'Feuert, wenn sich die Lautstärke oder Stummschaltung ändert.',
+    documentation:
+      'Feuert, wenn sich die Lautstärke oder Stummschaltung ändert.',
   },
 ];

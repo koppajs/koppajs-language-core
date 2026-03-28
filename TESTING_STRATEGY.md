@@ -4,6 +4,9 @@
 
 The repository enforces:
 
+- repository contract checks with `npm run check:docs` and `npm run check:meta`
+- formatting checks with Prettier
+- static analysis with ESLint
 - type checking with `tsc --noEmit`
 - unit tests with Vitest
 - production build compilation with `tsc -p tsconfig.build.json`
@@ -34,10 +37,17 @@ Unit tests should cover:
 
 - No Playwright coverage because the repository has no UI.
 - No snapshot-heavy golden suite unless the public API surface grows enough to justify it.
-- No lint-only tests because the repository does not currently enforce a linting tool.
+- No lint-only tests because linting and formatting are enforced as direct repository gates rather than as executable behavior tests.
 
 ## Gaps To Watch
 
 - `KpaLanguageService` needs direct contract tests whenever new public methods are added.
 - code-action variants, multi-file rename edge cases, and workspace invalidation flows still deserve more direct contract coverage than the lower-level modules they orchestrate
 - Root export changes should be accompanied by public-surface assertions or equivalent explicit review.
+
+## Release And CI Gates
+
+- GitHub Actions CI runs `npm run validate` on Node.js 22 and 24.
+- The release workflow reruns `npm run validate` and `npm run release:check` on Node.js 22 before publish.
+- The tracked `.npmrc` keeps Node.js and npm engine mismatches from silently slipping into local or hosted installs.
+- `npm run check:docs` combines structural and semantic documentation validation so repo docs stay aligned with package and workflow reality.

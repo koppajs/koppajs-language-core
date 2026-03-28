@@ -42,6 +42,7 @@ Resolve canonical template components from explicit `.kpa` imports and workspace
 - Only canonical template tags participate in component call-site analysis.
 - Dynamic prop bindings are analyzed through canonical binding syntax such as `:title="value"`, while typed emitted component events are identified through explicit `on<Event>` handlers such as `onClose="handleClose"` when a component exposes an `Emits` declaration.
 - Workspace registration discovery is convention-based and only recognizes explicit property calls such as `Core.take(...)` with a string-literal tag name and an imported `.kpa` component binding.
+- Cross-repository assumptions about `Core.take(...)`, component runtime contracts, and `.kpa` component shape are governed by `core-plugin-integration-contract.md`.
 - API inference requires the resolved component file to exist and be readable.
 - Runtime prop discovery is sourced from the canonical component `return` object, while slot discovery is sourced from explicit `Slots` declarations and concrete `<slot>` tags.
 - Required-slot semantics still come only from typed declarations.

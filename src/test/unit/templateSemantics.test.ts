@@ -29,10 +29,18 @@ describe('getTemplateSemanticCompletions', () => {
     const document = parseKpaDocument(text);
     const offset = text.indexOf('user.') + 'user.'.length;
 
-    const completions = getTemplateSemanticCompletions(document, '/tmp/example.kpa', offset);
+    const completions = getTemplateSemanticCompletions(
+      document,
+      '/tmp/example.kpa',
+      offset,
+    );
 
-    expect(completions?.some((completion) => completion.name === 'name')).toBe(true);
-    expect(completions?.some((completion) => completion.name === 'age')).toBe(true);
+    expect(completions?.some((completion) => completion.name === 'name')).toBe(
+      true,
+    );
+    expect(completions?.some((completion) => completion.name === 'age')).toBe(
+      true,
+    );
   });
 
   it('filters root completions to template-visible local names', () => {
@@ -54,7 +62,11 @@ describe('getTemplateSemanticCompletions', () => {
     const document = parseKpaDocument(text);
     const offset = text.indexOf('co') + 1;
 
-    const completions = getTemplateSemanticCompletions(document, '/tmp/example.kpa', offset);
+    const completions = getTemplateSemanticCompletions(
+      document,
+      '/tmp/example.kpa',
+      offset,
+    );
     const names = completions?.map((completion) => completion.name) ?? [];
 
     expect(names).toContain('count');
@@ -78,7 +90,11 @@ describe('getTemplateSemanticCompletions', () => {
     const document = parseKpaDocument(text);
     const offset = text.indexOf('{{lo') + 3;
 
-    const completions = getTemplateSemanticCompletions(document, '/tmp/example.kpa', offset);
+    const completions = getTemplateSemanticCompletions(
+      document,
+      '/tmp/example.kpa',
+      offset,
+    );
     const names = completions?.map((completion) => completion.name) ?? [];
 
     expect(names).toContain('loopItem');
@@ -102,7 +118,11 @@ describe('getTemplateSemanticHover', () => {
     const document = parseKpaDocument(text);
     const offset = text.indexOf('name') + 1;
 
-    const hover = getTemplateSemanticHover(document, '/tmp/example.kpa', offset);
+    const hover = getTemplateSemanticHover(
+      document,
+      '/tmp/example.kpa',
+      offset,
+    );
 
     expect(hover?.displayText).toContain('name');
     expect(hover?.displayText).toContain('string');
@@ -111,7 +131,9 @@ describe('getTemplateSemanticHover', () => {
 
 describe('component-contract semantic mapping', () => {
   it('resolves definitions and references for state bindings from the return contract', () => {
-    const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'kpa-template-semantics-'));
+    const tempDirectory = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'kpa-template-semantics-'),
+    );
     const sourcePath = path.join(tempDirectory, 'component.kpa');
     const text = [
       '[template]',
@@ -132,21 +154,45 @@ describe('component-contract semantic mapping', () => {
     const document = parseKpaDocument(text);
     const offset = text.indexOf('{{count') + 3;
 
-    const definitions = getTemplateSemanticDefinitions(document, sourcePath, offset);
-    const references = getTemplateSemanticReferences(document, sourcePath, offset);
-    const renameInfo = getTemplateSemanticRenameInfo(document, sourcePath, offset);
-    const renameRanges = getTemplateSemanticRenameRanges(document, sourcePath, offset);
+    const definitions = getTemplateSemanticDefinitions(
+      document,
+      sourcePath,
+      offset,
+    );
+    const references = getTemplateSemanticReferences(
+      document,
+      sourcePath,
+      offset,
+    );
+    const renameInfo = getTemplateSemanticRenameInfo(
+      document,
+      sourcePath,
+      offset,
+    );
+    const renameRanges = getTemplateSemanticRenameRanges(
+      document,
+      sourcePath,
+      offset,
+    );
 
     expect(
       definitions?.some(
         (definition) =>
-          definition.fileName === createTemplateSemanticVirtualFileName(sourcePath) ||
-          text.slice(definition.range.start.offset, definition.range.end.offset) === 'count',
+          definition.fileName ===
+            createTemplateSemanticVirtualFileName(sourcePath) ||
+          text.slice(
+            definition.range.start.offset,
+            definition.range.end.offset,
+          ) === 'count',
       ),
     ).toBe(true);
     expect(
       references?.some(
-        (reference) => text.slice(reference.range.start.offset, reference.range.end.offset) === 'count',
+        (reference) =>
+          text.slice(
+            reference.range.start.offset,
+            reference.range.end.offset,
+          ) === 'count',
       ),
     ).toBe(true);
     expect(renameInfo).toBeUndefined();

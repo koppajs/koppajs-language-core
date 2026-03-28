@@ -22,6 +22,7 @@ The governed root files are:
 - `CONTRIBUTING.md`
 
 Changes to the structure of those files require updating this spec, the local validator script, and any contributor-facing workflow docs in the same change.
+Changes to the semantic promises in those files require updating the relevant quality or workflow docs in the same change.
 
 ## README Contract
 
@@ -80,6 +81,7 @@ Repository-specific notes may appear inside the shared sections, but the section
 ## Validation & Enforcement
 
 The repository must provide a local validator at `scripts/check-doc-contract.mjs`.
+The repository must also provide a semantic consistency validator at `scripts/check-doc-semantics.mjs`.
 
 The validator runs through:
 
@@ -95,5 +97,6 @@ A documentation update satisfies this contract only when:
 
 - the governed files keep the required branded structure
 - repository-specific guidance remains accurate
+- version, workflow, and quality-gate claims stay consistent with the actual repository configuration
 - this spec still matches the validator behavior
 - the local `check:docs` command passes

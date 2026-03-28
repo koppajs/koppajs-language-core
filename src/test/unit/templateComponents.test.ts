@@ -15,7 +15,9 @@ import { kpaDiagnosticCodes } from '../../language/diagnosticCodes';
 
 describe('template components', () => {
   it('collects imported .kpa components and exposes tag aliases', () => {
-    const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'kpa-template-components-'));
+    const tempDirectory = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'kpa-template-components-'),
+    );
     const componentPath = path.join(tempDirectory, 'UserCard.kpa');
     const sourcePath = path.join(tempDirectory, 'Page.kpa');
 
@@ -49,7 +51,9 @@ describe('template components', () => {
   });
 
   it('warns about unresolved PascalCase component tags and broken .kpa imports', () => {
-    const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'kpa-template-components-'));
+    const tempDirectory = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'kpa-template-components-'),
+    );
     const sourcePath = path.join(tempDirectory, 'Page.kpa');
     const text = [
       '[template]',
@@ -61,11 +65,16 @@ describe('template components', () => {
       '[/ts]',
     ].join('\n');
     const document = parseKpaDocument(text);
-    const diagnostics = collectCanonicalTemplateComponentDiagnostics(document, sourcePath);
+    const diagnostics = collectCanonicalTemplateComponentDiagnostics(
+      document,
+      sourcePath,
+    );
 
     expect(
       diagnostics.some((diagnostic) =>
-        diagnostic.message.includes('Komponente [UserCard] wurde im [template]-Block verwendet'),
+        diagnostic.message.includes(
+          'Komponente [UserCard] wurde im [template]-Block verwendet',
+        ),
       ),
     ).toBe(true);
     expect(
@@ -78,7 +87,9 @@ describe('template components', () => {
   });
 
   it('does not flag kebab-case components that are registered through Core.take in the workspace', () => {
-    const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'kpa-template-components-'));
+    const tempDirectory = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'kpa-template-components-'),
+    );
     const sourcePath = path.join(tempDirectory, 'app-view.kpa');
     const componentPath = path.join(tempDirectory, 'counter-component.kpa');
     const bootstrapPath = path.join(tempDirectory, 'main.ts');
@@ -95,9 +106,11 @@ describe('template components', () => {
       ].join('\n'),
     );
 
-    const text = ['[template]', '  <counter-component></counter-component>', '[/template]'].join(
-      '\n',
-    );
+    const text = [
+      '[template]',
+      '  <counter-component></counter-component>',
+      '[/template]',
+    ].join('\n');
     const diagnostics = collectCanonicalTemplateComponentDiagnostics(
       parseKpaDocument(text),
       sourcePath,
@@ -105,7 +118,8 @@ describe('template components', () => {
 
     expect(
       diagnostics.some(
-        (diagnostic) => diagnostic.code === kpaDiagnosticCodes.unresolvedComponentTag,
+        (diagnostic) =>
+          diagnostic.code === kpaDiagnosticCodes.unresolvedComponentTag,
       ),
     ).toBe(false);
   });
@@ -122,7 +136,9 @@ describe('template components', () => {
   });
 
   it('extracts runtime props together with typed emits and slots from an imported .kpa component API', () => {
-    const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'kpa-template-components-'));
+    const tempDirectory = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'kpa-template-components-'),
+    );
     const componentPath = path.join(tempDirectory, 'UserCard.kpa');
     const sourcePath = path.join(tempDirectory, 'Page.kpa');
 
@@ -164,14 +180,20 @@ describe('template components', () => {
     const api = getImportedKpaComponentApi(component);
 
     expect(api?.props.map((entry) => entry.name)).toEqual(['title', 'count']);
-    expect(api?.props.find((entry) => entry.name === 'title')?.optional).toBe(false);
-    expect(api?.props.find((entry) => entry.name === 'count')?.typeText).toBe('number');
+    expect(api?.props.find((entry) => entry.name === 'title')?.optional).toBe(
+      false,
+    );
+    expect(api?.props.find((entry) => entry.name === 'count')?.typeText).toBe(
+      'number',
+    );
     expect(api?.emits.map((entry) => entry.name)).toEqual(['save']);
     expect(api?.slots.map((entry) => entry.name)).toEqual(['default']);
   });
 
   it('extracts slot definitions from template slot elements when no Slots interface is present', () => {
-    const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'kpa-template-components-'));
+    const tempDirectory = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'kpa-template-components-'),
+    );
     const componentPath = path.join(tempDirectory, 'PanelFrame.kpa');
     const sourcePath = path.join(tempDirectory, 'Page.kpa');
 
@@ -200,12 +222,17 @@ describe('template components', () => {
     const component = collectImportedKpaComponents(document, sourcePath)[0];
     const api = getImportedKpaComponentApi(component);
 
-    expect(api?.slots.map((entry) => entry.name)).toEqual(['header', 'default']);
+    expect(api?.slots.map((entry) => entry.name)).toEqual([
+      'header',
+      'default',
+    ]);
     expect(api?.slots.every((entry) => entry.optional)).toBe(true);
   });
 
   it('reports missing required runtime props with quick-fix metadata', () => {
-    const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'kpa-template-components-'));
+    const tempDirectory = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'kpa-template-components-'),
+    );
     const componentPath = path.join(tempDirectory, 'UserCard.kpa');
     const sourcePath = path.join(tempDirectory, 'Page.kpa');
 
@@ -240,7 +267,8 @@ describe('template components', () => {
       sourcePath,
     );
     const missingPropDiagnostic = diagnostics.find(
-      (diagnostic) => diagnostic.code === kpaDiagnosticCodes.missingComponentProp,
+      (diagnostic) =>
+        diagnostic.code === kpaDiagnosticCodes.missingComponentProp,
     );
 
     expect(missingPropDiagnostic?.message).toContain('Required Prop [title]');
@@ -251,7 +279,9 @@ describe('template components', () => {
   });
 
   it('reports unknown props and simple prop type mismatches for runtime component props', () => {
-    const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'kpa-template-components-'));
+    const tempDirectory = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'kpa-template-components-'),
+    );
     const componentPath = path.join(tempDirectory, 'UserCard.kpa');
     const sourcePath = path.join(tempDirectory, 'Page.kpa');
 
@@ -288,16 +318,22 @@ describe('template components', () => {
 
     expect(
       diagnostics.some(
-        (diagnostic) => diagnostic.code === kpaDiagnosticCodes.invalidComponentPropType,
+        (diagnostic) =>
+          diagnostic.code === kpaDiagnosticCodes.invalidComponentPropType,
       ),
     ).toBe(true);
     expect(
-      diagnostics.some((diagnostic) => diagnostic.code === kpaDiagnosticCodes.unknownComponentProp),
+      diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === kpaDiagnosticCodes.unknownComponentProp,
+      ),
     ).toBe(true);
   });
 
   it('collects canonical component usages with parsed attributes and insertion points', () => {
-    const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'kpa-template-components-'));
+    const tempDirectory = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'kpa-template-components-'),
+    );
     const componentPath = path.join(tempDirectory, 'UserCard.kpa');
     const sourcePath = path.join(tempDirectory, 'Page.kpa');
 
@@ -312,15 +348,23 @@ describe('template components', () => {
       "  import UserCard from './UserCard';",
       '[/ts]',
     ].join('\n');
-    const usages = collectCanonicalTemplateComponentUsages(parseKpaDocument(text), sourcePath);
+    const usages = collectCanonicalTemplateComponentUsages(
+      parseKpaDocument(text),
+      sourcePath,
+    );
 
     expect(usages).toHaveLength(1);
-    expect(usages[0].attributes.map((attribute) => attribute.name)).toEqual(['title', 'active']);
+    expect(usages[0].attributes.map((attribute) => attribute.name)).toEqual([
+      'title',
+      'active',
+    ]);
     expect(usages[0].insertOffset).toBeGreaterThan(text.indexOf('UserCard'));
   });
 
   it('reports missing required slots and unknown emit bindings for imported components', () => {
-    const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'kpa-template-components-'));
+    const tempDirectory = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'kpa-template-components-'),
+    );
     const componentPath = path.join(tempDirectory, 'UserCard.kpa');
     const sourcePath = path.join(tempDirectory, 'Page.kpa');
 
@@ -360,13 +404,22 @@ describe('template components', () => {
     );
 
     expect(
-      diagnostics.some((diagnostic) => diagnostic.code === kpaDiagnosticCodes.unknownComponentEmit),
+      diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === kpaDiagnosticCodes.unknownComponentEmit,
+      ),
     ).toBe(true);
     expect(
-      diagnostics.some((diagnostic) => diagnostic.code === kpaDiagnosticCodes.unknownComponentProp),
+      diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === kpaDiagnosticCodes.unknownComponentProp,
+      ),
     ).toBe(false);
     expect(
-      diagnostics.some((diagnostic) => diagnostic.code === kpaDiagnosticCodes.missingComponentSlot),
+      diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === kpaDiagnosticCodes.missingComponentSlot,
+      ),
     ).toBe(true);
   });
 });

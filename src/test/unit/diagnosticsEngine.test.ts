@@ -22,7 +22,9 @@ describe('collectBlockDiagnostics', () => {
     const text = '[/template]';
     const [diagnostic] = collectBlockDiagnostics(text);
 
-    expect(diagnostic?.message).toContain('ohne dass er vorher geoeffnet wurde');
+    expect(diagnostic?.message).toContain(
+      'ohne dass er vorher geoeffnet wurde',
+    );
     expect(diagnostic?.range).toEqual({
       line: 0,
       startChar: 0,
@@ -62,14 +64,20 @@ describe('collectBlockDiagnostics', () => {
     const text = ['[layout]', '[/template]'].join('\n');
     const [diagnostic] = collectBlockDiagnostics(text);
 
-    expect(diagnostic?.message).toContain('ohne dass er vorher geoeffnet wurde');
+    expect(diagnostic?.message).toContain(
+      'ohne dass er vorher geoeffnet wurde',
+    );
   });
 
   it('flags missing local template symbols in simple canonical expressions', () => {
-    const text = ['[template]', '  <div>{{missing}}</div>', '[/template]'].join('\n');
+    const text = ['[template]', '  <div>{{missing}}</div>', '[/template]'].join(
+      '\n',
+    );
     const [diagnostic] = collectBlockDiagnostics(text);
 
-    expect(diagnostic?.message).toBe('Lokales Template-Symbol [missing] wurde nicht gefunden.');
+    expect(diagnostic?.message).toBe(
+      'Lokales Template-Symbol [missing] wurde nicht gefunden.',
+    );
     expect(diagnostic?.range).toEqual({
       line: 1,
       startChar: 9,
@@ -78,10 +86,16 @@ describe('collectBlockDiagnostics', () => {
   });
 
   it('flags missing local template symbols in dynamic binding expressions', () => {
-    const text = ['[template]', '  <div :hidden="!missing"></div>', '[/template]'].join('\n');
+    const text = [
+      '[template]',
+      '  <div :hidden="!missing"></div>',
+      '[/template]',
+    ].join('\n');
     const [diagnostic] = collectBlockDiagnostics(text);
 
-    expect(diagnostic?.message).toBe('Lokales Template-Symbol [missing] wurde nicht gefunden.');
+    expect(diagnostic?.message).toBe(
+      'Lokales Template-Symbol [missing] wurde nicht gefunden.',
+    );
   });
 
   it('does not treat top-level script helpers as template-visible', () => {
@@ -97,7 +111,9 @@ describe('collectBlockDiagnostics', () => {
     ].join('\n');
     const [diagnostic] = collectBlockDiagnostics(text);
 
-    expect(diagnostic?.message).toBe('Lokales Template-Symbol [count] wurde nicht gefunden.');
+    expect(diagnostic?.message).toBe(
+      'Lokales Template-Symbol [count] wurde nicht gefunden.',
+    );
   });
 
   it('does not flag loop bindings or loop helper names as missing template symbols', () => {
@@ -147,7 +163,9 @@ describe('collectBlockDiagnostics', () => {
     ].join('\n');
     const [diagnostic] = collectBlockDiagnostics(text);
 
-    expect(diagnostic?.message).toBe('Lokales Template-Symbol [missing] wurde nicht gefunden.');
+    expect(diagnostic?.message).toBe(
+      'Lokales Template-Symbol [missing] wurde nicht gefunden.',
+    );
   });
 
   it('avoids warning on identifiers inside nested function scopes in template expressions', () => {

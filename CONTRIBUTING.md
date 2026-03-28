@@ -61,7 +61,20 @@ Before committing, run:
 npm run check:docs
 ```
 
-The local pre-commit hook runs the same guard and blocks the commit when the contract fails.
+The lightweight meta-layer guard is also available locally:
+
+```bash
+npm run check:meta
+```
+
+Formatting and linting are also part of the local pre-commit gate:
+
+```bash
+npm run format:check
+npm run lint
+```
+
+The local pre-commit hook runs all four checks and blocks the commit when any of them fail.
 
 <p align="right">(<a href="#contributing-top">back to top</a>)</p>
 
@@ -69,14 +82,16 @@ The local pre-commit hook runs the same guard and blocks the commit when the con
 
 ## Requirements
 
-- Node.js >= 20
-- npm >= 10
+- Node.js >=22
+- npm >=10
 
 Install dependencies:
 
 ```bash
 npm install
 ```
+
+The tracked `.npmrc` enforces compatible Node.js and npm versions during install.
 
 <p align="right">(<a href="#contributing-top">back to top</a>)</p>
 
@@ -90,7 +105,7 @@ A safe default workflow is:
 
 1. Read the affected code, tests, and local governance docs before changing behavior.
 2. Update the owned specs and governed root docs in the same change when the contract moves.
-3. Run `npm run check:docs` before broader quality checks.
+3. Run `npm run check:docs` and `npm run check:meta` before broader quality checks.
 4. Run the repository quality gates that cover the affected behavior.
 5. Keep unrelated edits out of the same change whenever possible.
 
@@ -111,6 +126,7 @@ Expectations for changes in this repository:
 
 - keep implementations explicit and easy to review
 - prefer updating governing docs over leaving intent implicit
+- keep ESLint, Prettier, and semantic documentation checks passing
 - keep quality-gate commands passing before asking for review
 - do not silently change public behavior or contributor workflow
 
@@ -151,12 +167,19 @@ That means:
 
 ## Scripts
 
-| Command | Description |
-| ------- | ----------- |
-| `npm run check:docs` | Validate README, CHANGELOG, CODE_OF_CONDUCT, CONTRIBUTING, and the local doc contract |
-| `npm run validate` | Run the repository validation flow |
-| `npm run build` | Build the project output |
-| `npm run test` | Run the test suite |
+| Command                 | Description                                                                                       |
+| ----------------------- | ------------------------------------------------------------------------------------------------- |
+| `npm run check:docs`    | Validate governed root docs structurally and semantically against the current repository contract |
+| `npm run check:meta`    | Validate the lightweight repository meta layer, workflow docs, and AI guidance files              |
+| `npm run format`        | Rewrite files with the tracked Prettier configuration                                             |
+| `npm run format:check`  | Verify formatting without rewriting files                                                         |
+| `npm run lint`          | Run ESLint against the tracked source, config, and script files                                   |
+| `npm run lint:fix`      | Apply safe ESLint fixes where possible                                                            |
+| `npm run check`         | Run the full local quality gate without rebuilding publish output                                 |
+| `npm run release:check` | Verify the publishable npm package payload with `npm pack --dry-run`                              |
+| `npm run validate`      | Run the repository validation flow                                                                |
+| `npm run build`         | Build the project output                                                                          |
+| `npm run test`          | Run the test suite                                                                                |
 
 <p align="right">(<a href="#contributing-top">back to top</a>)</p>
 

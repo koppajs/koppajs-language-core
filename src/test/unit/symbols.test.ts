@@ -22,7 +22,11 @@ describe('collectLocalScriptSymbols', () => {
     const symbols = collectLocalScriptSymbols(parseKpaDocument(text));
 
     expect(
-      symbols.all.map((symbol) => [symbol.name, symbol.kind, symbol.isTemplateVisible]),
+      symbols.all.map((symbol) => [
+        symbol.name,
+        symbol.kind,
+        symbol.isTemplateVisible,
+      ]),
     ).toEqual([
       ['Foo', 'import', true],
       ['baz', 'import', true],
@@ -54,9 +58,12 @@ describe('collectLocalScriptSymbols', () => {
 
     const countSymbol = symbols.all.find((symbol) => symbol.name === 'count');
     expect(countSymbol).toBeDefined();
-    expect(text.slice(countSymbol!.range.start.offset, countSymbol!.range.end.offset)).toBe(
-      'count',
-    );
+    expect(
+      text.slice(
+        countSymbol!.range.start.offset,
+        countSymbol!.range.end.offset,
+      ),
+    ).toBe('count');
   });
 
   it('marks exported symbols from direct exports, export lists, and default export assignments', () => {
@@ -95,7 +102,9 @@ describe('collectLocalScriptSymbols', () => {
 
     const symbols = collectLocalScriptSymbols(parseKpaDocument(text));
 
-    expect(symbols.all.map((symbol) => [symbol.name, symbol.blockKind])).toEqual([
+    expect(
+      symbols.all.map((symbol) => [symbol.name, symbol.blockKind]),
+    ).toEqual([
       ['createApp', 'script-js'],
       ['count', 'script-js'],
       ['Props', 'script-ts'],

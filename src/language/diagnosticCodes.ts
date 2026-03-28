@@ -9,7 +9,8 @@ export const kpaDiagnosticCodes = {
   unknownComponentSlot: 'kpa.unknown-component-slot',
 } as const;
 
-export type KpaDiagnosticCode = (typeof kpaDiagnosticCodes)[keyof typeof kpaDiagnosticCodes];
+export type KpaDiagnosticCode =
+  (typeof kpaDiagnosticCodes)[keyof typeof kpaDiagnosticCodes];
 
 export interface MissingComponentPropDiagnosticData {
   componentName: string;

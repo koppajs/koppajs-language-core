@@ -15,15 +15,12 @@ describe('parseKpaDocument', () => {
   it('parses canonical blocks from fixture documents', () => {
     const document = parseKpaDocument(readFixture('well-formed-component.kpa'));
 
-    expect(document.tags.map((tag) => `${tag.isClosing ? '/' : ''}${tag.name}`)).toEqual([
-      'template',
-      '/template',
-      'ts',
-      '/ts',
-      'css',
-      '/css',
-    ]);
-    expect(document.blocks.map((block) => [block.name, block.kind, block.isClosed])).toEqual([
+    expect(
+      document.tags.map((tag) => `${tag.isClosing ? '/' : ''}${tag.name}`),
+    ).toEqual(['template', '/template', 'ts', '/ts', 'css', '/css']);
+    expect(
+      document.blocks.map((block) => [block.name, block.kind, block.isClosed]),
+    ).toEqual([
       ['template', 'template', true],
       ['ts', 'script-ts', true],
       ['css', 'style-css', true],
@@ -31,12 +28,13 @@ describe('parseKpaDocument', () => {
   });
 
   it('keeps unclosed canonical blocks available for downstream diagnostics', () => {
-    const document = parseKpaDocument(readFixture('mismatched-canonical-close.kpa'));
+    const document = parseKpaDocument(
+      readFixture('mismatched-canonical-close.kpa'),
+    );
 
-    expect(document.tags.map((tag) => `${tag.isClosing ? '/' : ''}${tag.name}`)).toEqual([
-      'template',
-      '/css',
-    ]);
+    expect(
+      document.tags.map((tag) => `${tag.isClosing ? '/' : ''}${tag.name}`),
+    ).toEqual(['template', '/css']);
     expect(document.blocks).toHaveLength(1);
     expect(document.blocks[0]).toMatchObject({
       name: 'template',
@@ -53,7 +51,9 @@ describe('getBlockAtOffset', () => {
     const templateOffset = text.indexOf('<div');
     const scriptOffset = text.indexOf('const count');
 
-    expect(getBlockAtOffset(document, templateOffset, ['template'])?.name).toBe('template');
+    expect(getBlockAtOffset(document, templateOffset, ['template'])?.name).toBe(
+      'template',
+    );
     expect(getBlockAtOffset(document, scriptOffset, ['ts'])?.name).toBe('ts');
   });
 });

@@ -23,7 +23,10 @@ describe('getTemplateExpressionContext', () => {
 
     expect(context).toBeDefined();
     expect(
-      text.slice(context!.expressionRange.startOffset, context!.expressionRange.endOffset),
+      text.slice(
+        context!.expressionRange.startOffset,
+        context!.expressionRange.endOffset,
+      ),
     ).toBe('{{count}}');
   });
 
@@ -41,7 +44,10 @@ describe('getTemplateExpressionContext', () => {
 
     expect(context).toBeDefined();
     expect(
-      text.slice(context!.expressionRange.startOffset, context!.expressionRange.endOffset),
+      text.slice(
+        context!.expressionRange.startOffset,
+        context!.expressionRange.endOffset,
+      ),
     ).toBe('menuOpen');
   });
 
@@ -66,7 +72,10 @@ describe('getTemplateExpressionContext', () => {
 
     expect(context).toBeDefined();
     expect(
-      text.slice(context!.expressionRange.startOffset, context!.expressionRange.endOffset),
+      text.slice(
+        context!.expressionRange.startOffset,
+        context!.expressionRange.endOffset,
+      ),
     ).toBe('{{count\n');
   });
 });

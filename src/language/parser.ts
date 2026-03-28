@@ -1,4 +1,9 @@
-import type { KpaBlockKind, KpaBlockNode, KpaDocument, KpaTagToken } from './ast';
+import type {
+  KpaBlockKind,
+  KpaBlockNode,
+  KpaDocument,
+  KpaTagToken,
+} from './ast';
 import { createLineStarts, createLocatedRange } from './sourcePositions';
 
 const blockTagPattern = /\[(\/?)([a-zA-Z0-9]+)\]/g;
@@ -87,7 +92,11 @@ function createBlockNode(
     openTag,
     closeTag,
     range: createLocatedRange(lineStarts, rangeStartOffset, rangeEndOffset),
-    contentRange: createLocatedRange(lineStarts, contentStartOffset, contentEndOffset),
+    contentRange: createLocatedRange(
+      lineStarts,
+      contentStartOffset,
+      contentEndOffset,
+    ),
     isClosed: closeTag !== undefined,
   };
 }

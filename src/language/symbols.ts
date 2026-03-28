@@ -1,5 +1,10 @@
 import ts from 'typescript';
-import type { KpaBlockKind, KpaBlockNode, KpaDocument, KpaLocatedRange } from './ast';
+import type {
+  KpaBlockKind,
+  KpaBlockNode,
+  KpaDocument,
+  KpaLocatedRange,
+} from './ast';
 import {
   collectRuntimeTemplateContextBindings,
   type KpaTemplateContextBindingOrigin,
@@ -48,7 +53,9 @@ interface BlockSymbolContext {
   symbolsByName: Map<string, MutableKpaScriptSymbol[]>;
 }
 
-export function collectLocalScriptSymbols(document: KpaDocument): KpaLocalScriptSymbolTable {
+export function collectLocalScriptSymbols(
+  document: KpaDocument,
+): KpaLocalScriptSymbolTable {
   const allSymbols = document.blocks.flatMap((block) =>
     isScriptBlock(block) ? collectSymbolsFromScriptBlock(document, block) : [],
   );
@@ -60,7 +67,9 @@ export function collectLocalScriptSymbols(document: KpaDocument): KpaLocalScript
   };
 }
 
-export function collectTemplateContextSymbols(document: KpaDocument): readonly KpaScriptSymbol[] {
+export function collectTemplateContextSymbols(
+  document: KpaDocument,
+): readonly KpaScriptSymbol[] {
   const block = document.blocks.find(isScriptBlock);
 
   if (!block) {
@@ -135,7 +144,10 @@ function collectSymbolsFromScriptBlock(
   return symbols;
 }
 
-function collectDeclaredSymbols(statement: ts.Statement, context: BlockSymbolContext): void {
+function collectDeclaredSymbols(
+  statement: ts.Statement,
+  context: BlockSymbolContext,
+): void {
   if (ts.isImportDeclaration(statement)) {
     collectImportDeclarationSymbols(statement, context);
     return;
@@ -155,7 +167,12 @@ function collectDeclaredSymbols(statement: ts.Statement, context: BlockSymbolCon
     const isExported = hasModifier(statement, ts.SyntaxKind.ExportKeyword);
 
     for (const declaration of statement.declarationList.declarations) {
-      collectBindingNameSymbols(declaration.name, context, 'variable', isExported);
+      collectBindingNameSymbols(
+        declaration.name,
+        context,
+        'variable',
+        isExported,
+      );
     }
 
     return;
@@ -182,7 +199,12 @@ function collectDeclaredSymbols(statement: ts.Statement, context: BlockSymbolCon
   }
 
   if (ts.isEnumDeclaration(statement)) {
-    addSymbol(context, statement.name, 'enum', hasModifier(statement, ts.SyntaxKind.ExportKeyword));
+    addSymbol(
+      context,
+      statement.name,
+      'enum',
+      hasModifier(statement, ts.SyntaxKind.ExportKeyword),
+    );
     return;
   }
 
@@ -217,7 +239,11 @@ function collectImportDeclarationSymbols(
   }
 
   if (importClause.name) {
-    addSymbol(context, importClause.name, importClause.isTypeOnly ? 'import-type' : 'import');
+    addSymbol(
+      context,
+      importClause.name,
+      importClause.isTypeOnly ? 'import-type' : 'import',
+    );
   }
 
   if (!importClause.namedBindings) {
@@ -283,7 +309,10 @@ function applyExportListMetadata(
     return;
   }
 
-  if (ts.isExportAssignment(statement) && ts.isIdentifier(statement.expression)) {
+  if (
+    ts.isExportAssignment(statement) &&
+    ts.isIdentifier(statement.expression)
+  ) {
     markSymbolsAsExported(symbolsByName, statement.expression.text);
   }
 }
@@ -353,7 +382,9 @@ function markSymbolsAsExported(
 }
 
 function isTemplateVisible(kind: KpaScriptSymbolKind): boolean {
-  return kind !== 'import-type' && kind !== 'interface' && kind !== 'type-alias';
+  return (
+    kind !== 'import-type' && kind !== 'interface' && kind !== 'type-alias'
+  );
 }
 
 function hasModifier(node: ts.Node, kind: ts.SyntaxKind): boolean {
@@ -361,10 +392,14 @@ function hasModifier(node: ts.Node, kind: ts.SyntaxKind): boolean {
     return false;
   }
 
-  return ts.getModifiers(node)?.some((modifier) => modifier.kind === kind) ?? false;
+  return (
+    ts.getModifiers(node)?.some((modifier) => modifier.kind === kind) ?? false
+  );
 }
 
-function isScriptBlock(block: KpaBlockNode): block is KpaBlockNode & { kind: ScriptBlockKind } {
+function isScriptBlock(
+  block: KpaBlockNode,
+): block is KpaBlockNode & { kind: ScriptBlockKind } {
   return block.kind === 'script-ts' || block.kind === 'script-js';
 }
 

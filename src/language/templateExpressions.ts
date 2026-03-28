@@ -30,7 +30,9 @@ export function collectCanonicalTemplateExpressions(
   document: KpaDocument,
 ): readonly KpaTemplateExpression[] {
   return document.blocks.flatMap((block) =>
-    block.name === canonicalTemplateBlock ? collectExpressionsFromBlock(document, block) : [],
+    block.name === canonicalTemplateBlock
+      ? collectExpressionsFromBlock(document, block)
+      : [],
   );
 }
 
@@ -40,7 +42,8 @@ export function getCanonicalTemplateExpressionAtOffset(
 ): KpaTemplateExpression | undefined {
   return collectCanonicalTemplateExpressions(document).find(
     (expression) =>
-      offset >= expression.contentRange.start.offset && offset <= expression.contentRange.end.offset,
+      offset >= expression.contentRange.start.offset &&
+      offset <= expression.contentRange.end.offset,
   );
 }
 
@@ -48,7 +51,8 @@ export function getTemplateExpressionRootReference(
   document: KpaDocument,
   expression: KpaTemplateExpression,
 ): KpaTemplateRootReference | undefined {
-  const leadingWhitespaceLength = expression.contentText.match(/^\s*/)?.[0].length ?? 0;
+  const leadingWhitespaceLength =
+    expression.contentText.match(/^\s*/)?.[0].length ?? 0;
   const trimmedContent = expression.contentText.trim();
 
   if (trimmedContent.length === 0) {
@@ -62,11 +66,16 @@ export function getTemplateExpressionRootReference(
   }
 
   const name = match[1];
-  const startOffset = expression.contentRange.start.offset + leadingWhitespaceLength;
+  const startOffset =
+    expression.contentRange.start.offset + leadingWhitespaceLength;
 
   return {
     name,
-    range: createLocatedRange(document.lineStarts, startOffset, startOffset + name.length),
+    range: createLocatedRange(
+      document.lineStarts,
+      startOffset,
+      startOffset + name.length,
+    ),
     expression,
   };
 }
@@ -84,7 +93,9 @@ export function getCanonicalTemplateIdentifierReferenceAtOffset(
   offset: number,
 ): KpaTemplateIdentifierReference | undefined {
   return collectCanonicalTemplateIdentifierReferences(document).find(
-    (reference) => offset >= reference.range.start.offset && offset <= reference.range.end.offset,
+    (reference) =>
+      offset >= reference.range.start.offset &&
+      offset <= reference.range.end.offset,
   );
 }
 
@@ -101,7 +112,14 @@ function collectExpressionsFromBlock(
   for (let index = 0; index < content.length; index++) {
     if (!startsMustacheExpression(content, index)) {
       if (content[index] === '<') {
-        expressions.push(...collectDynamicBindingExpressionsAt(document, block, content, index));
+        expressions.push(
+          ...collectDynamicBindingExpressionsAt(
+            document,
+            block,
+            content,
+            index,
+          ),
+        );
       }
 
       continue;
@@ -110,11 +128,15 @@ function collectExpressionsFromBlock(
     const expressionEnd = findMustacheExpressionEnd(content, index + 2);
 
     if (expressionEnd === undefined) {
-      expressions.push(createTemplateExpression(document, block, index, content.length));
+      expressions.push(
+        createTemplateExpression(document, block, index, content.length),
+      );
       break;
     }
 
-    expressions.push(createTemplateExpression(document, block, index, expressionEnd + 2));
+    expressions.push(
+      createTemplateExpression(document, block, index, expressionEnd + 2),
+    );
     index = Math.max(index, expressionEnd + 1);
   }
 
@@ -192,7 +214,10 @@ function startsMustacheExpression(content: string, index: number): boolean {
   return content[index] === '{' && content[index + 1] === '{';
 }
 
-function findMustacheExpressionEnd(content: string, startIndex: number): number | undefined {
+function findMustacheExpressionEnd(
+  content: string,
+  startIndex: number,
+): number | undefined {
   let cursor = startIndex;
   let nestedBraceDepth = 0;
   let quote: '"' | "'" | '`' | undefined;
@@ -270,7 +295,11 @@ function createTemplateExpression(
   return {
     block,
     range: createLocatedRange(document.lineStarts, startOffset, endOffset),
-    contentRange: createLocatedRange(document.lineStarts, startOffset + 2, contentEndOffset),
+    contentRange: createLocatedRange(
+      document.lineStarts,
+      startOffset + 2,
+      contentEndOffset,
+    ),
     text: document.text.slice(startOffset, endOffset),
     contentText: document.text.slice(startOffset + 2, contentEndOffset),
   };
@@ -290,7 +319,11 @@ function createRawTemplateExpression(
   return {
     block,
     range: createLocatedRange(document.lineStarts, startOffset, endOffset),
-    contentRange: createLocatedRange(document.lineStarts, startOffset, endOffset),
+    contentRange: createLocatedRange(
+      document.lineStarts,
+      startOffset,
+      endOffset,
+    ),
     text,
     contentText: text,
   };
@@ -329,7 +362,12 @@ function collectTemplateIdentifierReferences(
     if (ts.isIdentifier(node) && isTemplateIdentifierReferenceNode(node)) {
       references.push({
         name: node.text,
-        range: toExpressionDocumentRange(document, expression, node, sourceFile),
+        range: toExpressionDocumentRange(
+          document,
+          expression,
+          node,
+          sourceFile,
+        ),
         expression,
       });
       return;
@@ -339,7 +377,9 @@ function collectTemplateIdentifierReferences(
   }
 }
 
-function unwrapParenthesizedExpression(expression: ts.Expression): ts.Expression {
+function unwrapParenthesizedExpression(
+  expression: ts.Expression,
+): ts.Expression {
   let currentExpression = expression;
 
   while (ts.isParenthesizedExpression(currentExpression)) {
@@ -352,13 +392,15 @@ function unwrapParenthesizedExpression(expression: ts.Expression): ts.Expression
 function readAttributeAt(
   content: string,
   index: number,
-): {
-  expressionRange?: {
-    startOffsetInBlock: number;
-    endOffsetInBlock: number;
-  };
-  nextIndex: number;
-} | undefined {
+):
+  | {
+      expressionRange?: {
+        startOffsetInBlock: number;
+        endOffsetInBlock: number;
+      };
+      nextIndex: number;
+    }
+  | undefined {
   let cursor = index;
 
   if (!isAttributeNameStart(content[cursor])) {
@@ -402,7 +444,10 @@ function readAttributeAt(
               endOffsetInBlock: valueEnd,
             }
           : undefined,
-      nextIndex: valueEnd < content.length && content[valueEnd] === quote ? valueEnd + 1 : valueEnd,
+      nextIndex:
+        valueEnd < content.length && content[valueEnd] === quote
+          ? valueEnd + 1
+          : valueEnd,
     };
   }
 
@@ -477,7 +522,10 @@ function isTemplateIdentifierReferenceNode(node: ts.Identifier): boolean {
     return false;
   }
 
-  if (ts.isBindingElement(parent) && (parent.name === node || parent.propertyName === node)) {
+  if (
+    ts.isBindingElement(parent) &&
+    (parent.name === node || parent.propertyName === node)
+  ) {
     return false;
   }
 
@@ -535,8 +583,11 @@ function toExpressionDocumentRange(
 ): KpaLocatedRange {
   const parsePrefixLength = 1;
   const startOffset =
-    expression.contentRange.start.offset + node.getStart(sourceFile) - parsePrefixLength;
-  const endOffset = expression.contentRange.start.offset + node.end - parsePrefixLength;
+    expression.contentRange.start.offset +
+    node.getStart(sourceFile) -
+    parsePrefixLength;
+  const endOffset =
+    expression.contentRange.start.offset + node.end - parsePrefixLength;
 
   return createLocatedRange(document.lineStarts, startOffset, endOffset);
 }
@@ -558,5 +609,10 @@ function isAttributeNameCharacter(character: string | undefined): boolean {
 }
 
 function isWhitespace(character: string | undefined): boolean {
-  return character === ' ' || character === '\t' || character === '\n' || character === '\r';
+  return (
+    character === ' ' ||
+    character === '\t' ||
+    character === '\n' ||
+    character === '\r'
+  );
 }
