@@ -17,6 +17,11 @@ Changes will only appear here when they:
 - affect repository behavior or public guidance,
 - change contributor workflow or governance,
 - or alter the documented package or repository contract.
+
+---
+
+## [0.1.4]
+
 - Raise the declared and documented Node.js minimum to `>=22` and expand CI validation to Node.js 22 and 24.
 - Add engine-strict/npm engine enforcement, a lightweight meta-layer guard, and explicit release payload verification.
 - Document the repository meta layer and centralize the cross-repo Core/Vite-plugin contract used by language analysis.
