@@ -18,7 +18,7 @@ stable conventions that downstream KoppaJS repositories expose.
 - TypeScript or JavaScript workspace files that import `.kpa` components
 - explicit `Core.take(componentSource, "tag-name")` registrations
 - canonical component script contracts such as `return { state, methods, props
-  }`
+}`
 - typed `Emits` and `Slots` declarations inside component source when present
 
 ## Outputs

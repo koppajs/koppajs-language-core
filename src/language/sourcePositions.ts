@@ -12,7 +12,10 @@ export function createLineStarts(text: string): number[] {
   return lineStarts;
 }
 
-export function offsetToPosition(lineStarts: readonly number[], offset: number): KpaSourcePosition {
+export function offsetToPosition(
+  lineStarts: readonly number[],
+  offset: number,
+): KpaSourcePosition {
   const normalizedOffset = Math.max(0, offset);
   let low = 0;
   let high = lineStarts.length - 1;
@@ -21,7 +24,9 @@ export function offsetToPosition(lineStarts: readonly number[], offset: number):
     const middle = Math.floor((low + high) / 2);
     const currentLineStart = lineStarts[middle];
     const nextLineStart =
-      middle + 1 < lineStarts.length ? lineStarts[middle + 1] : Number.POSITIVE_INFINITY;
+      middle + 1 < lineStarts.length
+        ? lineStarts[middle + 1]
+        : Number.POSITIVE_INFINITY;
 
     if (normalizedOffset < currentLineStart) {
       high = middle - 1;

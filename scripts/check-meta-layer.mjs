@@ -27,6 +27,9 @@ const requiredPaths = [
   'RELEASE.md',
   'ROADMAP.md',
   'TESTING_STRATEGY.md',
+  'eslint.config.mjs',
+  'prettier.config.mjs',
+  '.prettierignore',
   '.github/instructions/ai-collaboration.md',
   '.github/workflows/README.md',
   '.github/workflows/ci.yml',
@@ -43,6 +46,7 @@ const requiredPaths = [
   'docs/specs/core-plugin-integration-contract.md',
   'docs/specs/repository-documentation-contract.md',
   'scripts/check-doc-contract.mjs',
+  'scripts/check-doc-semantics.mjs',
 ];
 
 let failed = false;

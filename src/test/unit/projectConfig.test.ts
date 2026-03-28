@@ -6,7 +6,9 @@ import { resolveWorkspaceImportPath } from '../../language/projectConfig';
 
 describe('project config resolution', () => {
   it('resolves .kpa imports through tsconfig path aliases', () => {
-    const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'kpa-project-config-'));
+    const tempDirectory = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'kpa-project-config-'),
+    );
     const projectDirectory = path.join(tempDirectory, 'app');
     const componentDirectory = path.join(projectDirectory, 'src', 'components');
     const sourcePath = path.join(projectDirectory, 'src', 'pages', 'Page.kpa');
@@ -28,10 +30,13 @@ describe('project config resolution', () => {
         2,
       ),
     );
-    fs.writeFileSync(path.join(componentDirectory, 'UserCard.kpa'), '[template][/template]\n');
-
-    expect(resolveWorkspaceImportPath('@components/UserCard', sourcePath, ['.kpa'])).toBe(
+    fs.writeFileSync(
       path.join(componentDirectory, 'UserCard.kpa'),
+      '[template][/template]\n',
     );
+
+    expect(
+      resolveWorkspaceImportPath('@components/UserCard', sourcePath, ['.kpa']),
+    ).toBe(path.join(componentDirectory, 'UserCard.kpa'));
   });
 });

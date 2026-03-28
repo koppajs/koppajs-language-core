@@ -10,6 +10,8 @@ choices behind it.
 - npm for dependency installation and script execution
 - TypeScript for type checking and build output
 - Vitest for automated tests
+- ESLint for static analysis of TypeScript and repository scripts
+- Prettier for formatting
 - Husky for lightweight local guards
 - Node-based repository scripts for documentation and meta-layer validation
 
@@ -21,12 +23,18 @@ choices behind it.
 - `.github/workflows/release.yml` uses Node.js 22 for release validation and
   publish
 
+## Repository Gates
+
+- `npm run check:docs`: structural and semantic documentation validation
+- `npm run check:meta`: repository-shape and workflow-file validation
+- `npm run format:check`: verify formatting without rewriting files
+- `npm run lint`: run ESLint as a failing quality gate
+- `npm run check`: local quality gate for docs, meta, formatting, linting, type
+  checks, and tests
+- `npm run validate`: CI/release gate for the same checks plus build output
+
 ## Deliberate Omissions
 
-- No ESLint gate is enforced today because the repository does not currently
-  have a recurring code-quality problem that the existing tests and TypeScript
-  checks fail to catch.
-- No Prettier gate is enforced today for the same reason.
 - No browser or UI tooling belongs here because this package remains
   editor-agnostic and has no repository-local UI surface.
 

@@ -4,7 +4,10 @@ import {
   type KpaWorkspaceComponentUsages,
   type KpaWorkspaceIndexOptions,
 } from './language/workspaceIndex';
-import type { KpaWorkspaceFileDiagnostics, KpaWorkspaceSymbolEntry } from './language/core';
+import type {
+  KpaWorkspaceFileDiagnostics,
+  KpaWorkspaceSymbolEntry,
+} from './language/core';
 import {
   clearProjectConfigCache,
   getNearestProjectConfigPath,
@@ -22,7 +25,7 @@ interface GraphNodeState {
 
 const projectConfigFileNames = new Set(['jsconfig.json', 'tsconfig.json']);
 
-export interface KpaWorkspaceGraphOptions extends KpaWorkspaceIndexOptions {}
+export type KpaWorkspaceGraphOptions = KpaWorkspaceIndexOptions;
 
 export class KpaWorkspaceGraph {
   private dependenciesByFile = new Map<string, ReadonlySet<string>>();
@@ -97,7 +100,9 @@ export class KpaWorkspaceGraph {
     return affectedPaths;
   }
 
-  getKpaFilePaths(additionalPaths: readonly (string | undefined)[] = []): readonly string[] {
+  getKpaFilePaths(
+    additionalPaths: readonly (string | undefined)[] = [],
+  ): readonly string[] {
     this.syncWorkspaceIndex();
     return this.workspaceIndex.getKpaFilePaths(additionalPaths);
   }
@@ -115,7 +120,10 @@ export class KpaWorkspaceGraph {
     additionalPaths: readonly (string | undefined)[] = [],
   ): readonly KpaWorkspaceFileDiagnostics[] {
     this.ensureWorkspaceState([...paths, ...additionalPaths]);
-    return this.workspaceIndex.collectDiagnosticsForPaths(paths, additionalPaths);
+    return this.workspaceIndex.collectDiagnosticsForPaths(
+      paths,
+      additionalPaths,
+    );
   }
 
   findComponentFilePathsByName(
@@ -178,7 +186,9 @@ export class KpaWorkspaceGraph {
 
     this.ensureWorkspaceState([normalizedResolvedFilePath, ...additionalPaths]);
 
-    const dependentPaths = this.dependentsByFile.get(normalizedResolvedFilePath);
+    const dependentPaths = this.dependentsByFile.get(
+      normalizedResolvedFilePath,
+    );
 
     if (!dependentPaths || dependentPaths.size === 0) {
       return this.workspaceIndex.collectComponentUsagesForResolvedFile(
@@ -196,11 +206,12 @@ export class KpaWorkspaceGraph {
         continue;
       }
 
-      const componentUsages = collectWorkspaceTemplateComponentUsagesForResolvedFile(
-        indexedFile.document,
-        dependentPath,
-        normalizedResolvedFilePath,
-      );
+      const componentUsages =
+        collectWorkspaceTemplateComponentUsagesForResolvedFile(
+          indexedFile.document,
+          dependentPath,
+          normalizedResolvedFilePath,
+        );
 
       if (componentUsages.length === 0) {
         continue;
@@ -215,10 +226,14 @@ export class KpaWorkspaceGraph {
     return usages;
   }
 
-  private ensureWorkspaceState(additionalPaths: readonly (string | undefined)[]): void {
+  private ensureWorkspaceState(
+    additionalPaths: readonly (string | undefined)[],
+  ): void {
     this.syncWorkspaceIndex();
 
-    for (const filePath of this.workspaceIndex.getKpaFilePaths(additionalPaths)) {
+    for (const filePath of this.workspaceIndex.getKpaFilePaths(
+      additionalPaths,
+    )) {
       this.ensureNodeState(filePath);
     }
   }
@@ -262,7 +277,8 @@ export class KpaWorkspaceGraph {
     this.dependenciesByFile.set(normalizedFilePath, dependencies);
 
     for (const dependencyPath of dependencies) {
-      const dependents = this.dependentsByFile.get(dependencyPath) ?? new Set<string>();
+      const dependents =
+        this.dependentsByFile.get(dependencyPath) ?? new Set<string>();
 
       dependents.add(normalizedFilePath);
       this.dependentsByFile.set(dependencyPath, dependents);
@@ -319,13 +335,22 @@ export class KpaWorkspaceGraph {
       }
     }
 
-    return [...affectedPaths].filter((candidatePath) => candidatePath.endsWith('.kpa'));
+    return [...affectedPaths].filter((candidatePath) =>
+      candidatePath.endsWith('.kpa'),
+    );
   }
 }
 
-function scoreComponentCandidate(sourcePath: string, targetPath: string): number {
-  const relativePath = path.relative(path.dirname(sourcePath), targetPath).replace(/\\/g, '/');
-  const segmentCount = relativePath.split('/').filter((segment) => segment.length > 0).length;
+function scoreComponentCandidate(
+  sourcePath: string,
+  targetPath: string,
+): number {
+  const relativePath = path
+    .relative(path.dirname(sourcePath), targetPath)
+    .replace(/\\/g, '/');
+  const segmentCount = relativePath
+    .split('/')
+    .filter((segment) => segment.length > 0).length;
   const parentPenalty = relativePath.startsWith('..') ? 50 : 0;
   const sameDirectoryBonus =
     path.dirname(sourcePath) === path.dirname(targetPath)

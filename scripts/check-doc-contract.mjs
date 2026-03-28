@@ -70,11 +70,21 @@ const checks = [
   },
   {
     file: 'DEVELOPMENT_RULES.md',
-    snippets: ['repository-documentation-contract.md', 'README.md', 'CHANGELOG.md', 'CODE_OF_CONDUCT.md', 'CONTRIBUTING.md'],
+    snippets: [
+      'repository-documentation-contract.md',
+      'README.md',
+      'CHANGELOG.md',
+      'CODE_OF_CONDUCT.md',
+      'CONTRIBUTING.md',
+    ],
   },
   {
     file: 'package.json',
-    snippets: ['check:docs', 'scripts/check-doc-contract.mjs'],
+    snippets: [
+      'check:docs',
+      'scripts/check-doc-contract.mjs',
+      'scripts/check-doc-semantics.mjs',
+    ],
   },
   {
     file: '.husky/pre-commit',
@@ -95,7 +105,9 @@ for (const check of checks) {
   const content = readFileSync(absolutePath, 'utf8');
   for (const snippet of check.snippets) {
     if (!content.includes(snippet)) {
-      console.error(`Contract violation in ${check.file}: missing snippet -> ${snippet}`);
+      console.error(
+        `Contract violation in ${check.file}: missing snippet -> ${snippet}`,
+      );
       failed = true;
     }
   }

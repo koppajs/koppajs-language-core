@@ -41,7 +41,13 @@ interface KpaWorkspaceCachedFile {
   text: string;
 }
 
-const excludedDirectoryNames = new Set(['.git', 'coverage', 'dist', 'node_modules', 'out']);
+const excludedDirectoryNames = new Set([
+  '.git',
+  'coverage',
+  'dist',
+  'node_modules',
+  'out',
+]);
 
 export class KpaWorkspaceIndex {
   private fileCache = new Map<string, KpaWorkspaceCachedFile>();
@@ -69,7 +75,9 @@ export class KpaWorkspaceIndex {
     this.fileCache.clear();
   }
 
-  getKpaFilePaths(additionalPaths: readonly (string | undefined)[] = []): readonly string[] {
+  getKpaFilePaths(
+    additionalPaths: readonly (string | undefined)[] = [],
+  ): readonly string[] {
     const searchRoots = new Set(this.rootPaths);
 
     for (const additionalPath of additionalPaths) {
@@ -122,7 +130,8 @@ export class KpaWorkspaceIndex {
       }
 
       const symbols =
-        cachedFile.symbols ?? collectWorkspaceSymbolsFromKpaText(cachedFile.text, filePath);
+        cachedFile.symbols ??
+        collectWorkspaceSymbolsFromKpaText(cachedFile.text, filePath);
 
       cachedFile.symbols = symbols;
 
@@ -157,7 +166,10 @@ export class KpaWorkspaceIndex {
       const fileName = path.basename(filePath, '.kpa');
       const parentName = path.basename(path.dirname(filePath));
 
-      return acceptedNames.has(fileName) || (fileName === 'index' && acceptedNames.has(parentName));
+      return (
+        acceptedNames.has(fileName) ||
+        (fileName === 'index' && acceptedNames.has(parentName))
+      );
     });
   }
 
@@ -167,7 +179,10 @@ export class KpaWorkspaceIndex {
   ): readonly KpaWorkspaceComponentUsages[] {
     const usages: KpaWorkspaceComponentUsages[] = [];
 
-    for (const filePath of this.getKpaFilePaths([resolvedFilePath, ...additionalPaths])) {
+    for (const filePath of this.getKpaFilePaths([
+      resolvedFilePath,
+      ...additionalPaths,
+    ])) {
       const cachedFile = this.getCachedFile(filePath);
 
       if (!cachedFile) {
@@ -197,7 +212,9 @@ export class KpaWorkspaceIndex {
     paths: readonly string[],
     additionalPaths: readonly (string | undefined)[] = [],
   ): readonly KpaWorkspaceFileDiagnostics[] {
-    const explicitKpaPaths = paths.filter((candidatePath) => candidatePath.endsWith('.kpa'));
+    const explicitKpaPaths = paths.filter((candidatePath) =>
+      candidatePath.endsWith('.kpa'),
+    );
     const filePaths =
       explicitKpaPaths.length > 0
         ? explicitKpaPaths
@@ -212,7 +229,8 @@ export class KpaWorkspaceIndex {
 
       const diagnostics =
         cachedFile.diagnostics ??
-        collectKpaDiagnosticsFromText(cachedFile.text, undefined, filePath).diagnostics;
+        collectKpaDiagnosticsFromText(cachedFile.text, undefined, filePath)
+          .diagnostics;
 
       cachedFile.diagnostics = diagnostics;
 
@@ -260,7 +278,10 @@ export class KpaWorkspaceIndex {
   }
 }
 
-function createCachedFile(text: string, mtimeMs?: number): KpaWorkspaceCachedFile {
+function createCachedFile(
+  text: string,
+  mtimeMs?: number,
+): KpaWorkspaceCachedFile {
   return {
     document: parseKpaDocument(text),
     mtimeMs,
@@ -268,7 +289,10 @@ function createCachedFile(text: string, mtimeMs?: number): KpaWorkspaceCachedFil
   };
 }
 
-function collectKpaFilePathsRecursively(rootPath: string, filePaths: Set<string>): void {
+function collectKpaFilePathsRecursively(
+  rootPath: string,
+  filePaths: Set<string>,
+): void {
   for (const entry of fs.readdirSync(rootPath, { withFileTypes: true })) {
     const entryPath = path.join(rootPath, entry.name);
 

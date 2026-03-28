@@ -25,8 +25,19 @@ import {
 } from './workspaceRegistrations';
 
 type ScriptBlock = KpaBlockNode & { kind: 'script-ts' | 'script-js' };
-type KpaTemplateAttributeKind = 'boolean' | 'expression' | 'spread' | 'string' | 'unquoted';
-type InferredAttributeType = 'array' | 'boolean' | 'null' | 'number' | 'object' | 'string';
+type KpaTemplateAttributeKind =
+  | 'boolean'
+  | 'expression'
+  | 'spread'
+  | 'string'
+  | 'unquoted';
+type InferredAttributeType =
+  | 'array'
+  | 'boolean'
+  | 'null'
+  | 'number'
+  | 'object'
+  | 'string';
 
 interface ParsedTemplateAttribute {
   kind: KpaTemplateAttributeKind;
@@ -116,12 +127,6 @@ interface KpaTemplateSlotUsage {
   range: KpaLocatedRange;
 }
 
-interface KpaCanonicalTemplateComponentCallSite extends KpaCanonicalTemplateComponentUsage {
-  eventAttributes: readonly KpaTemplateAttribute[];
-  hasDefaultSlotContent: boolean;
-  slotUsages: readonly KpaTemplateSlotUsage[];
-}
-
 interface KpaResolvedCanonicalTemplateComponentCallSite {
   attributes: readonly KpaTemplateAttribute[];
   component: KpaResolvedTemplateComponent;
@@ -165,11 +170,15 @@ export function collectImportedKpaComponents(
   sourcePath: string | undefined,
 ): readonly KpaImportedComponent[] {
   return document.blocks.flatMap((block) =>
-    isScriptBlock(block) ? collectComponentsFromScriptBlock(document, block, sourcePath) : [],
+    isScriptBlock(block)
+      ? collectComponentsFromScriptBlock(document, block, sourcePath)
+      : [],
   );
 }
 
-export function collectCanonicalTemplateTags(document: KpaDocument): readonly KpaTemplateTag[] {
+export function collectCanonicalTemplateTags(
+  document: KpaDocument,
+): readonly KpaTemplateTag[] {
   return document.blocks.flatMap((block) =>
     block.name === canonicalTemplateBlock
       ? collectTemplateTagMatchesFromBlock(document, block).map((match) =>
@@ -196,28 +205,31 @@ export function collectCanonicalTemplateComponentUsages(
       return [];
     }
 
-    return collectTemplateTagMatchesFromBlock(document, block).flatMap((match) => {
-      if (match.isClosing) {
-        return [];
-      }
+    return collectTemplateTagMatchesFromBlock(document, block).flatMap(
+      (match) => {
+        if (match.isClosing) {
+          return [];
+        }
 
-      const component = componentsByTagName.get(match.name);
+        const component = componentsByTagName.get(match.name);
 
-      if (!component) {
-        return [];
-      }
+        if (!component) {
+          return [];
+        }
 
-      return [
-        {
-          attributes: match.attributes.map((attribute) =>
-            createTemplateAttribute(document, block, attribute),
-          ),
-          component,
-          insertOffset: block.contentRange.start.offset + match.insertionIndex,
-          tag: createTemplateTag(document, block, match),
-        } satisfies KpaCanonicalTemplateComponentUsage,
-      ];
-    });
+        return [
+          {
+            attributes: match.attributes.map((attribute) =>
+              createTemplateAttribute(document, block, attribute),
+            ),
+            component,
+            insertOffset:
+              block.contentRange.start.offset + match.insertionIndex,
+            tag: createTemplateTag(document, block, match),
+          } satisfies KpaCanonicalTemplateComponentUsage,
+        ];
+      },
+    );
   });
 }
 
@@ -243,7 +255,9 @@ export function collectKnownTemplateComponents(
     }
   }
 
-  for (const registration of collectWorkspaceComponentRegistrations(sourcePath)) {
+  for (const registration of collectWorkspaceComponentRegistrations(
+    sourcePath,
+  )) {
     if (seenTagNames.has(registration.tagName)) {
       continue;
     }
@@ -265,7 +279,10 @@ function collectCanonicalTemplateComponentCallSites(
   document: KpaDocument,
   sourcePath: string | undefined,
 ): readonly KpaResolvedCanonicalTemplateComponentCallSite[] {
-  const componentsByTagName = createKnownTemplateComponentsByTagName(document, sourcePath);
+  const componentsByTagName = createKnownTemplateComponentsByTagName(
+    document,
+    sourcePath,
+  );
 
   return document.blocks.flatMap((block) => {
     if (block.name !== canonicalTemplateBlock) {
@@ -311,7 +328,14 @@ function collectCanonicalTemplateComponentCallSites(
       }
 
       if (match.isSelfClosing) {
-        callSites.push(createCanonicalTemplateComponentCallSite(document, block, match, component));
+        callSites.push(
+          createCanonicalTemplateComponentCallSite(
+            document,
+            block,
+            match,
+            component,
+          ),
+        );
         continue;
       }
 
@@ -323,7 +347,12 @@ function collectCanonicalTemplateComponentCallSites(
 
     for (const openTag of openTagStack) {
       callSites.push(
-        createCanonicalTemplateComponentCallSite(document, block, openTag.match, openTag.component),
+        createCanonicalTemplateComponentCallSite(
+          document,
+          block,
+          openTag.match,
+          openTag.component,
+        ),
       );
     }
 
@@ -370,8 +399,8 @@ export function resolveCanonicalTemplateComponentAtOffset(
     return undefined;
   }
 
-  const component = collectImportedKpaComponents(document, sourcePath).find((candidate) =>
-    candidate.tagNames.includes(tag.name),
+  const component = collectImportedKpaComponents(document, sourcePath).find(
+    (candidate) => candidate.tagNames.includes(tag.name),
   );
 
   if (!component) {
@@ -405,7 +434,8 @@ export function getImportedKpaComponentLocalSymbols(
   return collectLocalScriptSymbols(document).all.filter(
     (symbol) =>
       symbol.kind === 'import' &&
-      findImportedKpaComponentForSymbol(document, sourcePath, symbol)?.name === component.name,
+      findImportedKpaComponentForSymbol(document, sourcePath, symbol)?.name ===
+        component.name,
   );
 }
 
@@ -422,7 +452,9 @@ export function normalizeComponentRenameTarget(
   requestedName: string,
 ): NormalizedComponentRenameTarget {
   const trimmedName = requestedName.trim();
-  const symbolName = trimmedName.includes('-') ? toPascalCase(trimmedName) : trimmedName;
+  const symbolName = trimmedName.includes('-')
+    ? toPascalCase(trimmedName)
+    : trimmedName;
 
   if (!/^[A-Za-z_$][\w$]*$/.test(symbolName)) {
     throw new Error(
@@ -458,7 +490,9 @@ export function collectCanonicalTemplateComponentDiagnostics(
 ): readonly KpaBlockDiagnostic[] {
   const importedComponents = collectImportedKpaComponents(document, sourcePath);
   const knownComponentTags = new Set(
-    collectKnownTemplateComponents(document, sourcePath).flatMap((component) => component.tagNames),
+    collectKnownTemplateComponents(document, sourcePath).flatMap(
+      (component) => component.tagNames,
+    ),
   );
   const diagnostics: KpaBlockDiagnostic[] = [];
 
@@ -475,14 +509,20 @@ export function collectCanonicalTemplateComponentDiagnostics(
   }
 
   for (const tag of collectCanonicalTemplateTags(document)) {
-    if (tag.isClosing || !looksLikeComponentTagName(tag.name) || knownComponentTags.has(tag.name)) {
+    if (
+      tag.isClosing ||
+      !looksLikeComponentTagName(tag.name) ||
+      knownComponentTags.has(tag.name)
+    ) {
       continue;
     }
 
     diagnostics.push({
       code: kpaDiagnosticCodes.unresolvedComponentTag,
       data: {
-        componentName: tag.name.includes('-') ? toPascalCase(tag.name) : tag.name,
+        componentName: tag.name.includes('-')
+          ? toPascalCase(tag.name)
+          : tag.name,
         tagName: tag.name,
       } satisfies UnresolvedComponentTagDiagnosticData,
       message: `Komponente [${tag.name}] wurde im [template]-Block verwendet, aber nicht als .kpa-Import gefunden.`,
@@ -490,7 +530,10 @@ export function collectCanonicalTemplateComponentDiagnostics(
     });
   }
 
-  for (const callSite of collectCanonicalTemplateComponentCallSites(document, sourcePath)) {
+  for (const callSite of collectCanonicalTemplateComponentCallSites(
+    document,
+    sourcePath,
+  )) {
     const componentApi = getResolvedTemplateComponentApi(callSite.component);
 
     if (!componentApi) {
@@ -506,10 +549,15 @@ export function collectCanonicalTemplateComponentDiagnostics(
       }
     }
 
-    const hasSpreadAttribute = callSite.attributes.some((attribute) => attribute.kind === 'spread');
+    const hasSpreadAttribute = callSite.attributes.some(
+      (attribute) => attribute.kind === 'spread',
+    );
 
     for (const attribute of callSite.attributes) {
-      if (attribute.kind === 'spread' || isEventBindingAttribute(attribute.name)) {
+      if (
+        attribute.kind === 'spread' ||
+        isEventBindingAttribute(attribute.name)
+      ) {
         continue;
       }
 
@@ -531,14 +579,23 @@ export function collectCanonicalTemplateComponentDiagnostics(
       const isExpressionAssignable =
         prop.typeText &&
         attribute.kind === 'expression' &&
-        isExpressionAttributeAssignableToPropType(document, sourcePath, attribute, prop.typeText);
+        isExpressionAttributeAssignableToPropType(
+          document,
+          sourcePath,
+          attribute,
+          prop.typeText,
+        );
       const inferredValueType =
-        isExpressionAssignable === undefined ? inferAttributeType(attribute) : undefined;
+        isExpressionAssignable === undefined
+          ? inferAttributeType(attribute)
+          : undefined;
 
       if (
         prop.typeText &&
-        ((isExpressionAssignable === false && attribute.kind === 'expression') ||
-          (inferredValueType && !isCompatiblePropType(prop.typeText, inferredValueType)))
+        ((isExpressionAssignable === false &&
+          attribute.kind === 'expression') ||
+          (inferredValueType &&
+            !isCompatiblePropType(prop.typeText, inferredValueType)))
       ) {
         diagnostics.push({
           code: kpaDiagnosticCodes.invalidComponentPropType,
@@ -553,7 +610,9 @@ export function collectCanonicalTemplateComponentDiagnostics(
     }
 
     if (componentApi.emits.length > 0) {
-      const knownEmitNames = new Set(componentApi.emits.map((entry) => entry.name));
+      const knownEmitNames = new Set(
+        componentApi.emits.map((entry) => entry.name),
+      );
 
       for (const attribute of callSite.eventAttributes) {
         const emitName = getEventNameFromAttribute(attribute.name);
@@ -571,8 +630,12 @@ export function collectCanonicalTemplateComponentDiagnostics(
     }
 
     if (componentApi.slots.length > 0) {
-      const providedSlots = new Set(callSite.slotUsages.map((slotUsage) => slotUsage.name));
-      const knownSlotNames = new Set(componentApi.slots.map((entry) => entry.name));
+      const providedSlots = new Set(
+        callSite.slotUsages.map((slotUsage) => slotUsage.name),
+      );
+      const knownSlotNames = new Set(
+        componentApi.slots.map((entry) => entry.name),
+      );
 
       if (callSite.hasDefaultSlotContent) {
         providedSlots.add('default');
@@ -590,7 +653,9 @@ export function collectCanonicalTemplateComponentDiagnostics(
         });
       }
 
-      for (const requiredSlot of componentApi.slots.filter((slot) => !slot.optional)) {
+      for (const requiredSlot of componentApi.slots.filter(
+        (slot) => !slot.optional,
+      )) {
         if (providedSlots.has(requiredSlot.name)) {
           continue;
         }
@@ -607,7 +672,9 @@ export function collectCanonicalTemplateComponentDiagnostics(
       continue;
     }
 
-    for (const requiredProp of componentApi.props.filter((prop) => !prop.optional)) {
+    for (const requiredProp of componentApi.props.filter(
+      (prop) => !prop.optional,
+    )) {
       if (providedProps.has(requiredProp.name)) {
         continue;
       }
@@ -633,14 +700,20 @@ export function resolveTemplateComponentAtOffset(
   document: KpaDocument,
   sourcePath: string | undefined,
   offset: number,
-): { component: KpaResolvedTemplateComponent; tag: KpaTemplateTag } | undefined {
+):
+  | { component: KpaResolvedTemplateComponent; tag: KpaTemplateTag }
+  | undefined {
   const tag = getCanonicalTemplateTagAtOffset(document, offset);
 
   if (!tag) {
     return undefined;
   }
 
-  const component = findKnownTemplateComponentByTagName(document, sourcePath, tag.name);
+  const component = findKnownTemplateComponentByTagName(
+    document,
+    sourcePath,
+    tag.name,
+  );
 
   if (!component) {
     return undefined;
@@ -670,7 +743,10 @@ function collectComponentsFromScriptBlock(
   );
 
   return sourceFile.statements.flatMap((statement) => {
-    if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) {
+    if (
+      !ts.isImportDeclaration(statement) ||
+      !ts.isStringLiteral(statement.moduleSpecifier)
+    ) {
       return [];
     }
 
@@ -695,7 +771,10 @@ function collectComponentsFromScriptBlock(
       importedBindings.push(importClause.name);
     }
 
-    if (importClause.namedBindings && ts.isNamedImports(importClause.namedBindings)) {
+    if (
+      importClause.namedBindings &&
+      ts.isNamedImports(importClause.namedBindings)
+    ) {
       for (const element of importClause.namedBindings.elements) {
         if (!element.isTypeOnly) {
           importedBindings.push(element.name);
@@ -705,7 +784,12 @@ function collectComponentsFromScriptBlock(
 
     return importedBindings.map((binding) => ({
       importPath,
-      importRange: createDocumentRange(document, block, binding.getStart(sourceFile), binding.end),
+      importRange: createDocumentRange(
+        document,
+        block,
+        binding.getStart(sourceFile),
+        binding.end,
+      ),
       name: binding.text,
       resolvedFilePath,
       tagNames: createComponentTagNames(binding.text),
@@ -752,7 +836,10 @@ function collectTemplateTagMatchesFromBlock(
   return tags;
 }
 
-function readTagAt(content: string, index: number): TemplateTagMatch | undefined {
+function readTagAt(
+  content: string,
+  index: number,
+): TemplateTagMatch | undefined {
   let cursor = index + 1;
   let isClosing = false;
 
@@ -1060,7 +1147,10 @@ function startsMustacheExpression(content: string, index: number): boolean {
   return content[index] === '{' && content[index + 1] === '{';
 }
 
-function findMustacheExpressionEnd(content: string, startIndex: number): number | undefined {
+function findMustacheExpressionEnd(
+  content: string,
+  startIndex: number,
+): number | undefined {
   let cursor = startIndex;
   let nestedBraceDepth = 0;
   let quote: '"' | "'" | '`' | undefined;
@@ -1127,7 +1217,10 @@ function trimTagInsertionIndex(
 ): number {
   let insertionIndex = closingIndex;
 
-  while (insertionIndex > minimumIndex && isWhitespace(content[insertionIndex - 1])) {
+  while (
+    insertionIndex > minimumIndex &&
+    isWhitespace(content[insertionIndex - 1])
+  ) {
     insertionIndex--;
   }
 
@@ -1190,7 +1283,12 @@ function createCanonicalTemplateComponentCallSite(
     : bodyStartOffset;
   const slotUsages =
     closingMatch && bodyEndOffset >= bodyStartOffset
-      ? collectSlotUsagesFromContent(document, block, bodyStartOffset, bodyEndOffset)
+      ? collectSlotUsagesFromContent(
+          document,
+          block,
+          bodyStartOffset,
+          bodyEndOffset,
+        )
       : [];
   const eventAttributes = openingMatch.attributes
     .map((attribute) => createTemplateAttribute(document, block, attribute))
@@ -1239,7 +1337,10 @@ function createKnownTemplateComponentsByTagName(
 ): ReadonlyMap<string, KpaResolvedTemplateComponent> {
   const componentsByTagName = new Map<string, KpaResolvedTemplateComponent>();
 
-  for (const component of collectKnownTemplateComponents(document, sourcePath)) {
+  for (const component of collectKnownTemplateComponents(
+    document,
+    sourcePath,
+  )) {
     for (const tagName of component.tagNames) {
       if (!componentsByTagName.has(tagName)) {
         componentsByTagName.set(tagName, component);
@@ -1255,7 +1356,9 @@ function findKnownTemplateComponentByTagName(
   sourcePath: string | undefined,
   tagName: string,
 ): KpaResolvedTemplateComponent | undefined {
-  return createKnownTemplateComponentsByTagName(document, sourcePath).get(tagName);
+  return createKnownTemplateComponentsByTagName(document, sourcePath).get(
+    tagName,
+  );
 }
 
 function collectSlotUsagesFromContent(
@@ -1267,7 +1370,8 @@ function collectSlotUsagesFromContent(
   const relativeStart = bodyStartOffset - block.contentRange.start.offset;
   const content = document.text.slice(bodyStartOffset, bodyEndOffset);
   const slotUsages: KpaTemplateSlotUsage[] = [];
-  const slotPattern = /\bslot\s*=\s*(?:"([^"]+)"|'([^']+)'|([A-Za-z_$][\w$-]*))/g;
+  const slotPattern =
+    /\bslot\s*=\s*(?:"([^"]+)"|'([^']+)'|([A-Za-z_$][\w$-]*))/g;
   let match: RegExpExecArray | null;
 
   while ((match = slotPattern.exec(content)) !== null) {
@@ -1363,14 +1467,19 @@ function createComponentPropAliases(name: string): readonly string[] {
   return aliases;
 }
 
-function extractComponentApiFromDocument(document: KpaDocument): KpaImportedComponentApi {
+function extractComponentApiFromDocument(
+  document: KpaDocument,
+): KpaImportedComponentApi {
   const props = new Map<string, KpaComponentApiEntry>();
   const emits = new Map<string, KpaComponentApiEntry>();
   const slots = new Map<string, KpaComponentApiEntry>();
 
   for (const block of document.blocks) {
     if (block.name === canonicalTemplateBlock) {
-      for (const slotEntry of collectSlotEntriesFromTemplateBlock(document, block)) {
+      for (const slotEntry of collectSlotEntriesFromTemplateBlock(
+        document,
+        block,
+      )) {
         if (!slots.has(slotEntry.name)) {
           slots.set(slotEntry.name, slotEntry);
         }
@@ -1396,7 +1505,10 @@ function extractComponentApiFromDocument(document: KpaDocument): KpaImportedComp
     );
 
     for (const statement of sourceFile.statements) {
-      if (ts.isInterfaceDeclaration(statement) && isPropsInterfaceName(statement.name.text)) {
+      if (
+        ts.isInterfaceDeclaration(statement) &&
+        isPropsInterfaceName(statement.name.text)
+      ) {
         for (const entry of collectInterfaceEntries(statement, sourceFile)) {
           props.set(entry.name, entry);
         }
@@ -1404,7 +1516,10 @@ function extractComponentApiFromDocument(document: KpaDocument): KpaImportedComp
         continue;
       }
 
-      if (ts.isInterfaceDeclaration(statement) && isSlotsInterfaceName(statement.name.text)) {
+      if (
+        ts.isInterfaceDeclaration(statement) &&
+        isSlotsInterfaceName(statement.name.text)
+      ) {
         for (const entry of collectInterfaceEntries(statement, sourceFile)) {
           slots.set(entry.name, entry);
         }
@@ -1412,8 +1527,14 @@ function extractComponentApiFromDocument(document: KpaDocument): KpaImportedComp
         continue;
       }
 
-      if (ts.isTypeAliasDeclaration(statement) && isEmitsTypeName(statement.name.text)) {
-        for (const entry of collectTypeLiteralEntries(statement.type, sourceFile)) {
+      if (
+        ts.isTypeAliasDeclaration(statement) &&
+        isEmitsTypeName(statement.name.text)
+      ) {
+        for (const entry of collectTypeLiteralEntries(
+          statement.type,
+          sourceFile,
+        )) {
           emits.set(entry.name, entry);
         }
       }
@@ -1451,8 +1572,14 @@ function collectSlotEntriesFromTemplateBlock(
   while ((match = slotPattern.exec(content)) !== null) {
     const attributeText = match[1] ?? '';
     const slotNameMatch =
-      /\bname\s*=\s*(?:"([^"]+)"|'([^']+)'|([A-Za-z_$][\w$-]*))/.exec(attributeText);
-    const slotName = slotNameMatch?.[1] ?? slotNameMatch?.[2] ?? slotNameMatch?.[3] ?? 'default';
+      /\bname\s*=\s*(?:"([^"]+)"|'([^']+)'|([A-Za-z_$][\w$-]*))/.exec(
+        attributeText,
+      );
+    const slotName =
+      slotNameMatch?.[1] ??
+      slotNameMatch?.[2] ??
+      slotNameMatch?.[3] ??
+      'default';
 
     if (seenNames.has(slotName)) {
       continue;
@@ -1488,7 +1615,9 @@ function collectInterfaceEntries(
       entries.push({
         name,
         optional: Boolean(member.questionToken),
-        typeText: member.type ? member.type.getText(sourceFile).trim() : undefined,
+        typeText: member.type
+          ? member.type.getText(sourceFile).trim()
+          : undefined,
       });
     }
   }
@@ -1520,7 +1649,9 @@ function collectTypeLiteralEntries(
       entries.push({
         name,
         optional: Boolean(member.questionToken),
-        typeText: member.type ? member.type.getText(sourceFile).trim() : undefined,
+        typeText: member.type
+          ? member.type.getText(sourceFile).trim()
+          : undefined,
       });
     }
   }
@@ -1528,12 +1659,18 @@ function collectTypeLiteralEntries(
   return entries;
 }
 
-function getComponentMemberName(name: ts.PropertyName | undefined): string | undefined {
+function getComponentMemberName(
+  name: ts.PropertyName | undefined,
+): string | undefined {
   if (!name) {
     return undefined;
   }
 
-  if (ts.isIdentifier(name) || ts.isStringLiteral(name) || ts.isNumericLiteral(name)) {
+  if (
+    ts.isIdentifier(name) ||
+    ts.isStringLiteral(name) ||
+    ts.isNumericLiteral(name)
+  ) {
     return name.text;
   }
 
@@ -1566,7 +1703,11 @@ function isExpressionAttributeAssignableToPropType(
 
   const virtualFileName = createComponentTypecheckVirtualFileName(sourcePath);
   const compilerOptions = loadTypecheckCompilerOptions(virtualFileName);
-  const virtualSourceText = createComponentTypecheckSource(document, valueText, propTypeText);
+  const virtualSourceText = createComponentTypecheckSource(
+    document,
+    valueText,
+    propTypeText,
+  );
   const languageServiceHost: ts.LanguageServiceHost = {
     getCompilationSettings: () => compilerOptions,
     getCurrentDirectory: () => path.dirname(virtualFileName),
@@ -1579,14 +1720,20 @@ function isExpressionAttributeAssignableToPropType(
       }
 
       const sourceText = ts.sys.readFile(fileName);
-      return sourceText !== undefined ? ts.ScriptSnapshot.fromString(sourceText) : undefined;
+      return sourceText !== undefined
+        ? ts.ScriptSnapshot.fromString(sourceText)
+        : undefined;
     },
-    fileExists: (fileName) => fileName === virtualFileName || ts.sys.fileExists(fileName),
+    fileExists: (fileName) =>
+      fileName === virtualFileName || ts.sys.fileExists(fileName),
     readFile: (fileName) =>
-      fileName === virtualFileName ? virtualSourceText : ts.sys.readFile(fileName),
+      fileName === virtualFileName
+        ? virtualSourceText
+        : ts.sys.readFile(fileName),
     readDirectory: ts.sys.readDirectory,
     directoryExists: (directoryName) =>
-      directoryName === path.dirname(virtualFileName) || ts.sys.directoryExists(directoryName),
+      directoryName === path.dirname(virtualFileName) ||
+      ts.sys.directoryExists(directoryName),
     getDirectories: ts.sys.getDirectories,
     useCaseSensitiveFileNames: () => ts.sys.useCaseSensitiveFileNames,
     getNewLine: () => ts.sys.newLine,
@@ -1597,7 +1744,9 @@ function isExpressionAttributeAssignableToPropType(
   if (
     diagnostics.some(
       (diagnostic) =>
-        diagnostic.code === 2304 || diagnostic.code === 2552 || diagnostic.code === 2693,
+        diagnostic.code === 2304 ||
+        diagnostic.code === 2552 ||
+        diagnostic.code === 2693,
     )
   ) {
     return undefined;
@@ -1606,12 +1755,18 @@ function isExpressionAttributeAssignableToPropType(
   return diagnostics.length === 0;
 }
 
-function createComponentTypecheckVirtualFileName(sourcePath: string | undefined): string {
+function createComponentTypecheckVirtualFileName(
+  sourcePath: string | undefined,
+): string {
   if (sourcePath) {
     return `${sourcePath}.component-check.ts`;
   }
 
-  return path.join(process.cwd(), '__kpa_virtual__', 'untitled.kpa.component-check.ts');
+  return path.join(
+    process.cwd(),
+    '__kpa_virtual__',
+    'untitled.kpa.component-check.ts',
+  );
 }
 
 function createComponentTypecheckSource(
@@ -1653,7 +1808,9 @@ function appendComponentTypecheckBindingDeclaration(
     return;
   }
 
-  parts.push(`undefined as unknown as ${getComponentTypecheckPropValueType(symbol)};\n`);
+  parts.push(
+    `undefined as unknown as ${getComponentTypecheckPropValueType(symbol)};\n`,
+  );
 }
 
 function getComponentTypecheckPropValueType(symbol: KpaScriptSymbol): string {
@@ -1662,8 +1819,13 @@ function getComponentTypecheckPropValueType(symbol: KpaScriptSymbol): string {
   return symbol.optional ? `${baseType} | undefined` : baseType;
 }
 
-function loadTypecheckCompilerOptions(virtualFileName: string): ts.CompilerOptions {
-  const configFile = ts.findConfigFile(path.dirname(virtualFileName), ts.sys.fileExists);
+function loadTypecheckCompilerOptions(
+  virtualFileName: string,
+): ts.CompilerOptions {
+  const configFile = ts.findConfigFile(
+    path.dirname(virtualFileName),
+    ts.sys.fileExists,
+  );
 
   if (configFile) {
     const configFileResult = ts.readConfigFile(configFile, ts.sys.readFile);
@@ -1693,7 +1855,9 @@ function loadTypecheckCompilerOptions(virtualFileName: string): ts.CompilerOptio
   };
 }
 
-function inferAttributeType(attribute: KpaTemplateAttribute): InferredAttributeType | undefined {
+function inferAttributeType(
+  attribute: KpaTemplateAttribute,
+): InferredAttributeType | undefined {
   switch (attribute.kind) {
     case 'boolean':
       return 'boolean';
@@ -1738,7 +1902,10 @@ function inferAttributeType(attribute: KpaTemplateAttribute): InferredAttributeT
   }
 }
 
-function isCompatiblePropType(typeText: string, inferredType: InferredAttributeType): boolean {
+function isCompatiblePropType(
+  typeText: string,
+  inferredType: InferredAttributeType,
+): boolean {
   const normalizedTypeText = typeText.replace(/\s+/g, '');
 
   if (
@@ -1767,7 +1934,10 @@ function isCompatiblePropType(typeText: string, inferredType: InferredAttributeT
     case 'null':
       return normalizedTypeText.includes('null');
     case 'array':
-      return normalizedTypeText.includes('[]') || normalizedTypeText.includes('Array<');
+      return (
+        normalizedTypeText.includes('[]') ||
+        normalizedTypeText.includes('Array<')
+      );
     case 'object':
       return (
         normalizedTypeText.includes('{') ||
@@ -1905,10 +2075,17 @@ function isAttributeNameCharacter(character: string | undefined): boolean {
 }
 
 function isWhitespace(character: string | undefined): boolean {
-  return character === ' ' || character === '\t' || character === '\n' || character === '\r';
+  return (
+    character === ' ' ||
+    character === '\t' ||
+    character === '\n' ||
+    character === '\r'
+  );
 }
 
-function toDiagnosticRange(range: KpaLocatedRange): KpaBlockDiagnostic['range'] {
+function toDiagnosticRange(
+  range: KpaLocatedRange,
+): KpaBlockDiagnostic['range'] {
   return {
     endChar: range.end.character,
     line: range.start.line,
@@ -1916,7 +2093,9 @@ function toDiagnosticRange(range: KpaLocatedRange): KpaBlockDiagnostic['range'] 
   };
 }
 
-function deduplicateRanges(ranges: readonly KpaLocatedRange[]): readonly KpaLocatedRange[] {
+function deduplicateRanges(
+  ranges: readonly KpaLocatedRange[],
+): readonly KpaLocatedRange[] {
   const seenRanges = new Set<string>();
 
   return ranges.filter((range) => {

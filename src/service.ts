@@ -4,7 +4,12 @@ import { fileURLToPath, pathToFileURL } from 'url';
 import ts from 'typescript';
 import { htmlAttributes } from './data/htmlAttributes';
 import { htmlTags } from './data/htmlTags';
-import type { KpaBlockKind, KpaBlockNode, KpaDocument, KpaLocatedRange } from './language/ast';
+import type {
+  KpaBlockKind,
+  KpaBlockNode,
+  KpaDocument,
+  KpaLocatedRange,
+} from './language/ast';
 import {
   kpaDiagnosticCodes,
   type MissingComponentPropDiagnosticData,
@@ -18,10 +23,8 @@ import {
 import { parseKpaDocument } from './language/parser';
 import {
   collectKnownTemplateComponents,
-  collectImportedKpaComponents,
   collectCanonicalTemplateTagsForComponent,
   findImportedKpaComponentForSymbol,
-  getImportedKpaComponentApi,
   getImportedKpaComponentLocalSymbols,
   getResolvedTemplateComponentApi,
   normalizeComponentRenameTarget,
@@ -49,8 +52,14 @@ import {
   collectTemplateContextSymbols,
   type KpaScriptSymbol,
 } from './language/symbols';
-import { collectKpaDiagnosticsFromText, type KpaWorkspaceSymbolEntry } from './language/core';
-import { getOpeningHtmlTagNameAtOffset, isOffsetInsideOpeningHtmlTag } from './utils/htmlUtils';
+import {
+  collectKpaDiagnosticsFromText,
+  type KpaWorkspaceSymbolEntry,
+} from './language/core';
+import {
+  getOpeningHtmlTagNameAtOffset,
+  isOffsetInsideOpeningHtmlTag,
+} from './utils/htmlUtils';
 import {
   getCanonicalTemplateContext,
   getTemplateExpressionContext,
@@ -161,23 +170,36 @@ export class KpaLanguageService {
       return [];
     }
 
-    return collectKpaDiagnosticsFromText(state.text, undefined, state.sourcePath).diagnostics;
+    return collectKpaDiagnosticsFromText(
+      state.text,
+      undefined,
+      state.sourcePath,
+    ).diagnostics;
   }
 
-  getCompletions(uri: string, offset: number): readonly KpaServiceCompletion[] | undefined {
+  getCompletions(
+    uri: string,
+    offset: number,
+  ): readonly KpaServiceCompletion[] | undefined {
     const state = this.getDocumentState(uri);
 
     if (!state) {
       return undefined;
     }
 
-    const expressionCompletions = this.collectTemplateExpressionCompletions(state, offset);
+    const expressionCompletions = this.collectTemplateExpressionCompletions(
+      state,
+      offset,
+    );
 
     if (expressionCompletions) {
       return expressionCompletions;
     }
 
-    const attributeCompletions = this.getTemplateAttributeCompletions(state, offset);
+    const attributeCompletions = this.getTemplateAttributeCompletions(
+      state,
+      offset,
+    );
 
     if (attributeCompletions) {
       return attributeCompletions;
@@ -203,7 +225,10 @@ export class KpaLanguageService {
     state: DocumentState,
     offset: number,
   ): readonly KpaServiceCompletion[] | undefined {
-    const templateExpressionContext = getTemplateExpressionContext(state.text, offset);
+    const templateExpressionContext = getTemplateExpressionContext(
+      state.text,
+      offset,
+    );
 
     if (!templateExpressionContext) {
       return undefined;
@@ -216,22 +241,30 @@ export class KpaLanguageService {
     );
 
     if (semanticCompletions && semanticCompletions.length > 0) {
-      return semanticCompletions.map((completion) => createSemanticCompletion(completion));
+      return semanticCompletions.map((completion) =>
+        createSemanticCompletion(completion),
+      );
     }
 
     const completions = getUniqueTemplateVisibleSymbols(
       collectTemplateContextSymbols(templateExpressionContext.document),
     ).map((symbol) => createLocalCompletion(symbol));
-    const seenLabels = new Set(completions.map((completion) => completion.label));
+    const seenLabels = new Set(
+      completions.map((completion) => completion.label),
+    );
 
-    for (const name of collectTemplateLoopScopeNamesAtOffset(templateExpressionContext.document, offset)) {
+    for (const name of collectTemplateLoopScopeNamesAtOffset(
+      templateExpressionContext.document,
+      offset,
+    )) {
       if (seenLabels.has(name)) {
         continue;
       }
 
       seenLabels.add(name);
       completions.push({
-        documentation: 'Template-local loop binding from a parent `loop="..."` directive.',
+        documentation:
+          'Template-local loop binding from a parent `loop="..."` directive.',
         kind: 'local',
         label: name,
         detail: 'Template loop binding',
@@ -247,13 +280,19 @@ export class KpaLanguageService {
   ): readonly KpaServiceCompletion[] | undefined {
     const templateContext = getCanonicalTemplateContext(state.text, offset);
 
-    if (!templateContext || getTemplateExpressionContext(state.text, offset, templateContext)) {
+    if (
+      !templateContext ||
+      getTemplateExpressionContext(state.text, offset, templateContext)
+    ) {
       return undefined;
     }
 
     const completions: KpaServiceCompletion[] = [];
     const seenLabels = new Set<string>();
-    const knownComponents = collectKnownTemplateComponents(templateContext.document, state.sourcePath);
+    const knownComponents = collectKnownTemplateComponents(
+      templateContext.document,
+      state.sourcePath,
+    );
 
     for (const component of knownComponents) {
       for (const tagName of component.tagNames) {
@@ -272,7 +311,9 @@ export class KpaLanguageService {
       }
 
       seenLabels.add(tag.name);
-      completions.push(createHtmlTagCompletion(tag.name, tag.pattern, tag.description));
+      completions.push(
+        createHtmlTagCompletion(tag.name, tag.pattern, tag.description),
+      );
     }
 
     return completions;
@@ -304,7 +345,9 @@ export class KpaLanguageService {
       templateContext.document,
       state.sourcePath,
     ).find((candidate) => candidate.tagNames.includes(tagName));
-    const componentApi = component ? getResolvedTemplateComponentApi(component) : undefined;
+    const componentApi = component
+      ? getResolvedTemplateComponentApi(component)
+      : undefined;
 
     for (const prop of componentApi?.props ?? []) {
       if (seenLabels.has(prop.name)) {
@@ -322,7 +365,11 @@ export class KpaLanguageService {
 
       seenLabels.add(attribute.label);
       completions.push(
-        createHtmlAttributeCompletion(attribute.label, attribute.snippet, attribute.documentation),
+        createHtmlAttributeCompletion(
+          attribute.label,
+          attribute.snippet,
+          attribute.documentation,
+        ),
       );
     }
 
@@ -373,9 +420,9 @@ export class KpaLanguageService {
       offset,
     );
     const matchingSymbols = identifierReference
-      ? collectTemplateContextSymbols(templateExpressionContext.document).filter(
-          (symbol) => symbol.name === identifierReference.name,
-        )
+      ? collectTemplateContextSymbols(
+          templateExpressionContext.document,
+        ).filter((symbol) => symbol.name === identifierReference.name)
       : [];
     const semanticHover = getTemplateSemanticHover(
       templateExpressionContext.document,
@@ -387,7 +434,9 @@ export class KpaLanguageService {
       const contents = [createSemanticHoverContent(semanticHover)];
 
       if (matchingSymbols.length > 0) {
-        contents.push(...matchingSymbols.map((symbol) => createLocalHoverContent(symbol)));
+        contents.push(
+          ...matchingSymbols.map((symbol) => createLocalHoverContent(symbol)),
+        );
       }
 
       return {
@@ -401,12 +450,17 @@ export class KpaLanguageService {
     }
 
     return {
-      contents: matchingSymbols.map((symbol) => createLocalHoverContent(symbol)),
+      contents: matchingSymbols.map((symbol) =>
+        createLocalHoverContent(symbol),
+      ),
       range: identifierReference.range,
     };
   }
 
-  getDefinitions(uri: string, offset: number): readonly KpaServiceLocation[] | undefined {
+  getDefinitions(
+    uri: string,
+    offset: number,
+  ): readonly KpaServiceLocation[] | undefined {
     const state = this.getDocumentState(uri);
 
     if (!state) {
@@ -444,7 +498,9 @@ export class KpaLanguageService {
       return undefined;
     }
 
-    const currentVirtualFileName = createTemplateSemanticVirtualFileName(state.sourcePath);
+    const currentVirtualFileName = createTemplateSemanticVirtualFileName(
+      state.sourcePath,
+    );
     const semanticDefinitions = getTemplateSemanticDefinitions(
       templateExpressionContext.document,
       state.sourcePath,
@@ -454,7 +510,10 @@ export class KpaLanguageService {
     if (semanticDefinitions && semanticDefinitions.length > 0) {
       return semanticDefinitions.map((definition) => ({
         range: definition.range,
-        uri: definition.fileName === currentVirtualFileName ? uri : toFileUri(definition.fileName),
+        uri:
+          definition.fileName === currentVirtualFileName
+            ? uri
+            : toFileUri(definition.fileName),
       }));
     }
 
@@ -508,7 +567,9 @@ export class KpaLanguageService {
       );
     }
 
-    const currentVirtualFileName = createTemplateSemanticVirtualFileName(state.sourcePath);
+    const currentVirtualFileName = createTemplateSemanticVirtualFileName(
+      state.sourcePath,
+    );
     const semanticReferences = getTemplateSemanticReferences(
       state.document,
       state.sourcePath,
@@ -521,18 +582,30 @@ export class KpaLanguageService {
         .map((reference) => ({
           isDefinition: reference.isDefinition,
           range: reference.range,
-          uri: reference.fileName === currentVirtualFileName ? uri : toFileUri(reference.fileName),
+          uri:
+            reference.fileName === currentVirtualFileName
+              ? uri
+              : toFileUri(reference.fileName),
         }));
     }
 
-    const occurrence = resolveLocalSymbolOccurrenceAtOffset(state.document, offset);
+    const occurrence = resolveLocalSymbolOccurrenceAtOffset(
+      state.document,
+      offset,
+    );
 
     if (!occurrence || occurrence.symbols.length === 0) {
       return undefined;
     }
 
     const componentSymbols = occurrence.symbols.filter((symbol) =>
-      Boolean(findImportedKpaComponentForSymbol(state.document, state.sourcePath, symbol)),
+      Boolean(
+        findImportedKpaComponentForSymbol(
+          state.document,
+          state.sourcePath,
+          symbol,
+        ),
+      ),
     );
 
     if (componentSymbols.length > 0) {
@@ -555,10 +628,15 @@ export class KpaLanguageService {
     }
 
     const declarationOffsets = new Set(
-      occurrence.symbols.map((symbol) => `${symbol.range.start.offset}:${symbol.range.end.offset}`),
+      occurrence.symbols.map(
+        (symbol) => `${symbol.range.start.offset}:${symbol.range.end.offset}`,
+      ),
     );
 
-    return collectLocalReferenceRangesForSymbols(state.document, occurrence.symbols)
+    return collectLocalReferenceRangesForSymbols(
+      state.document,
+      occurrence.symbols,
+    )
       .filter(
         (range) =>
           includeDeclaration ||
@@ -590,13 +668,20 @@ export class KpaLanguageService {
       };
     }
 
-    const occurrence = resolveLocalSymbolOccurrenceAtOffset(state.document, offset);
+    const occurrence = resolveLocalSymbolOccurrenceAtOffset(
+      state.document,
+      offset,
+    );
 
     if (
       occurrence?.symbols.some(
         (symbol) =>
           symbol.origin !== 'script' &&
-          !findImportedKpaComponentForSymbol(state.document, state.sourcePath, symbol),
+          !findImportedKpaComponentForSymbol(
+            state.document,
+            state.sourcePath,
+            symbol,
+          ),
       )
     ) {
       return undefined;
@@ -617,7 +702,13 @@ export class KpaLanguageService {
     }
 
     const componentSymbols = occurrence.symbols.filter((symbol) =>
-      Boolean(findImportedKpaComponentForSymbol(state.document, state.sourcePath, symbol)),
+      Boolean(
+        findImportedKpaComponentForSymbol(
+          state.document,
+          state.sourcePath,
+          symbol,
+        ),
+      ),
     );
 
     if (componentSymbols.length > 0) {
@@ -666,19 +757,28 @@ export class KpaLanguageService {
       );
     }
 
-    const occurrence = resolveLocalSymbolOccurrenceAtOffset(state.document, offset);
+    const occurrence = resolveLocalSymbolOccurrenceAtOffset(
+      state.document,
+      offset,
+    );
 
     if (
       occurrence?.symbols.some(
         (symbol) =>
           symbol.origin !== 'script' &&
-          !findImportedKpaComponentForSymbol(state.document, state.sourcePath, symbol),
+          !findImportedKpaComponentForSymbol(
+            state.document,
+            state.sourcePath,
+            symbol,
+          ),
       )
     ) {
       return undefined;
     }
 
-    const currentVirtualFileName = createTemplateSemanticVirtualFileName(state.sourcePath);
+    const currentVirtualFileName = createTemplateSemanticVirtualFileName(
+      state.sourcePath,
+    );
     const semanticRenameRanges = getTemplateSemanticRenameRanges(
       state.document,
       state.sourcePath,
@@ -689,7 +789,10 @@ export class KpaLanguageService {
       return semanticRenameRanges.map((range) => ({
         newText: newName,
         range: range.range,
-        uri: range.fileName === currentVirtualFileName ? uri : toFileUri(range.fileName),
+        uri:
+          range.fileName === currentVirtualFileName
+            ? uri
+            : toFileUri(range.fileName),
       }));
     }
 
@@ -698,7 +801,13 @@ export class KpaLanguageService {
     }
 
     const componentSymbols = occurrence.symbols.filter((symbol) =>
-      Boolean(findImportedKpaComponentForSymbol(state.document, state.sourcePath, symbol)),
+      Boolean(
+        findImportedKpaComponentForSymbol(
+          state.document,
+          state.sourcePath,
+          symbol,
+        ),
+      ),
     );
 
     if (componentSymbols.length > 0) {
@@ -726,13 +835,14 @@ export class KpaLanguageService {
       );
     }
 
-    return collectLocalReferenceRangesForSymbols(state.document, occurrence.symbols).map(
-      (range) => ({
-        newText: newName,
-        range,
-        uri,
-      }),
-    );
+    return collectLocalReferenceRangesForSymbols(
+      state.document,
+      occurrence.symbols,
+    ).map((range) => ({
+      newText: newName,
+      range,
+      uri,
+    }));
   }
 
   getCodeActions(
@@ -786,14 +896,18 @@ export class KpaLanguageService {
 
     const scriptSymbols = collectLocalScriptSymbols(state.document).all;
 
-    return state.document.blocks.map((block) => createBlockDocumentSymbol(block, scriptSymbols));
+    return state.document.blocks.map((block) =>
+      createBlockDocumentSymbol(block, scriptSymbols),
+    );
   }
 
   getWorkspaceSymbols(query: string): readonly KpaWorkspaceSymbolEntry[] {
     return this.workspaceGraph.collectWorkspaceSymbols(query);
   }
 
-  getOpenDocumentUrisForAffectedPaths(paths: readonly string[]): readonly string[] {
+  getOpenDocumentUrisForAffectedPaths(
+    paths: readonly string[],
+  ): readonly string[] {
     const affectedUris = new Set<string>();
 
     for (const affectedPath of paths) {
@@ -841,16 +955,24 @@ export class KpaLanguageService {
     sourcePath: string | undefined,
     component: KpaImportedComponent,
     includeDeclaration: boolean,
-    componentSymbols = getImportedKpaComponentLocalSymbols(document, sourcePath, component),
+    componentSymbols = getImportedKpaComponentLocalSymbols(
+      document,
+      sourcePath,
+      component,
+    ),
   ): readonly KpaServiceLocation[] {
     const locations: KpaServiceLocation[] = [];
     const localDeclarationOffsets = new Set(
-      componentSymbols.map((symbol) => `${symbol.range.start.offset}:${symbol.range.end.offset}`),
+      componentSymbols.map(
+        (symbol) => `${symbol.range.start.offset}:${symbol.range.end.offset}`,
+      ),
     );
 
     for (const range of deduplicateRanges([
       ...collectLocalReferenceRangesForSymbols(document, componentSymbols),
-      ...collectCanonicalTemplateTagsForComponent(document, component).map((tag) => tag.range),
+      ...collectCanonicalTemplateTagsForComponent(document, component).map(
+        (tag) => tag.range,
+      ),
     ])) {
       if (
         !includeDeclaration &&
@@ -863,9 +985,10 @@ export class KpaLanguageService {
     }
 
     if (component.resolvedFilePath) {
-      const workspaceUsages = this.workspaceGraph.collectComponentUsagesForResolvedFile(
-        component.resolvedFilePath,
-      );
+      const workspaceUsages =
+        this.workspaceGraph.collectComponentUsagesForResolvedFile(
+          component.resolvedFilePath,
+        );
 
       for (const workspaceUsage of workspaceUsages) {
         for (const usage of workspaceUsage.usages) {
@@ -887,7 +1010,8 @@ export class KpaLanguageService {
           for (const tag of usage.tags) {
             if (
               !includeDeclaration &&
-              `${tag.range.start.offset}:${tag.range.end.offset}` === declarationOffsetKey
+              `${tag.range.start.offset}:${tag.range.end.offset}` ===
+                declarationOffsetKey
             ) {
               continue;
             }
@@ -907,7 +1031,11 @@ export class KpaLanguageService {
     sourcePath: string | undefined,
     component: KpaImportedComponent,
     newName: string,
-    componentSymbols = getImportedKpaComponentLocalSymbols(document, sourcePath, component),
+    componentSymbols = getImportedKpaComponentLocalSymbols(
+      document,
+      sourcePath,
+      component,
+    ),
   ): readonly KpaServiceTextEdit[] {
     const normalizedTarget = normalizeComponentRenameTarget(newName);
     const edits: KpaServiceTextEdit[] = [];
@@ -922,9 +1050,10 @@ export class KpaLanguageService {
     );
 
     if (component.resolvedFilePath) {
-      const workspaceUsages = this.workspaceGraph.collectComponentUsagesForResolvedFile(
-        component.resolvedFilePath,
-      );
+      const workspaceUsages =
+        this.workspaceGraph.collectComponentUsagesForResolvedFile(
+          component.resolvedFilePath,
+        );
 
       for (const workspaceUsage of workspaceUsages) {
         const workspaceUri = toFileUri(workspaceUsage.filePath);
@@ -959,7 +1088,8 @@ export class KpaLanguageService {
     }
 
     return {
-      diagnosticCodes: diagnostic.code !== undefined ? [String(diagnostic.code)] : [],
+      diagnosticCodes:
+        diagnostic.code !== undefined ? [String(diagnostic.code)] : [],
       edits: [
         {
           newText: ` :${toKebabCase(data.propName)}="${createPropPlaceholder(data.propTypeText)}"`,
@@ -993,12 +1123,16 @@ export class KpaLanguageService {
       return undefined;
     }
 
-    const importPath = createRelativeKpaImportPath(state.sourcePath, targetPath);
+    const importPath = createRelativeKpaImportPath(
+      state.sourcePath,
+      targetPath,
+    );
     const importText = `  import ${data.componentName} from '${importPath}';`;
     const insertion = createImportInsertion(state, importText);
 
     return {
-      diagnosticCodes: diagnostic.code !== undefined ? [String(diagnostic.code)] : [],
+      diagnosticCodes:
+        diagnostic.code !== undefined ? [String(diagnostic.code)] : [],
       edits: [
         {
           newText: insertion.text,
@@ -1122,7 +1256,9 @@ function createHtmlAttributeCompletion(
   };
 }
 
-function createSemanticCompletion(completion: TemplateSemanticCompletion): KpaServiceCompletion {
+function createSemanticCompletion(
+  completion: TemplateSemanticCompletion,
+): KpaServiceCompletion {
   return {
     detail: completion.detail,
     documentation: completion.documentation,
@@ -1134,7 +1270,9 @@ function createSemanticCompletion(completion: TemplateSemanticCompletion): KpaSe
   };
 }
 
-function createLocalHoverContent(symbol: KpaScriptSymbol): KpaServiceMarkupContent {
+function createLocalHoverContent(
+  symbol: KpaScriptSymbol,
+): KpaServiceMarkupContent {
   return {
     kind: 'markdown',
     value: [
@@ -1196,11 +1334,17 @@ function createComponentHoverContents(
   }
 
   if (api?.emits.length) {
-    parts.push('', `Emits: ${api.emits.map((entry) => `\`${entry.name}\``).join(', ')}.`);
+    parts.push(
+      '',
+      `Emits: ${api.emits.map((entry) => `\`${entry.name}\``).join(', ')}.`,
+    );
   }
 
   if (api?.slots.length) {
-    parts.push('', `Slots: ${api.slots.map((entry) => `\`${entry.name}\``).join(', ')}.`);
+    parts.push(
+      '',
+      `Slots: ${api.slots.map((entry) => `\`${entry.name}\``).join(', ')}.`,
+    );
   }
 
   return [
@@ -1217,7 +1361,12 @@ function createSemanticHoverContent(hover: {
 }): KpaServiceMarkupContent {
   return {
     kind: 'markdown',
-    value: ['```typescript', hover.displayText, '```', hover.documentation ?? '']
+    value: [
+      '```typescript',
+      hover.displayText,
+      '```',
+      hover.documentation ?? '',
+    ]
       .filter((part) => part.length > 0)
       .join('\n\n'),
   };
@@ -1272,7 +1421,9 @@ function createBlockDocumentSymbol(
   };
 }
 
-function createScriptDocumentSymbol(symbol: KpaScriptSymbol): KpaServiceDocumentSymbol {
+function createScriptDocumentSymbol(
+  symbol: KpaScriptSymbol,
+): KpaServiceDocumentSymbol {
   return {
     children: [],
     detail: symbol.kind,
@@ -1283,7 +1434,10 @@ function createScriptDocumentSymbol(symbol: KpaScriptSymbol): KpaServiceDocument
   };
 }
 
-function isSymbolInsideBlock(symbol: KpaScriptSymbol, block: KpaBlockNode): boolean {
+function isSymbolInsideBlock(
+  symbol: KpaScriptSymbol,
+  block: KpaBlockNode,
+): boolean {
   return (
     symbol.range.start.offset >= block.contentRange.start.offset &&
     symbol.range.end.offset <= block.contentRange.end.offset
@@ -1376,7 +1530,9 @@ function applyComponentRenameEdits(
   }
 }
 
-function deduplicateRanges(ranges: readonly KpaLocatedRange[]): readonly KpaLocatedRange[] {
+function deduplicateRanges(
+  ranges: readonly KpaLocatedRange[],
+): readonly KpaLocatedRange[] {
   const seenRanges = new Set<string>();
 
   return ranges.filter((range) => {
@@ -1408,8 +1564,13 @@ function deduplicateLocations(
   });
 }
 
-function createRelativeKpaImportPath(sourcePath: string, targetPath: string): string {
-  let relativePath = path.relative(path.dirname(sourcePath), targetPath).replace(/\\/g, '/');
+function createRelativeKpaImportPath(
+  sourcePath: string,
+  targetPath: string,
+): string {
+  let relativePath = path
+    .relative(path.dirname(sourcePath), targetPath)
+    .replace(/\\/g, '/');
 
   if (relativePath.endsWith('/index.kpa')) {
     relativePath = relativePath.slice(0, -'/index.kpa'.length);
@@ -1454,7 +1615,8 @@ function createImportInsertion(
   const importStatements = sourceFile.statements.filter(ts.isImportDeclaration);
   const insertOffset =
     importStatements.length > 0
-      ? scriptBlock.contentRange.start.offset + importStatements[importStatements.length - 1].end
+      ? scriptBlock.contentRange.start.offset +
+        importStatements[importStatements.length - 1].end
       : scriptBlock.contentRange.start.offset;
 
   return {
@@ -1466,7 +1628,10 @@ function createImportInsertion(
 function createPropPlaceholder(typeText: string | undefined): string {
   const normalizedTypeText = typeText?.replace(/\s+/g, '') ?? '';
 
-  if (normalizedTypeText.includes('string') || /'[^']*'|"[^"]*"/.test(typeText ?? '')) {
+  if (
+    normalizedTypeText.includes('string') ||
+    /'[^']*'|"[^"]*"/.test(typeText ?? '')
+  ) {
     return "''";
   }
 
@@ -1478,7 +1643,10 @@ function createPropPlaceholder(typeText: string | undefined): string {
     return 'false';
   }
 
-  if (normalizedTypeText.includes('[]') || normalizedTypeText.includes('Array<')) {
+  if (
+    normalizedTypeText.includes('[]') ||
+    normalizedTypeText.includes('Array<')
+  ) {
     return '[]';
   }
 
@@ -1493,7 +1661,10 @@ function createPropPlaceholder(typeText: string | undefined): string {
   return 'undefined';
 }
 
-function createInsertionRange(offset: number, document?: KpaDocument): KpaLocatedRange {
+function createInsertionRange(
+  offset: number,
+  document?: KpaDocument,
+): KpaLocatedRange {
   if (!document) {
     return createZeroRange();
   }

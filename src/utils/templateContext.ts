@@ -42,11 +42,15 @@ export function getTemplateExpressionContext(
     return undefined;
   }
 
-  const expression = getCanonicalTemplateExpressionAtOffset(templateContext.document, offset);
+  const expression = getCanonicalTemplateExpressionAtOffset(
+    templateContext.document,
+    offset,
+  );
 
   if (
     !expression ||
-    expression.block.range.start.offset !== templateContext.block.range.start.offset
+    expression.block.range.start.offset !==
+      templateContext.block.range.start.offset
   ) {
     return undefined;
   }
@@ -60,6 +64,9 @@ export function getTemplateExpressionContext(
   };
 }
 
-export function isOffsetInsideTemplateExpression(text: string, offset: number): boolean {
+export function isOffsetInsideTemplateExpression(
+  text: string,
+  offset: number,
+): boolean {
   return getTemplateExpressionContext(text, offset) !== undefined;
 }

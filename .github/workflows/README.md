@@ -12,6 +12,9 @@ They should enforce the same repository checks described in
   22, verify the tagged commit is already on `main`, verify the tag version,
   and then publish to npm
 
+`npm run validate` includes structural docs, semantic docs, formatting,
+linting, type checks, tests, and build output.
+
 ## Governance Rule
 
 If hosted workflow behavior changes, update:

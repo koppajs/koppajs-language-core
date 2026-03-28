@@ -20,4 +20,5 @@ This repository is governed by the KoppaJS Engineering Doctrine.
 - Prefer the existing module seams in `src/language`, `src/service.ts`, and `src/workspaceGraph.ts`.
 - Keep diagnostics explicit. Do not hide compatibility behavior behind implicit fallbacks.
 - Preserve synchronous filesystem behavior unless a measured need justifies a change.
-- Do not claim linting, formatting, or UI coverage that the repository does not enforce.
+- Do not claim UI or browser-host coverage that the repository does not enforce.
+- Keep linting, formatting, and semantic documentation checks aligned with the documented repository gates.

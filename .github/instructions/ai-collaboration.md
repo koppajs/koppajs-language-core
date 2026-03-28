@@ -19,6 +19,8 @@ For any non-trivial change, read:
 - Keep the package editor-agnostic and deterministic.
 - Update the meta layer when architecture, workflow, release, or AI
   expectations change.
+- Keep ESLint, Prettier, and semantic documentation checks green when the
+  affected files move.
 - If a change depends on assumptions from `@koppajs/koppajs-core` or
   `@koppajs/koppajs-vite-plugin`, keep
   `docs/specs/core-plugin-integration-contract.md` aligned.

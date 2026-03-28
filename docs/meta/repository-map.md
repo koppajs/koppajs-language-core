@@ -54,7 +54,7 @@ Hosted automation and AI guidance.
 Local commit-time checks.
 
 - `pre-commit`
-  - runs the documentation and meta-layer guards
+  - runs documentation, meta-layer, formatting, and lint guards
 
 ### `scripts/`
 
@@ -62,6 +62,8 @@ Lightweight repository-local validation scripts.
 
 - `check-doc-contract.mjs`
   - governed root document contract validation
+- `check-doc-semantics.mjs`
+  - semantic documentation consistency checks against package and workflow facts
 - `check-meta-layer.mjs`
   - meta-layer and workflow-file presence validation
 

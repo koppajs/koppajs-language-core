@@ -1,4 +1,7 @@
-export function isOffsetInsideOpeningHtmlTag(text: string, offset: number): boolean {
+export function isOffsetInsideOpeningHtmlTag(
+  text: string,
+  offset: number,
+): boolean {
   let startTagOpenOffset = -1;
   let startTagCloseOffset = -1;
 
@@ -31,7 +34,10 @@ export function isOffsetInsideOpeningHtmlTag(text: string, offset: number): bool
   return offset <= startTagCloseOffset;
 }
 
-export function getOpeningHtmlTagNameAtOffset(text: string, offset: number): string | undefined {
+export function getOpeningHtmlTagNameAtOffset(
+  text: string,
+  offset: number,
+): string | undefined {
   if (!isOffsetInsideOpeningHtmlTag(text, offset)) {
     return undefined;
   }
@@ -51,7 +57,11 @@ export function getOpeningHtmlTagNameAtOffset(text: string, offset: number): str
 
   let cursor = startTagOpenOffset + 1;
 
-  while (text[cursor] === ' ' || text[cursor] === '\t' || text[cursor] === '\n') {
+  while (
+    text[cursor] === ' ' ||
+    text[cursor] === '\t' ||
+    text[cursor] === '\n'
+  ) {
     cursor++;
   }
 

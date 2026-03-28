@@ -23,7 +23,11 @@ export function collectWorkspaceSymbolsFromKpaText(
   const componentRange =
     document.blocks.find((block) => block.name === 'template')?.openTag.range ??
     document.blocks[0]?.openTag.range ??
-    createLocatedRange(document.lineStarts, 0, Math.min(text.length, fileName.length));
+    createLocatedRange(
+      document.lineStarts,
+      0,
+      Math.min(text.length, fileName.length),
+    );
   const exportedSymbols = collectLocalScriptSymbols(document).exported;
 
   return [

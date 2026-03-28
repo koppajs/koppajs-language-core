@@ -1,6 +1,9 @@
 import { supportedKpaBlocks } from '../data/kpaBlocks';
 import type { KpaDocument } from './ast';
-import { collectBlockDiagnosticsFromDocument, type KpaBlockDiagnostic } from './diagnosticsRules';
+import {
+  collectBlockDiagnosticsFromDocument,
+  type KpaBlockDiagnostic,
+} from './diagnosticsRules';
 import { parseKpaDocument } from './parser';
 import { collectCanonicalTemplateComponentDiagnostics } from './templateComponents';
 import { collectTemplateDiagnosticsFromDocument } from './templateDiagnosticsRules';
@@ -56,6 +59,10 @@ export function collectKpaDiagnosticsFromText(
 
   return {
     document,
-    diagnostics: collectKpaDiagnosticsFromDocument(document, knownBlocks, sourcePath),
+    diagnostics: collectKpaDiagnosticsFromDocument(
+      document,
+      knownBlocks,
+      sourcePath,
+    ),
   };
 }

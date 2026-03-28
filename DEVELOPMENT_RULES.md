@@ -29,6 +29,7 @@
 ## Validation Rules
 
 - Run `npm run validate` for normal repository changes.
+- Keep ESLint, Prettier, and semantic documentation checks passing when they touch the affected files.
 - Add unit tests for new behavior or for bug fixes that affect the public contract.
 - Do not add Playwright or UI checks unless the repository gains a real UI surface.
 

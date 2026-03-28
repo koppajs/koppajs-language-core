@@ -4,7 +4,10 @@ import * as publicApi from '../../index';
 describe('public root module', () => {
   it('exports the documented runtime contract and keeps internal shims private', () => {
     const runtimeKeys = Object.keys(publicApi)
-      .filter((key) => key !== '__esModule' && key !== 'default' && key !== 'module.exports')
+      .filter(
+        (key) =>
+          key !== '__esModule' && key !== 'default' && key !== 'module.exports',
+      )
       .sort();
 
     expect(runtimeKeys).toEqual([

@@ -17,12 +17,12 @@ governance files and when it must be updated.
 
 ## Update Matrix
 
-| Change type | Required meta-layer updates |
-| ----------- | --------------------------- |
-| Public behavior or package contract change | Update the relevant spec, tests, and any affected root docs |
-| Module boundary or repository-shape change | Update `ARCHITECTURE.md`, `docs/architecture/`, and [repository-map.md](./repository-map.md) |
-| New quality gate or release validation rule | Update `TESTING_STRATEGY.md`, `docs/quality/`, and `.github/workflows/README.md` |
-| New contributor or AI workflow expectation | Update `CONTRIBUTING.md`, `AI_CONSTITUTION.md`, or `.github/instructions/` |
+| Change type                                                     | Required meta-layer updates                                                                  |
+| --------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Public behavior or package contract change                      | Update the relevant spec, tests, and any affected root docs                                  |
+| Module boundary or repository-shape change                      | Update `ARCHITECTURE.md`, `docs/architecture/`, and [repository-map.md](./repository-map.md) |
+| New quality gate, formatter, linter, or release validation rule | Update `TESTING_STRATEGY.md`, `docs/quality/`, and `.github/workflows/README.md`             |
+| New contributor or AI workflow expectation                      | Update `CONTRIBUTING.md`, `AI_CONSTITUTION.md`, or `.github/instructions/`                   |
 
 ## Maintenance Rule
 

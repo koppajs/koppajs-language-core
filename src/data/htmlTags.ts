@@ -9,7 +9,8 @@ export const htmlTags = [
   {
     name: 'a',
     pattern: '<a href="$0"></a>',
-    description: 'Definiert einen Hyperlink, der auf eine andere Webseite verweist.',
+    description:
+      'Definiert einen Hyperlink, der auf eine andere Webseite verweist.',
   },
   {
     name: 'abbr',
@@ -34,12 +35,14 @@ export const htmlTags = [
   {
     name: 'aside',
     pattern: '<aside>$0</aside>',
-    description: 'Gibt Inhalte an, die indirekt zum Hauptinhalt gehören (z.B. Sidebar).',
+    description:
+      'Gibt Inhalte an, die indirekt zum Hauptinhalt gehören (z.B. Sidebar).',
   },
   {
     name: 'audio',
     pattern: '<audio controls>\n  <source src="$1" type="$2">\n  $0\n</audio>',
-    description: 'Bindet Audioinhalte ein, z. B. Musik oder andere Audiodateien.',
+    description:
+      'Bindet Audioinhalte ein, z. B. Musik oder andere Audiodateien.',
   },
   {
     name: 'b',
@@ -54,7 +57,8 @@ export const htmlTags = [
   {
     name: 'bdi',
     pattern: '<bdi>$0</bdi>',
-    description: 'Isoliert Text, dessen Richtung unbekannt oder autark sein soll.',
+    description:
+      'Isoliert Text, dessen Richtung unbekannt oder autark sein soll.',
   },
   {
     name: 'bdo',
@@ -109,12 +113,14 @@ export const htmlTags = [
   {
     name: 'colgroup',
     pattern: '<colgroup>$0</colgroup>',
-    description: 'Fasst Spalten in einer Tabelle für gemeinsames Styling zusammen.',
+    description:
+      'Fasst Spalten in einer Tabelle für gemeinsames Styling zusammen.',
   },
   {
     name: 'data',
     pattern: '<data value="$1">$0</data>',
-    description: 'Bindet maschinenlesbare Daten ein, die im Text angezeigt werden.',
+    description:
+      'Bindet maschinenlesbare Daten ein, die im Text angezeigt werden.',
   },
   {
     name: 'datalist',
@@ -125,7 +131,8 @@ export const htmlTags = [
   {
     name: 'dd',
     pattern: '<dd>$0</dd>',
-    description: 'Definiert eine Beschreibung zu einem Begriff in einer Definitionsliste.',
+    description:
+      'Definiert eine Beschreibung zu einem Begriff in einer Definitionsliste.',
   },
   {
     name: 'del',
@@ -135,7 +142,8 @@ export const htmlTags = [
   {
     name: 'details',
     pattern: '<details>\n  <summary>$1</summary>\n  $0\n</details>',
-    description: 'Erzeugt ein aufklappbares Element mit Zusammenfassung (z.B. FAQ).',
+    description:
+      'Erzeugt ein aufklappbares Element mit Zusammenfassung (z.B. FAQ).',
   },
   {
     name: 'dfn',
@@ -190,7 +198,8 @@ export const htmlTags = [
   {
     name: 'footer',
     pattern: '<footer>$0</footer>',
-    description: 'Definiert den Fußbereich (Footer) eines Dokuments oder Abschnitts.',
+    description:
+      'Definiert den Fußbereich (Footer) eines Dokuments oder Abschnitts.',
   },
   {
     name: 'form',
@@ -355,7 +364,8 @@ export const htmlTags = [
   {
     name: 'option',
     pattern: '<option value="$1">$0</option>',
-    description: 'Definiert eine Auswahloption in einer Dropdown-Liste (<select>).',
+    description:
+      'Definiert eine Auswahloption in einer Dropdown-Liste (<select>).',
   },
   {
     name: 'output',
@@ -374,13 +384,16 @@ export const htmlTags = [
   },
   {
     name: 'picture',
-    pattern: '<picture>\n  <source srcset="$1" media="$2">\n  <img src="$3" alt="$0">\n</picture>',
-    description: 'Ermöglicht responsive Bilder, je nach Bildschirm oder Auflösung.',
+    pattern:
+      '<picture>\n  <source srcset="$1" media="$2">\n  <img src="$3" alt="$0">\n</picture>',
+    description:
+      'Ermöglicht responsive Bilder, je nach Bildschirm oder Auflösung.',
   },
   {
     name: 'pre',
     pattern: '<pre>$0</pre>',
-    description: 'Zeigt vorformatierten Text (Leerzeichen und Zeilenumbrüche bleiben).',
+    description:
+      'Zeigt vorformatierten Text (Leerzeichen und Zeilenumbrüche bleiben).',
   },
   {
     name: 'progress',
@@ -395,7 +408,8 @@ export const htmlTags = [
   {
     name: 'rp',
     pattern: '<rp>$0</rp>',
-    description: 'Zeigt Ersatz-Klammern für Browser, die <ruby> nicht unterstützen.',
+    description:
+      'Zeigt Ersatz-Klammern für Browser, die <ruby> nicht unterstützen.',
   },
   {
     name: 'rt',
@@ -405,7 +419,8 @@ export const htmlTags = [
   {
     name: 'ruby',
     pattern: '<ruby>$0<rt>$1</rt></ruby>',
-    description: 'Zeigt Zeichen mit Anmerkungen, z. B. in ostasiatischen Texten.',
+    description:
+      'Zeigt Zeichen mit Anmerkungen, z. B. in ostasiatischen Texten.',
   },
   {
     name: 's',
@@ -465,7 +480,8 @@ export const htmlTags = [
   {
     name: 'summary',
     pattern: '<summary>$0</summary>',
-    description: 'Kurzbeschreibung für das <details>-Element, die anklickbar ist.',
+    description:
+      'Kurzbeschreibung für das <details>-Element, die anklickbar ist.',
   },
   {
     name: 'sup',
@@ -490,7 +506,8 @@ export const htmlTags = [
   {
     name: 'template',
     pattern: '<template>$0</template>',
-    description: 'Hält clientseitigen Inhalt vor, der erst per JavaScript gerendert wird.',
+    description:
+      'Hält clientseitigen Inhalt vor, der erst per JavaScript gerendert wird.',
   },
   {
     name: 'textarea',
@@ -515,7 +532,8 @@ export const htmlTags = [
   {
     name: 'time',
     pattern: '<time datetime="$1">$0</time>',
-    description: 'Definiert Datum/Uhrzeit, maschinenlesbar über datetime-Attribut.',
+    description:
+      'Definiert Datum/Uhrzeit, maschinenlesbar über datetime-Attribut.',
   },
   {
     name: 'title',
@@ -535,7 +553,8 @@ export const htmlTags = [
   {
     name: 'u',
     pattern: '<u>$0</u>',
-    description: 'Kennzeichnet unterstrichenen Text (ohne besondere semantische Bedeutung).',
+    description:
+      'Kennzeichnet unterstrichenen Text (ohne besondere semantische Bedeutung).',
   },
   {
     name: 'ul',
@@ -545,7 +564,8 @@ export const htmlTags = [
   {
     name: 'var',
     pattern: '<var>$0</var>',
-    description: 'Kennzeichnet eine Variable oder Platzhalter in einem Ausdruck.',
+    description:
+      'Kennzeichnet eine Variable oder Platzhalter in einem Ausdruck.',
   },
   {
     name: 'video',

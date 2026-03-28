@@ -98,6 +98,7 @@ Why this matters:
 
 - the release workflow runs the same validation gates again in CI
 - failing locally is cheaper than failing after tagging
+- `npm run validate` now includes structural docs, semantic docs, formatting, linting, type checks, tests, and build verification
 - `npm run release:check` verifies the publishable package payload
 
 The published package contents are controlled by the `files` field in
@@ -227,7 +228,7 @@ The workflow `.github/workflows/release.yml` runs on:
 on:
   push:
     tags:
-      - "v*.*.*"
+      - 'v*.*.*'
 ```
 
 That means every pushed tag matching `vX.Y.Z` starts the release pipeline.

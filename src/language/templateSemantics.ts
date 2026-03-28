@@ -69,12 +69,18 @@ export interface TemplateSemanticRenameInfo {
   placeholder: string;
 }
 
-export function createTemplateSemanticVirtualFileName(sourcePath: string | undefined): string {
+export function createTemplateSemanticVirtualFileName(
+  sourcePath: string | undefined,
+): string {
   if (sourcePath && sourcePath.length > 0) {
     return `${sourcePath}.template.ts`;
   }
 
-  return path.join(process.cwd(), '__kpa_virtual__', 'untitled.kpa.template.ts');
+  return path.join(
+    process.cwd(),
+    '__kpa_virtual__',
+    'untitled.kpa.template.ts',
+  );
 }
 
 export function getTemplateSemanticCompletions(
@@ -102,12 +108,15 @@ export function getTemplateSemanticCompletions(
     return undefined;
   }
 
-  const expressionOffset = offset - context.expression.contentRange.start.offset;
+  const expressionOffset =
+    offset - context.expression.contentRange.start.offset;
   const rootContext = !isMemberCompletionContext(
     context.expression.contentText.slice(0, expressionOffset),
   );
   const filteredEntries = rootContext
-    ? completions.entries.filter((entry) => context.visibleNames.has(entry.name))
+    ? completions.entries.filter((entry) =>
+        context.visibleNames.has(entry.name),
+      )
     : completions.entries;
 
   return filteredEntries.map((entry) => {
@@ -124,8 +133,12 @@ export function getTemplateSemanticCompletions(
     return {
       name: entry.name,
       kind: entry.kind,
-      detail: details ? ts.displayPartsToString(details.displayParts) : undefined,
-      documentation: details ? ts.displayPartsToString(details.documentation) : undefined,
+      detail: details
+        ? ts.displayPartsToString(details.displayParts)
+        : undefined,
+      documentation: details
+        ? ts.displayPartsToString(details.documentation)
+        : undefined,
       replacementRange: entry.replacementSpan
         ? mapVirtualTextSpanToKpaRange(context, entry.replacementSpan)
         : undefined,
@@ -189,7 +202,11 @@ export function getTemplateSemanticDefinitions(
   }
 
   return definitions.flatMap((definition) => {
-    const mappedRange = mapFileTextSpanToRange(context, definition.fileName, definition.textSpan);
+    const mappedRange = mapFileTextSpanToRange(
+      context,
+      definition.fileName,
+      definition.textSpan,
+    );
 
     return mappedRange
       ? [
@@ -236,7 +253,11 @@ export function getTemplateSemanticReferences(
 
   return deduplicateSemanticFileRanges(
     references.flatMap((reference) => {
-      const mappedRange = mapFileTextSpanToRange(context, reference.fileName, reference.textSpan);
+      const mappedRange = mapFileTextSpanToRange(
+        context,
+        reference.fileName,
+        reference.textSpan,
+      );
 
       return mappedRange
         ? [
@@ -258,11 +279,16 @@ export function getTemplateSemanticRenameInfo(
   sourcePath: string | undefined,
   offset: number,
 ): TemplateSemanticRenameInfo | undefined {
-  const identifierReference = getCanonicalTemplateIdentifierReferenceAtOffset(document, offset);
+  const identifierReference = getCanonicalTemplateIdentifierReferenceAtOffset(
+    document,
+    offset,
+  );
 
   if (
     identifierReference &&
-    collectTemplateContextSymbols(document).some((symbol) => symbol.name === identifierReference.name)
+    collectTemplateContextSymbols(document).some(
+      (symbol) => symbol.name === identifierReference.name,
+    )
   ) {
     return undefined;
   }
@@ -286,7 +312,11 @@ export function getTemplateSemanticRenameInfo(
     return undefined;
   }
 
-  const range = mapFileTextSpanToRange(context, context.virtualFileName, renameInfo.triggerSpan);
+  const range = mapFileTextSpanToRange(
+    context,
+    context.virtualFileName,
+    renameInfo.triggerSpan,
+  );
 
   if (!range) {
     return undefined;
@@ -303,11 +333,16 @@ export function getTemplateSemanticRenameRanges(
   sourcePath: string | undefined,
   offset: number,
 ): readonly TemplateSemanticRenameRange[] | undefined {
-  const identifierReference = getCanonicalTemplateIdentifierReferenceAtOffset(document, offset);
+  const identifierReference = getCanonicalTemplateIdentifierReferenceAtOffset(
+    document,
+    offset,
+  );
 
   if (
     identifierReference &&
-    collectTemplateContextSymbols(document).some((symbol) => symbol.name === identifierReference.name)
+    collectTemplateContextSymbols(document).some(
+      (symbol) => symbol.name === identifierReference.name,
+    )
   ) {
     return undefined;
   }
@@ -333,7 +368,11 @@ export function getTemplateSemanticRenameRanges(
 
   return deduplicateSemanticFileRanges(
     renameLocations.flatMap((location) => {
-      const mappedRange = mapFileTextSpanToRange(context, location.fileName, location.textSpan);
+      const mappedRange = mapFileTextSpanToRange(
+        context,
+        location.fileName,
+        location.textSpan,
+      );
 
       return mappedRange
         ? [
@@ -365,7 +404,10 @@ function createTemplateSemanticContext(
       ...collectTemplateLoopScopeNamesAtOffset(document, offset),
     ]),
   );
-  const loopScopeDeclarations = collectTemplateLoopScopeDeclarationsAtOffset(document, offset);
+  const loopScopeDeclarations = collectTemplateLoopScopeDeclarationsAtOffset(
+    document,
+    offset,
+  );
   const virtualFileName = createTemplateSemanticVirtualFileName(sourcePath);
   const lineStartsByFileName = new Map<string, readonly number[]>();
   const parts: string[] = [];
@@ -425,7 +467,10 @@ function createTemplateSemanticContext(
   const cursorVirtualOffset =
     expressionVirtualStart + (offset - expression.contentRange.start.offset);
 
-  lineStartsByFileName.set(virtualFileName, createLineStarts(virtualSourceText));
+  lineStartsByFileName.set(
+    virtualFileName,
+    createLineStarts(virtualSourceText),
+  );
 
   return {
     document,
@@ -473,7 +518,9 @@ function getTemplatePropValueType(symbol: KpaScriptSymbol): string {
   return symbol.optional ? `${baseType} | undefined` : baseType;
 }
 
-function createTemplateLanguageService(context: TemplateSemanticContext): ts.LanguageService {
+function createTemplateLanguageService(
+  context: TemplateSemanticContext,
+): ts.LanguageService {
   const compilerOptions = loadCompilerOptions(context.virtualFileName);
   const virtualFileName = context.virtualFileName;
   const virtualSourceText = context.virtualSourceText;
@@ -491,14 +538,20 @@ function createTemplateLanguageService(context: TemplateSemanticContext): ts.Lan
       }
 
       const sourceText = ts.sys.readFile(fileName);
-      return sourceText !== undefined ? ts.ScriptSnapshot.fromString(sourceText) : undefined;
+      return sourceText !== undefined
+        ? ts.ScriptSnapshot.fromString(sourceText)
+        : undefined;
     },
-    fileExists: (fileName) => fileName === virtualFileName || ts.sys.fileExists(fileName),
+    fileExists: (fileName) =>
+      fileName === virtualFileName || ts.sys.fileExists(fileName),
     readFile: (fileName) =>
-      fileName === virtualFileName ? virtualSourceText : ts.sys.readFile(fileName),
+      fileName === virtualFileName
+        ? virtualSourceText
+        : ts.sys.readFile(fileName),
     readDirectory: ts.sys.readDirectory,
     directoryExists: (directoryName) =>
-      directoryName === currentDirectory || ts.sys.directoryExists(directoryName),
+      directoryName === currentDirectory ||
+      ts.sys.directoryExists(directoryName),
     getDirectories: ts.sys.getDirectories,
     useCaseSensitiveFileNames: () => ts.sys.useCaseSensitiveFileNames,
     getNewLine: () => ts.sys.newLine,
@@ -552,7 +605,8 @@ function mapVirtualTextSpanToKpaRange(
   const start = textSpan.start;
   const end = textSpan.start + textSpan.length;
   const segment = context.segments.find(
-    (candidate) => start >= candidate.virtualStart && end <= candidate.virtualEnd,
+    (candidate) =>
+      start >= candidate.virtualStart && end <= candidate.virtualEnd,
   );
 
   if (!segment) {
@@ -562,7 +616,11 @@ function mapVirtualTextSpanToKpaRange(
   const sourceStart = segment.sourceStart + (start - segment.virtualStart);
   const sourceEnd = sourceStart + textSpan.length;
 
-  return createLocatedRange(context.document.lineStarts, sourceStart, sourceEnd);
+  return createLocatedRange(
+    context.document.lineStarts,
+    sourceStart,
+    sourceEnd,
+  );
 }
 
 function mapFileTextSpanToRange(
@@ -586,7 +644,11 @@ function mapFileTextSpanToRange(
     sourceText,
   );
 
-  return createLocatedRange(fileLineStarts, textSpan.start, textSpan.start + textSpan.length);
+  return createLocatedRange(
+    fileLineStarts,
+    textSpan.start,
+    textSpan.start + textSpan.length,
+  );
 }
 
 function getCombinedLength(parts: readonly string[]): number {
@@ -598,7 +660,9 @@ function isMemberCompletionContext(prefixText: string): boolean {
   return trimmedPrefixText.endsWith('.') || trimmedPrefixText.endsWith('?.');
 }
 
-function collectUniqueTemplateVisibleNames(names: readonly string[]): readonly string[] {
+function collectUniqueTemplateVisibleNames(
+  names: readonly string[],
+): readonly string[] {
   const seenNames = new Set<string>();
 
   return names.filter((name) => {
@@ -625,9 +689,9 @@ function getOrCreateFileLineStarts(
   return createLineStarts(sourceText);
 }
 
-function deduplicateSemanticFileRanges<T extends { fileName: string; range: KpaLocatedRange }>(
-  ranges: readonly T[],
-): readonly T[] {
+function deduplicateSemanticFileRanges<
+  T extends { fileName: string; range: KpaLocatedRange },
+>(ranges: readonly T[]): readonly T[] {
   const seen = new Set<string>();
 
   return ranges.filter((range) => {

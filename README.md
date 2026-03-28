@@ -152,14 +152,17 @@ The enforced repository checks are:
 
 - `npm run check:docs`
 - `npm run check:meta`
+- `npm run format:check`
+- `npm run lint`
 - `npm run typecheck`
 - `npm run test`
+- `npm run check`
 - `npm run build`
 - `npm run validate`
 
 GitHub Actions runs `npm run validate` on Node.js 22 and 24 for pushes to `main` and `develop` and for pull requests. Tagged releases rerun `npm run validate` and `npm run release:check` on Node.js 22 before publish, and only continue when the git tag version matches `package.json`.
 
-No dedicated lint or formatter is enforced today. That is intentional until a real consistency problem justifies more tooling.
+`npm run check:docs` includes both the governed root-document contract and a semantic consistency check that keeps version, workflow, and quality-gate claims aligned with the actual repository state.
 
 ---
 

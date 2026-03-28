@@ -4,8 +4,11 @@
 
 - `npm run check:docs`
 - `npm run check:meta`
+- `npm run format:check`
+- `npm run lint`
 - `npm run typecheck`
 - `npm run test`
+- `npm run check`
 - `npm run build`
 - `npm run validate`
 
@@ -19,13 +22,13 @@
 
 - TypeScript strict mode is enforced.
 - Vitest is the only automated test runner.
+- ESLint is enforced as a repository quality gate.
+- Prettier is enforced as a repository quality gate.
 - The tracked `.npmrc` enforces compatible Node.js and npm versions during install.
-- A dedicated lint tool is not currently enforced.
-- A dedicated formatter is not currently enforced.
 - The package declares support for Node.js `>=22`; CI currently validates on Node.js 22 and 24.
 
 ## Rationale
 
-The current repository is small enough that TypeScript strictness, unit tests, and build verification provide a meaningful baseline without adding redundant tooling.
-
-If linting or formatting problems become persistent, add tooling only with a clear rule set and a repository-specific reason.
+The current repository is still small, but linting, formatting, and semantic
+documentation checks now protect repository contracts that are otherwise easy to
+drift silently.

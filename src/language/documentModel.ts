@@ -37,11 +37,17 @@ function isOffsetInsideBlockContext(
   offset: number,
 ): boolean {
   const contextStartOffset = block.openTag.range.end.offset;
-  const contextEndOffset = getBlockContextEndOffset(block, document.text.length);
+  const contextEndOffset = getBlockContextEndOffset(
+    block,
+    document.text.length,
+  );
 
   return offset >= contextStartOffset && offset < contextEndOffset;
 }
 
-function getBlockContextEndOffset(block: KpaBlockNode, textLength: number): number {
+function getBlockContextEndOffset(
+  block: KpaBlockNode,
+  textLength: number,
+): number {
   return block.closeTag?.range.end.offset ?? textLength;
 }

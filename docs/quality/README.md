@@ -14,8 +14,11 @@ tooling choices that support them.
 
 - Documentation contract: `npm run check:docs`
 - Meta-layer integrity: `npm run check:meta`
+- Formatting: `npm run format:check`
+- Static analysis: `npm run lint`
 - Type safety: `npm run typecheck`
 - Test suite: `npm run test`
+- Main local gate without rebuild: `npm run check`
 - Build output: `npm run build`
 - Main local gate: `npm run validate`
 - Release payload check: `npm run release:check`

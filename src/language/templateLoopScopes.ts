@@ -78,7 +78,9 @@ export function collectTemplateLoopScopeDeclarationsAtOffset(
   return declarations;
 }
 
-function collectTemplateLoopScopeEntries(document: KpaDocument): readonly TemplateLoopScopeEntry[] {
+function collectTemplateLoopScopeEntries(
+  document: KpaDocument,
+): readonly TemplateLoopScopeEntry[] {
   return document.blocks.flatMap((block) => {
     if (block.name !== canonicalTemplateBlock) {
       return [];
@@ -122,7 +124,13 @@ function collectTemplateLoopScopeEntries(document: KpaDocument): readonly Templa
       if (match.isSelfClosing) {
         if (loopNames.length > 0) {
           loopScopes.push(
-            createLoopScopeEntry(document, block, loopNames, match.tagStart, match.tagEnd),
+            createLoopScopeEntry(
+              document,
+              block,
+              loopNames,
+              match.tagStart,
+              match.tagEnd,
+            ),
           );
         }
 
@@ -162,7 +170,8 @@ function createLoopScopeEntry(
   startOffsetInBlock: number,
   endOffsetInBlock: number,
 ): TemplateLoopScopeEntry {
-  const absoluteStartOffset = block.contentRange.start.offset + startOffsetInBlock;
+  const absoluteStartOffset =
+    block.contentRange.start.offset + startOffsetInBlock;
   const absoluteEndOffset = block.contentRange.start.offset + endOffsetInBlock;
 
   return {
@@ -190,8 +199,12 @@ function createLoopDeclaration(name: string): string {
   return `const ${name} = undefined as any;`;
 }
 
-function parseLoopBindingNames(attributes: readonly ParsedTemplateAttribute[]): readonly string[] {
-  const loopAttribute = attributes.find((attribute) => attribute.name === 'loop');
+function parseLoopBindingNames(
+  attributes: readonly ParsedTemplateAttribute[],
+): readonly string[] {
+  const loopAttribute = attributes.find(
+    (attribute) => attribute.name === 'loop',
+  );
   const loopExpression = loopAttribute?.valueText?.trim();
 
   if (!loopExpression) {
@@ -214,7 +227,10 @@ function parseLoopBindingNames(attributes: readonly ParsedTemplateAttribute[]): 
       .map((part) => part.trim())
       .filter((part) => part.length > 0);
 
-    if (parts.length === 2 && parts.every((part) => identifierPattern.test(part))) {
+    if (
+      parts.length === 2 &&
+      parts.every((part) => identifierPattern.test(part))
+    ) {
       bindingNames.add(parts[0]!);
       bindingNames.add(parts[1]!);
     }
@@ -268,7 +284,10 @@ function collectTemplateTagMatchesFromBlock(
   return tags;
 }
 
-function readTagAt(content: string, index: number): TemplateTagMatch | undefined {
+function readTagAt(
+  content: string,
+  index: number,
+): TemplateTagMatch | undefined {
   let cursor = index + 1;
   let isClosing = false;
 
@@ -417,7 +436,10 @@ function readAttributeAt(
 }
 
 function findMatchingOpenTagIndex(
-  openTagStack: ReadonlyArray<{ loopNames?: readonly string[]; match: TemplateTagMatch }>,
+  openTagStack: ReadonlyArray<{
+    loopNames?: readonly string[];
+    match: TemplateTagMatch;
+  }>,
   closingTagName: string,
 ): number {
   for (let index = openTagStack.length - 1; index >= 0; index--) {
@@ -433,7 +455,10 @@ function startsMustacheExpression(content: string, index: number): boolean {
   return content[index] === '{' && content[index + 1] === '{';
 }
 
-function findMustacheExpressionEnd(content: string, startIndex: number): number | undefined {
+function findMustacheExpressionEnd(
+  content: string,
+  startIndex: number,
+): number | undefined {
   let cursor = startIndex;
   let nestedBraceDepth = 0;
   let quote: '"' | "'" | '`' | undefined;
@@ -510,5 +535,10 @@ function isAttributeNameCharacter(character: string | undefined): boolean {
 }
 
 function isWhitespace(character: string | undefined): boolean {
-  return character === ' ' || character === '\t' || character === '\n' || character === '\r';
+  return (
+    character === ' ' ||
+    character === '\t' ||
+    character === '\n' ||
+    character === '\r'
+  );
 }

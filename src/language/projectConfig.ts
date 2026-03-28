@@ -11,7 +11,7 @@ interface KpaProjectConfig {
 
 const projectConfigCache = new Map<string, KpaProjectConfig | null>();
 
-export interface ResolvedKpaProjectConfig extends KpaProjectConfig {}
+export type ResolvedKpaProjectConfig = KpaProjectConfig;
 
 export function resolveWorkspaceImportPath(
   importPath: string,
@@ -44,10 +44,17 @@ export function resolveWorkspaceImportPath(
   const baseUrlDirectory = projectConfig.baseUrl
     ? path.resolve(projectConfig.baseDirectory, projectConfig.baseUrl)
     : projectConfig.baseDirectory;
-  const mappedCandidates = resolvePathAliases(importPath, projectConfig, baseUrlDirectory);
+  const mappedCandidates = resolvePathAliases(
+    importPath,
+    projectConfig,
+    baseUrlDirectory,
+  );
 
   for (const candidatePath of mappedCandidates) {
-    const resolvedCandidate = resolveCandidatePath(candidatePath, allowedExtensions);
+    const resolvedCandidate = resolveCandidatePath(
+      candidatePath,
+      allowedExtensions,
+    );
 
     if (resolvedCandidate) {
       return resolvedCandidate;
@@ -55,7 +62,10 @@ export function resolveWorkspaceImportPath(
   }
 
   if (!importPath.startsWith('.') && !path.isAbsolute(importPath)) {
-    return resolveCandidatePath(path.resolve(baseUrlDirectory, importPath), allowedExtensions);
+    return resolveCandidatePath(
+      path.resolve(baseUrlDirectory, importPath),
+      allowedExtensions,
+    );
   }
 
   return undefined;
@@ -93,11 +103,15 @@ export function getNearestProjectConfig(
   return findNearestProjectConfig(sourcePath);
 }
 
-export function getNearestProjectConfigPath(sourcePath: string | undefined): string | undefined {
+export function getNearestProjectConfigPath(
+  sourcePath: string | undefined,
+): string | undefined {
   return getNearestProjectConfig(sourcePath)?.configPath;
 }
 
-function findNearestProjectConfig(sourcePath: string): KpaProjectConfig | undefined {
+function findNearestProjectConfig(
+  sourcePath: string,
+): KpaProjectConfig | undefined {
   let currentDirectory = path.dirname(sourcePath);
   let didReachFilesystemRoot = false;
 
@@ -185,10 +199,18 @@ function resolvePathAliases(
       continue;
     }
 
-    const wildcardValue = importPath.slice(prefix.length, importPath.length - suffix.length);
+    const wildcardValue = importPath.slice(
+      prefix.length,
+      importPath.length - suffix.length,
+    );
 
     for (const targetPattern of targetPatterns) {
-      candidates.push(path.resolve(baseUrlDirectory, targetPattern.replace('*', wildcardValue)));
+      candidates.push(
+        path.resolve(
+          baseUrlDirectory,
+          targetPattern.replace('*', wildcardValue),
+        ),
+      );
     }
   }
 
@@ -210,7 +232,9 @@ function resolveCandidatePath(
         ? [candidateBasePath]
         : []
       : [
-          ...allowedExtensions.map((allowedExtension) => `${candidateBasePath}${allowedExtension}`),
+          ...allowedExtensions.map(
+            (allowedExtension) => `${candidateBasePath}${allowedExtension}`,
+          ),
           ...allowedExtensions.map((allowedExtension) =>
             path.join(candidateBasePath, `index${allowedExtension}`),
           ),
