@@ -4,7 +4,8 @@
   "description": "Shared KoppaJS language primitives, semantic service, and workspace graph.",
   "license": "Apache-2.0",
   "engines": {
-    "node": ">=16"
+    "node": ">=22",
+    "npm": ">=10"
   },
   "repository": {
     "type": "git",
@@ -27,10 +28,12 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepack": "npm run validate",
+    "release:check": "npm pack --dry-run --ignore-scripts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
-    "validate": "npm run check:docs && npm run typecheck && npm run test && npm run build",
+    "validate": "npm run check:docs && npm run check:meta && npm run typecheck && npm run test && npm run build",
     "check:docs": "node scripts/check-doc-contract.mjs",
+    "check:meta": "node scripts/check-meta-layer.mjs",
     "prepare": "husky"
   },
   "dependencies": {

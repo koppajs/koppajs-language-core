@@ -4,6 +4,7 @@
 
 The repository enforces:
 
+- repository contract checks with `npm run check:docs` and `npm run check:meta`
 - type checking with `tsc --noEmit`
 - unit tests with Vitest
 - production build compilation with `tsc -p tsconfig.build.json`
@@ -41,3 +42,9 @@ Unit tests should cover:
 - `KpaLanguageService` needs direct contract tests whenever new public methods are added.
 - code-action variants, multi-file rename edge cases, and workspace invalidation flows still deserve more direct contract coverage than the lower-level modules they orchestrate
 - Root export changes should be accompanied by public-surface assertions or equivalent explicit review.
+
+## Release And CI Gates
+
+- GitHub Actions CI runs `npm run validate` on Node.js 22 and 24.
+- The release workflow reruns `npm run validate` and `npm run release:check` on Node.js 22 before publish.
+- The tracked `.npmrc` keeps Node.js and npm engine mismatches from silently slipping into local or hosted installs.

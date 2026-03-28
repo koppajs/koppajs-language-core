@@ -22,6 +22,7 @@ Use the local spec template when one exists.
 
 ## Current Specs
 
+- `core-plugin-integration-contract.md`
 - `diagnostics-pipeline.md`
 - `document-parsing.md`
 - `language-service.md`

@@ -61,7 +61,13 @@ Before committing, run:
 npm run check:docs
 ```
 
-The local pre-commit hook runs the same guard and blocks the commit when the contract fails.
+The lightweight meta-layer guard is also available locally:
+
+```bash
+npm run check:meta
+```
+
+The local pre-commit hook runs both guards and blocks the commit when either contract fails.
 
 <p align="right">(<a href="#contributing-top">back to top</a>)</p>
 
@@ -69,7 +75,7 @@ The local pre-commit hook runs the same guard and blocks the commit when the con
 
 ## Requirements
 
-- Node.js >= 20
+- Node.js >= 22
 - npm >= 10
 
 Install dependencies:
@@ -77,6 +83,8 @@ Install dependencies:
 ```bash
 npm install
 ```
+
+The tracked `.npmrc` enforces compatible Node.js and npm versions during install.
 
 <p align="right">(<a href="#contributing-top">back to top</a>)</p>
 
@@ -90,7 +98,7 @@ A safe default workflow is:
 
 1. Read the affected code, tests, and local governance docs before changing behavior.
 2. Update the owned specs and governed root docs in the same change when the contract moves.
-3. Run `npm run check:docs` before broader quality checks.
+3. Run `npm run check:docs` and `npm run check:meta` before broader quality checks.
 4. Run the repository quality gates that cover the affected behavior.
 5. Keep unrelated edits out of the same change whenever possible.
 
@@ -154,6 +162,8 @@ That means:
 | Command | Description |
 | ------- | ----------- |
 | `npm run check:docs` | Validate README, CHANGELOG, CODE_OF_CONDUCT, CONTRIBUTING, and the local doc contract |
+| `npm run check:meta` | Validate the lightweight repository meta layer, workflow docs, and AI guidance files |
+| `npm run release:check` | Verify the publishable npm package payload with `npm pack --dry-run` |
 | `npm run validate` | Run the repository validation flow |
 | `npm run build` | Build the project output |
 | `npm run test` | Run the test suite |

@@ -55,8 +55,11 @@ Before cutting a release, ensure all of the following are true:
 
 Tooling expectations for local verification:
 
-- Node.js 20 or newer
+- Node.js 22 or newer
 - npm 10 or newer
+
+This repository enforces `engine-strict=true` through the tracked `.npmrc`, so
+incompatible Node.js or npm versions should be treated as a release blocker.
 
 ## What Must Be Prepared on `develop`
 
@@ -88,14 +91,14 @@ Recommended commands:
 ```bash
 npm ci
 npm run validate
-npm pack --dry-run
+npm run release:check
 ```
 
 Why this matters:
 
 - the release workflow runs the same validation gates again in CI
 - failing locally is cheaper than failing after tagging
-- `npm pack --dry-run` verifies the publishable package payload
+- `npm run release:check` verifies the publishable package payload
 
 The published package contents are controlled by the `files` field in
 `package.json`. The intended publish payload is:
@@ -232,15 +235,16 @@ That means every pushed tag matching `vX.Y.Z` starts the release pipeline.
 The job performs these steps:
 
 1. Checkout the repository with full history
-2. Setup Node.js 20
+2. Setup Node.js 22
 3. Fetch `main`
 4. Verify the tagged commit is already on `main`
 5. Run `npm ci`
 6. Run `npm run validate`
 7. Verify that `GITHUB_REF_NAME` without the `v` prefix matches
    `package.json.version`
-8. Create a GitHub Release with generated release notes
-9. Run `npm publish --access public`
+8. Run `npm run release:check`
+9. Create a GitHub Release with generated release notes
+10. Run `npm publish --access public`
 
 If any step fails, the release job stops immediately.
 

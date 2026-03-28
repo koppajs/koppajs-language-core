@@ -3,6 +3,10 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 interface PackageManifest {
+  engines?: {
+    node?: string;
+    npm?: string;
+  };
   exports: Record<string, unknown>;
   files: readonly string[];
   main: string;
@@ -28,6 +32,8 @@ describe('package manifest', () => {
     expect(Object.keys(packageManifest.exports).sort()).toEqual(['.']);
     expect(packageManifest.main).toBe('./dist/index.js');
     expect(packageManifest.types).toBe('./dist/index.d.ts');
+    expect(packageManifest.engines?.node).toBe('>=22');
+    expect(packageManifest.engines?.npm).toBe('>=10');
     expect(packageManifest.publishConfig?.access).toBe('public');
     expect(packageManifest.type).not.toBe('module');
     expect(packageManifest.files).toEqual([

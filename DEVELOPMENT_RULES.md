@@ -21,6 +21,8 @@
 
 - If behavior changes, update the relevant spec in `docs/specs/`.
 - If boundaries change, update [`ARCHITECTURE.md`](./ARCHITECTURE.md) and architecture docs.
+- If repository shape or workflow expectations change, update `docs/meta/` and `.github/workflows/README.md`.
+- If AI collaboration expectations change, update `.github/instructions/`.
 - If the public contract changes, update [`README.md`](./README.md), package-boundary tests, and any affected specs.
 - Do not describe roadmap items as implemented behavior.
 
