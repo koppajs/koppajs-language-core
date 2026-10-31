@@ -4,7 +4,13 @@
 
 This spec defines the cross-repository assumptions that
 `@koppajs/koppajs-language-core` makes about `@koppajs/koppajs-core` and
-`@koppajs/koppajs-vite-plugin`.
+`@koppajs/koppajs-vite-plugin`. `@koppajs/koppajs-router` participates
+indirectly through registered component tags; route-table navigation is not a
+language-core responsibility.
+
+The dependency refresh targets the published ecosystem versions Core `3.0.11`,
+Vite plugin `2.0.0`, and Router `0.1.8`, with Vite `8.3.5`. These packages are
+compatibility targets, not runtime dependencies of language-core.
 
 ## Description
 

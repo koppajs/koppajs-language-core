@@ -82,7 +82,7 @@ The local pre-commit hook runs all four checks and blocks the commit when any of
 
 ## Requirements
 
-- Node.js >=22
+- Node.js ^22.13.0 || ^24.0.0 || >=26.0.0
 - npm >=10
 
 Install dependencies:

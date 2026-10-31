@@ -1,9 +1,7 @@
 import ts from 'typescript';
 
 export type KpaTemplateContextBindingOrigin =
-  | 'component-method'
-  | 'component-prop'
-  | 'component-state';
+  'component-method' | 'component-prop' | 'component-state';
 
 export interface KpaTemplateContextBinding {
   kind: 'function' | 'variable';

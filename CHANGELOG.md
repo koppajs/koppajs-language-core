@@ -20,6 +20,16 @@ Changes will only appear here when they:
 
 ---
 
+## [0.2.0]
+
+- **Breaking:** require Node.js `^22.13.0 || ^24.0.0 || >=26.0.0` for the updated toolchain. Node.js 22.0–22.12, 23, and 25 are no longer supported.
+- Update the dependency baseline to TypeScript 6.0.3, ESLint 10.14.0, typescript-eslint 8.72.1, Vite 8.3.5, and Vitest 5.0.5.
+- Retain the latest Node.js 22 types and the existing root-only package API. TypeScript 7 remains excluded because the required compiler and language-service APIs are not available through its root export.
+- Load the Vitest configuration explicitly as ESM while retaining the two-worker limit and existing test timeouts.
+- Verify the canonical explicit-return component contract with published Core 3.0.11, Vite plugin 2.0.0, and Router 0.1.8, including reactive rendering and route navigation.
+
+---
+
 ## [0.1.4]
 
 - Raise the declared and documented Node.js minimum to `>=22` and expand CI validation to Node.js 22 and 24.

@@ -8,7 +8,7 @@ The repository enforces:
 - formatting checks with Prettier
 - static analysis with ESLint
 - type checking with `tsc --noEmit`
-- unit tests with Vitest
+- unit tests with Vitest 5 and Vite 8, with two workers to keep TypeScript-backed analysis within the existing test timeout
 - production build compilation with `tsc -p tsconfig.build.json`
 
 The convenience entry point is `npm run validate`.

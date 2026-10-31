@@ -26,18 +26,9 @@ import {
 
 type ScriptBlock = KpaBlockNode & { kind: 'script-ts' | 'script-js' };
 type KpaTemplateAttributeKind =
-  | 'boolean'
-  | 'expression'
-  | 'spread'
-  | 'string'
-  | 'unquoted';
+  'boolean' | 'expression' | 'spread' | 'string' | 'unquoted';
 type InferredAttributeType =
-  | 'array'
-  | 'boolean'
-  | 'null'
-  | 'number'
-  | 'object'
-  | 'string';
+  'array' | 'boolean' | 'null' | 'number' | 'object' | 'string';
 
 interface ParsedTemplateAttribute {
   kind: KpaTemplateAttributeKind;
@@ -701,8 +692,7 @@ export function resolveTemplateComponentAtOffset(
   sourcePath: string | undefined,
   offset: number,
 ):
-  | { component: KpaResolvedTemplateComponent; tag: KpaTemplateTag }
-  | undefined {
+  { component: KpaResolvedTemplateComponent; tag: KpaTemplateTag } | undefined {
   const tag = getCanonicalTemplateTagAtOffset(document, offset);
 
   if (!tag) {

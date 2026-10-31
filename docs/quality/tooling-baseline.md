@@ -17,7 +17,7 @@ choices behind it.
 
 ## Engine Enforcement
 
-- `package.json` requires Node.js `>=22` and npm `>=10`
+- `package.json` requires Node.js `^22.13.0 || ^24.0.0 || >=26.0.0` and npm `>=10`
 - `.npmrc` enforces `engine-strict=true`
 - `.github/workflows/ci.yml` validates on Node.js 22 and 24
 - `.github/workflows/release.yml` uses Node.js 22 for release validation and
