@@ -330,6 +330,71 @@ describe('template components', () => {
     ).toBe(true);
   });
 
+  it.each([
+    ['<Card />', true],
+    ['<Card></Card>', true],
+    ['<Card> \n\t </Card>', true],
+    ['<Card> </  Card>', true],
+    ['<Card><div slot="header">Header</div></Card>', true],
+    ['<Card>Body</Card>', false],
+    ['<Card><div>Body</div></Card>', false],
+    ['<Card><div slot="header">Header</div>Body</Card>', false],
+  ])('checks required default slots for %s', (usage, missing) => {
+    const tempDirectory = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'kpa-template-components-'),
+    );
+    fs.writeFileSync(
+      path.join(tempDirectory, 'Card.kpa'),
+      '[ts]\ninterface Slots { default: unknown; header?: unknown; }\n[/ts]',
+    );
+    const text = `[template]\n${usage}\n[/template]\n[ts]\nimport Card from './Card';\n[/ts]`;
+    const diagnostics = collectCanonicalTemplateComponentDiagnostics(
+      parseKpaDocument(text),
+      path.join(tempDirectory, 'Page.kpa'),
+    );
+    expect(
+      diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.code === kpaDiagnosticCodes.missingComponentSlot,
+      ),
+    ).toHaveLength(missing ? 1 : 0);
+  });
+
+  it.each([
+    ["''", '', false],
+    ["'Ada'", 'const unrelated: number = "wrong";', false],
+    ['title', 'const title = "Ada";', false],
+    ['title', 'return { state: { title: "Ada" } };', false],
+    ['1', '', true],
+    ['title', 'const title = 1;', true],
+    ['title', 'const unrelated = missing; const title = 1;', true],
+    ['missing', '', false],
+    ['missing.value', '', false],
+    ['value.title', 'const value = {};', false],
+  ])(
+    'isolates prop assignment checks for %s with %s',
+    (value, script, invalid) => {
+      const tempDirectory = fs.mkdtempSync(
+        path.join(os.tmpdir(), 'kpa-template-components-'),
+      );
+      fs.writeFileSync(
+        path.join(tempDirectory, 'Card.kpa'),
+        '[ts]\nreturn { props: { title: { type: String, required: true } } };\n[/ts]',
+      );
+      const text = `[template]\n<Card :title="${value}" />\n[/template]\n[ts]\nimport Card from './Card';\n${script}\n[/ts]`;
+      const diagnostics = collectCanonicalTemplateComponentDiagnostics(
+        parseKpaDocument(text),
+        path.join(tempDirectory, 'Page.kpa'),
+      );
+      expect(
+        diagnostics.filter(
+          (diagnostic) =>
+            diagnostic.code === kpaDiagnosticCodes.invalidComponentPropType,
+        ),
+      ).toHaveLength(invalid ? 1 : 0);
+    },
+  );
+
   it('collects canonical component usages with parsed attributes and insertion points', () => {
     const tempDirectory = fs.mkdtempSync(
       path.join(os.tmpdir(), 'kpa-template-components-'),

@@ -6,6 +6,33 @@ import { describe, expect, it } from 'vitest';
 import { KpaLanguageService } from '../../index';
 
 describe('KpaLanguageService', () => {
+  it('keeps imported component prop and default-slot diagnostics independent', () => {
+    const tempDirectory = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'kpa-component-service-'),
+    );
+    fs.writeFileSync(
+      path.join(tempDirectory, 'Card.kpa'),
+      '[ts]\ninterface Slots { default: unknown; }\nreturn { props: { title: { type: String, required: true } } };\n[/ts]',
+    );
+    const uri = pathToFileURL(path.join(tempDirectory, 'Page.kpa')).href;
+    const service = new KpaLanguageService();
+    service.openDocument(
+      uri,
+      `[template]\n<Card :title="''"></Card>\n<Card :title="1">Body</Card>\n[/template]\n[ts]\nimport Card from './Card';\n[/ts]`,
+    );
+    const diagnostics = service.getDiagnostics(uri);
+    expect(
+      diagnostics.filter(
+        (entry) => entry.code === 'kpa.missing-component-slot',
+      ),
+    ).toHaveLength(1);
+    expect(
+      diagnostics.filter(
+        (entry) => entry.code === 'kpa.invalid-component-prop-type',
+      ),
+    ).toHaveLength(1);
+  });
+
   it('serves diagnostics and template completions from open overlay documents', () => {
     const service = new KpaLanguageService();
     const tempDirectory = fs.mkdtempSync(

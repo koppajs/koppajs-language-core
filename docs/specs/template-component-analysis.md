@@ -46,7 +46,8 @@ Resolve canonical template components from explicit `.kpa` imports and workspace
 - API inference requires the resolved component file to exist and be readable.
 - Runtime prop discovery is sourced from the canonical component `return` object, while slot discovery is sourced from explicit `Slots` declarations and concrete `<slot>` tags.
 - Required-slot semantics still come only from typed declarations.
-- Type validation is intentionally narrower than full TypeScript assignability.
+- Type validation is intentionally narrower than full TypeScript assignability. Component-prop checks consider the generated value and assignment, not unrelated semantic errors in copied script code; unresolved target or expression types retain the existing inference fallback.
+- Empty or whitespace-only paired component bodies do not provide a required default slot. The closing tag itself is never counted as body content.
 
 ## Edge Cases
 
