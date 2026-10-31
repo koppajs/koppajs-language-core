@@ -1,6 +1,6 @@
 {
   "name": "@koppajs/koppajs-language-core",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Shared KoppaJS language primitives, semantic service, and workspace graph.",
   "license": "Apache-2.0",
   "engines": {

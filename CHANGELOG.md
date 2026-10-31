@@ -20,6 +20,13 @@ Changes will only appear here when they:
 
 ---
 
+## [0.2.1]
+
+- Report missing required default slots for empty or whitespace-only paired component tags, without treating the opening character of the closing tag as slot content.
+- Scope component-prop assignability checks to the generated value and target assignment so unrelated script/import diagnostics do not reject valid expressions; retain real type-mismatch diagnostics and fallback for unresolved types.
+
+---
+
 ## [0.2.0]
 
 - **Breaking:** require Node.js `^22.13.0 || ^24.0.0 || >=26.0.0` for the updated toolchain. Node.js 22.0–22.12, 23, and 25 are no longer supported.

@@ -49,6 +49,7 @@ interface TemplateTagMatch {
   nameEnd: number;
   nameStart: number;
   tagEnd: number;
+  tagStart: number;
 }
 
 export interface KpaImportedComponent {
@@ -872,6 +873,7 @@ function readTagAt(
         nameEnd,
         nameStart,
         tagEnd: cursor + 1,
+        tagStart: index,
       };
     }
 
@@ -885,6 +887,7 @@ function readTagAt(
         nameEnd,
         nameStart,
         tagEnd: cursor + 2,
+        tagStart: index,
       };
     }
 
@@ -908,6 +911,7 @@ function readTagAt(
     nameEnd,
     nameStart,
     tagEnd: cursor,
+    tagStart: index,
   };
 }
 
@@ -1269,7 +1273,7 @@ function createCanonicalTemplateComponentCallSite(
   const openingTag = createTemplateTag(document, block, openingMatch);
   const bodyStartOffset = block.contentRange.start.offset + openingMatch.tagEnd;
   const bodyEndOffset = closingMatch
-    ? block.contentRange.start.offset + closingMatch.nameStart - 1
+    ? block.contentRange.start.offset + closingMatch.tagStart
     : bodyStartOffset;
   const slotUsages =
     closingMatch && bodyEndOffset >= bodyStartOffset
@@ -1693,11 +1697,12 @@ function isExpressionAttributeAssignableToPropType(
 
   const virtualFileName = createComponentTypecheckVirtualFileName(sourcePath);
   const compilerOptions = loadTypecheckCompilerOptions(virtualFileName);
-  const virtualSourceText = createComponentTypecheckSource(
+  const virtualSource = createComponentTypecheckSource(
     document,
     valueText,
     propTypeText,
   );
+  const virtualSourceText = virtualSource.text;
   const languageServiceHost: ts.LanguageServiceHost = {
     getCompilationSettings: () => compilerOptions,
     getCurrentDirectory: () => path.dirname(virtualFileName),
@@ -1729,20 +1734,26 @@ function isExpressionAttributeAssignableToPropType(
     getNewLine: () => ts.sys.newLine,
   };
   const languageService = ts.createLanguageService(languageServiceHost);
-  const diagnostics = languageService.getSemanticDiagnostics(virtualFileName);
-
-  if (
-    diagnostics.some(
+  try {
+    const diagnostics = languageService.getSemanticDiagnostics(virtualFileName);
+    if (
+      diagnostics.some(
+        (diagnostic) =>
+          diagnostic.start !== undefined &&
+          diagnostic.start >= virtualSource.targetStart &&
+          diagnostic.start < virtualSource.assignmentStart,
+      )
+    ) {
+      return undefined;
+    }
+    return !diagnostics.some(
       (diagnostic) =>
-        diagnostic.code === 2304 ||
-        diagnostic.code === 2552 ||
-        diagnostic.code === 2693,
-    )
-  ) {
-    return undefined;
+        diagnostic.start !== undefined &&
+        diagnostic.start >= virtualSource.assignmentStart,
+    );
+  } finally {
+    languageService.dispose();
   }
-
-  return diagnostics.length === 0;
 }
 
 function createComponentTypecheckVirtualFileName(
@@ -1763,7 +1774,7 @@ function createComponentTypecheckSource(
   document: KpaDocument,
   valueText: string,
   propTypeText: string,
-): string {
+): { assignmentStart: number; targetStart: number; text: string } {
   const parts: string[] = [];
   const scriptBlock = document.blocks.find(isScriptBlock);
 
@@ -1780,11 +1791,17 @@ function createComponentTypecheckSource(
     }
   }
 
-  parts.push(`type __KpaTarget = ${propTypeText};\n`);
-  parts.push(`const __kpa_value__ = (${valueText});\n`);
-  parts.push('const __kpa_assign__: __KpaTarget = __kpa_value__;\n');
-
-  return parts.join('');
+  const scriptSource = parts.join('');
+  const targetSource = `type __KpaTarget = ${propTypeText};\n`;
+  const valueSource = `const __kpa_value__ = (${valueText});\n`;
+  const assignmentSource =
+    'const __kpa_assign__: __KpaTarget = __kpa_value__;\n';
+  return {
+    assignmentStart:
+      scriptSource.length + targetSource.length + valueSource.length,
+    targetStart: scriptSource.length,
+    text: scriptSource + targetSource + valueSource + assignmentSource,
+  };
 }
 
 function appendComponentTypecheckBindingDeclaration(
