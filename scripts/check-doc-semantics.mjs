@@ -100,7 +100,7 @@ for (const scriptName of [
   expectIncludes('CONTRIBUTING.md', contributing, `npm run ${scriptName}`);
 }
 
-expectIncludes('RELEASE.md', release, 'Node.js 22 or newer');
+expectIncludes('RELEASE.md', release, `Node.js \`${expectedNode}\``);
 expectIncludes('RELEASE.md', release, 'npm 10 or newer');
 expectIncludes('RELEASE.md', release, 'npm run validate');
 expectIncludes('RELEASE.md', release, 'npm run release:check');

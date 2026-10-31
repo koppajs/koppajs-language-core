@@ -24,6 +24,10 @@ governance files and when it must be updated.
 | New quality gate, formatter, linter, or release validation rule | Update `TESTING_STRATEGY.md`, `docs/quality/`, and `.github/workflows/README.md`             |
 | New contributor or AI workflow expectation                      | Update `CONTRIBUTING.md`, `AI_CONSTITUTION.md`, or `.github/instructions/`                   |
 
+## Dependency Baseline
+
+The dependency baseline uses ESLint 10, typescript-eslint 8.72, Vite 8, Vitest 5, and TypeScript 6. Node.js support is `^22.13.0 || ^24.0.0 || >=26.0.0`, matching the intersection of the tool engines. Node.js types remain on the latest 22.x release to prevent accidental use of APIs unavailable on the oldest supported runtime. TypeScript 7 is intentionally excluded: its root export no longer provides the stable compiler and language-service APIs this package uses, and typescript-eslint currently supports TypeScript below 6.1. The test runner retains two workers without relaxing timeouts.
+
 ## Maintenance Rule
 
 If a future maintainer would be surprised after reading only the root governance

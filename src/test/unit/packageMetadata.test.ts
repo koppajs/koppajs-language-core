@@ -32,7 +32,9 @@ describe('package manifest', () => {
     expect(Object.keys(packageManifest.exports).sort()).toEqual(['.']);
     expect(packageManifest.main).toBe('./dist/index.js');
     expect(packageManifest.types).toBe('./dist/index.d.ts');
-    expect(packageManifest.engines?.node).toBe('>=22');
+    expect(packageManifest.engines?.node).toBe(
+      '^22.13.0 || ^24.0.0 || >=26.0.0',
+    );
     expect(packageManifest.engines?.npm).toBe('>=10');
     expect(packageManifest.publishConfig?.access).toBe('public');
     expect(packageManifest.type).not.toBe('module');

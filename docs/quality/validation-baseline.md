@@ -25,7 +25,7 @@
 - ESLint is enforced as a repository quality gate.
 - Prettier is enforced as a repository quality gate.
 - The tracked `.npmrc` enforces compatible Node.js and npm versions during install.
-- The package declares support for Node.js `>=22`; CI currently validates on Node.js 22 and 24.
+- The package declares support for Node.js `^22.13.0 || ^24.0.0 || >=26.0.0`; CI currently validates on Node.js 22 and 24.
 
 ## Rationale
 

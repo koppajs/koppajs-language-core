@@ -142,7 +142,7 @@ const completions = service.getCompletions(
 
 This repository is a KoppaJS core package. It is intended to sit below language-server, editor-adapter, and CLI packages so those packages can share one source of truth for `.kpa` language behavior.
 
-The package is runtime code, not build tooling. It executes in Node.js, requires Node.js `>=22`, and uses synchronous filesystem access where workspace indexing requires deterministic reads.
+The package is runtime code, not build tooling. It executes in Node.js, requires Node.js `^22.13.0 || ^24.0.0 || >=26.0.0`, and uses synchronous filesystem access where workspace indexing requires deterministic reads.
 
 ---
 

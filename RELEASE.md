@@ -55,7 +55,7 @@ Before cutting a release, ensure all of the following are true:
 
 Tooling expectations for local verification:
 
-- Node.js 22 or newer
+- Node.js `^22.13.0 || ^24.0.0 || >=26.0.0`
 - npm 10 or newer
 
 This repository enforces `engine-strict=true` through the tracked `.npmrc`, so
