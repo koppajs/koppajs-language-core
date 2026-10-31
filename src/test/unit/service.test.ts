@@ -60,7 +60,7 @@ describe('KpaLanguageService', () => {
       service
         .getDiagnostics(uri)
         .some((diagnostic) =>
-          diagnostic.message.includes('Lokales Template-Symbol [missing]'),
+          diagnostic.message.includes('Local template symbol [missing]'),
         ),
     ).toBe(true);
 
@@ -188,6 +188,10 @@ describe('KpaLanguageService', () => {
 
     expect(titleCompletion?.insertText).toBe(':title="$1"');
     expect(actions[0]?.edits[0]?.newText).toBe(` :title="''"`);
+    expect(actions[0]?.title).toBe('Add prop [title] for [UserCard]');
+    expect(diagnostics.map((entry) => entry.message)).toContain(
+      'Required prop [title] is missing on component [UserCard].',
+    );
   });
 
   it('uses workspace roots for imported component definitions and references', () => {

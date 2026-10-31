@@ -720,7 +720,7 @@ export class KpaLanguageService {
 
     if (occurrence.symbols.length > 1) {
       throw new Error(
-        `Template symbol [${occurrence.symbols[0].name}] ist mehrdeutig und kann nicht sicher umbenannt werden.`,
+        `Template symbol [${occurrence.symbols[0].name}] is ambiguous and cannot be renamed safely.`,
       );
     }
 
@@ -831,7 +831,7 @@ export class KpaLanguageService {
 
     if (occurrence.symbols.length > 1) {
       throw new Error(
-        `Template symbol [${occurrence.symbols[0].name}] ist mehrdeutig und kann nicht sicher umbenannt werden.`,
+        `Template symbol [${occurrence.symbols[0].name}] is ambiguous and cannot be renamed safely.`,
       );
     }
 
@@ -1099,7 +1099,7 @@ export class KpaLanguageService {
       ],
       isPreferred: true,
       kind: 'quickfix',
-      title: `Prop [${data.propName}] fuer [${data.componentName}] ergaenzen`,
+      title: `Add prop [${data.propName}] for [${data.componentName}]`,
     };
   }
 
@@ -1142,7 +1142,7 @@ export class KpaLanguageService {
       ],
       isPreferred: true,
       kind: 'quickfix',
-      title: `Komponente [${data.componentName}] importieren`,
+      title: `Import component [${data.componentName}]`,
     };
   }
 }

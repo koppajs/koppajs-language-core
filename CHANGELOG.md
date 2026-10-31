@@ -12,11 +12,16 @@ not every internal refactor.
 
 ## [Unreleased]
 
-Changes will only appear here when they:
+This section is intentionally empty.
 
-- affect repository behavior or public guidance,
-- change contributor workflow or governance,
-- or alter the documented package or repository contract.
+---
+
+## [0.2.2]
+
+- Use English for all package-owned diagnostics, HTML completion descriptions,
+  quick-fix titles, and rename/import errors. Preserve snippets, identifiers,
+  diagnostic codes, structured data, and source ranges.
+- Add presentation regression coverage for English metadata and service output.
 
 ---
 

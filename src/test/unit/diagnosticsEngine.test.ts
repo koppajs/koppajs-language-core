@@ -22,9 +22,7 @@ describe('collectBlockDiagnostics', () => {
     const text = '[/template]';
     const [diagnostic] = collectBlockDiagnostics(text);
 
-    expect(diagnostic?.message).toContain(
-      'ohne dass er vorher geoeffnet wurde',
-    );
+    expect(diagnostic?.message).toContain('without a matching opening block');
     expect(diagnostic?.range).toEqual({
       line: 0,
       startChar: 0,
@@ -36,7 +34,7 @@ describe('collectBlockDiagnostics', () => {
     const text = ['[template]', '[/css]'].join('\n');
     const [diagnostic] = collectBlockDiagnostics(text);
 
-    expect(diagnostic?.message).toContain('Stattdessen [/css] verwendet');
+    expect(diagnostic?.message).toContain('Found [/css] instead');
   });
 
   it('flags unclosed blocks with the expected closing tag text', () => {
@@ -44,7 +42,7 @@ describe('collectBlockDiagnostics', () => {
     const [diagnostic] = collectBlockDiagnostics(text);
 
     expect(diagnostic?.message).toBe(
-      'Der Block [template] wurde nicht geschlossen. Erwartet [/template].',
+      'Block [template] was not closed. Expected [/template].',
     );
   });
 
@@ -64,9 +62,7 @@ describe('collectBlockDiagnostics', () => {
     const text = ['[layout]', '[/template]'].join('\n');
     const [diagnostic] = collectBlockDiagnostics(text);
 
-    expect(diagnostic?.message).toContain(
-      'ohne dass er vorher geoeffnet wurde',
-    );
+    expect(diagnostic?.message).toContain('without a matching opening block');
   });
 
   it('flags missing local template symbols in simple canonical expressions', () => {
@@ -76,7 +72,7 @@ describe('collectBlockDiagnostics', () => {
     const [diagnostic] = collectBlockDiagnostics(text);
 
     expect(diagnostic?.message).toBe(
-      'Lokales Template-Symbol [missing] wurde nicht gefunden.',
+      'Local template symbol [missing] was not found.',
     );
     expect(diagnostic?.range).toEqual({
       line: 1,
@@ -94,7 +90,7 @@ describe('collectBlockDiagnostics', () => {
     const [diagnostic] = collectBlockDiagnostics(text);
 
     expect(diagnostic?.message).toBe(
-      'Lokales Template-Symbol [missing] wurde nicht gefunden.',
+      'Local template symbol [missing] was not found.',
     );
   });
 
@@ -112,7 +108,7 @@ describe('collectBlockDiagnostics', () => {
     const [diagnostic] = collectBlockDiagnostics(text);
 
     expect(diagnostic?.message).toBe(
-      'Lokales Template-Symbol [count] wurde nicht gefunden.',
+      'Local template symbol [count] was not found.',
     );
   });
 
@@ -164,7 +160,7 @@ describe('collectBlockDiagnostics', () => {
     const [diagnostic] = collectBlockDiagnostics(text);
 
     expect(diagnostic?.message).toBe(
-      'Lokales Template-Symbol [missing] wurde nicht gefunden.',
+      'Local template symbol [missing] was not found.',
     );
   });
 
