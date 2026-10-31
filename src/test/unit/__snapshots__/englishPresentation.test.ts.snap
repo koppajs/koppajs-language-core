@@ -1,0 +1,747 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`English presentation > keeps every HTML tag and attribute description in the approved English catalog 1`] = `
+[
+  {
+    "description": "Defines a hyperlink to another web page.",
+    "name": "a",
+  },
+  {
+    "description": "Marks an abbreviation or acronym.",
+    "name": "abbr",
+  },
+  {
+    "description": "Specifies contact or authorship information.",
+    "name": "address",
+  },
+  {
+    "description": "Defines a clickable area on an image map.",
+    "name": "area",
+  },
+  {
+    "description": "Defines independent, self-contained content.",
+    "name": "article",
+  },
+  {
+    "description": "Specifies content indirectly related to the main content (e.g. a sidebar).",
+    "name": "aside",
+  },
+  {
+    "description": "Embeds audio content, such as music or other audio files.",
+    "name": "audio",
+  },
+  {
+    "description": "Highlights text in bold without special importance.",
+    "name": "b",
+  },
+  {
+    "description": "Sets the base URL for all relative URLs.",
+    "name": "base",
+  },
+  {
+    "description": "Isolates text whose direction is unknown or should be independent.",
+    "name": "bdi",
+  },
+  {
+    "description": "Overrides the default text direction.",
+    "name": "bdo",
+  },
+  {
+    "description": "Defines a longer passage of text as a quotation.",
+    "name": "blockquote",
+  },
+  {
+    "description": "Defines the main content of the document.",
+    "name": "body",
+  },
+  {
+    "description": "Creates a line break.",
+    "name": "br",
+  },
+  {
+    "description": "Defines a clickable button.",
+    "name": "button",
+  },
+  {
+    "description": "Allows dynamic drawing of 2D graphics using scripts.",
+    "name": "canvas",
+  },
+  {
+    "description": "Defines a table caption.",
+    "name": "caption",
+  },
+  {
+    "description": "Specifies the title of a work (e.g. a book title).",
+    "name": "cite",
+  },
+  {
+    "description": "Highlights source code or programming expressions.",
+    "name": "code",
+  },
+  {
+    "description": "Defines column properties for a table.",
+    "name": "col",
+  },
+  {
+    "description": "Groups table columns for shared styling.",
+    "name": "colgroup",
+  },
+  {
+    "description": "Embeds machine-readable data displayed in the text.",
+    "name": "data",
+  },
+  {
+    "description": "Defines a list of predefined options that can be linked to <input>.",
+    "name": "datalist",
+  },
+  {
+    "description": "Defines a description of a term in a definition list.",
+    "name": "dd",
+  },
+  {
+    "description": "Marks deleted (struck-through) text.",
+    "name": "del",
+  },
+  {
+    "description": "Creates an expandable element with a summary (e.g. an FAQ).",
+    "name": "details",
+  },
+  {
+    "description": "Marks the term being defined.",
+    "name": "dfn",
+  },
+  {
+    "description": "Defines a dialog or popup element.",
+    "name": "dialog",
+  },
+  {
+    "description": "A container element without special meaning.",
+    "name": "div",
+  },
+  {
+    "description": "Defines a definition list with <dt> and <dd>.",
+    "name": "dl",
+  },
+  {
+    "description": "Defines a term or title in a definition list.",
+    "name": "dt",
+  },
+  {
+    "description": "Emphasizes text (usually in italics).",
+    "name": "em",
+  },
+  {
+    "description": "Embeds external resources (e.g. a video or plugin).",
+    "name": "embed",
+  },
+  {
+    "description": "Groups related form fields.",
+    "name": "fieldset",
+  },
+  {
+    "description": "Sets a caption for a <figure> element.",
+    "name": "figcaption",
+  },
+  {
+    "description": "Groups self-contained content (e.g. an image and caption).",
+    "name": "figure",
+  },
+  {
+    "description": "Defines the footer of a document or section.",
+    "name": "footer",
+  },
+  {
+    "description": "Creates an HTML form for user input.",
+    "name": "form",
+  },
+  {
+    "description": "The highest heading level (heading 1).",
+    "name": "h1",
+  },
+  {
+    "description": "Heading level 2.",
+    "name": "h2",
+  },
+  {
+    "description": "Heading level 3.",
+    "name": "h3",
+  },
+  {
+    "description": "Heading level 4.",
+    "name": "h4",
+  },
+  {
+    "description": "Heading level 5.",
+    "name": "h5",
+  },
+  {
+    "description": "The lowest heading level (heading 6).",
+    "name": "h6",
+  },
+  {
+    "description": "Contains metadata, scripts, and styles for the document.",
+    "name": "head",
+  },
+  {
+    "description": "Defines a header for a document or section.",
+    "name": "header",
+  },
+  {
+    "description": "Displays a thematic separator.",
+    "name": "hr",
+  },
+  {
+    "description": "The root element of an HTML document.",
+    "name": "html",
+  },
+  {
+    "description": "Highlights text in italics without special emphasis.",
+    "name": "i",
+  },
+  {
+    "description": "Embeds another HTML document in the page.",
+    "name": "iframe",
+  },
+  {
+    "description": "Embeds an image in the document.",
+    "name": "img",
+  },
+  {
+    "description": "Defines a form element.",
+    "name": "input",
+  },
+  {
+    "description": "Marks text as inserted (usually underlined).",
+    "name": "ins",
+  },
+  {
+    "description": "Marks keyboard input, usually in a monospace font.",
+    "name": "kbd",
+  },
+  {
+    "description": "A label for a form field.",
+    "name": "label",
+  },
+  {
+    "description": "Provides a caption for a <fieldset>.",
+    "name": "legend",
+  },
+  {
+    "description": "A list item in a <ul>, <ol>, or <menu>.",
+    "name": "li",
+  },
+  {
+    "description": "Links external resources (e.g. CSS).",
+    "name": "link",
+  },
+  {
+    "description": "The main content of a page (unique per document).",
+    "name": "main",
+  },
+  {
+    "description": "Defines an image map together with <area>.",
+    "name": "map",
+  },
+  {
+    "description": "Highlights text, usually with a background color.",
+    "name": "mark",
+  },
+  {
+    "description": "Defines a list of commands or menu items.",
+    "name": "menu",
+  },
+  {
+    "description": "Defines metadata or information in <head>.",
+    "name": "meta",
+  },
+  {
+    "description": "Displays a measurement within a specified range.",
+    "name": "meter",
+  },
+  {
+    "description": "Defines a navigation area with links.",
+    "name": "nav",
+  },
+  {
+    "description": "Fallback content for browsers without JavaScript.",
+    "name": "noscript",
+  },
+  {
+    "description": "Embeds an external object (e.g. Flash or PDF).",
+    "name": "object",
+  },
+  {
+    "description": "Defines an ordered (numbered) list.",
+    "name": "ol",
+  },
+  {
+    "description": "Groups <option> elements together.",
+    "name": "optgroup",
+  },
+  {
+    "description": "Defines an option in a dropdown list (<select>).",
+    "name": "option",
+  },
+  {
+    "description": "Displays the result of a calculation or user action.",
+    "name": "output",
+  },
+  {
+    "description": "Defines a paragraph.",
+    "name": "p",
+  },
+  {
+    "description": "Supplies parameters to <object>.",
+    "name": "param",
+  },
+  {
+    "description": "Allows responsive images based on the screen or resolution.",
+    "name": "picture",
+  },
+  {
+    "description": "Displays preformatted text (preserving spaces and line breaks).",
+    "name": "pre",
+  },
+  {
+    "description": "Displays the progress of a task.",
+    "name": "progress",
+  },
+  {
+    "description": "Marks a short quotation (usually with quotation marks).",
+    "name": "q",
+  },
+  {
+    "description": "Displays fallback parentheses for browsers that do not support <ruby>.",
+    "name": "rp",
+  },
+  {
+    "description": "Defines a pronunciation or reading aid in a <ruby> element.",
+    "name": "rt",
+  },
+  {
+    "description": "Displays characters with annotations, e.g. in East Asian text.",
+    "name": "ruby",
+  },
+  {
+    "description": "Marks text as no longer relevant (struck through).",
+    "name": "s",
+  },
+  {
+    "description": "Highlights program or console output (sample output).",
+    "name": "samp",
+  },
+  {
+    "description": "Embeds client-side scripts, usually JavaScript.",
+    "name": "script",
+  },
+  {
+    "description": "Groups thematically related content, such as chapters.",
+    "name": "section",
+  },
+  {
+    "description": "Creates a dropdown list.",
+    "name": "select",
+  },
+  {
+    "description": "Displays smaller text (fine print or side notes).",
+    "name": "small",
+  },
+  {
+    "description": "Defines a media source for <audio> or <video>.",
+    "name": "source",
+  },
+  {
+    "description": "An inline container without special meaning.",
+    "name": "span",
+  },
+  {
+    "description": "Strongly emphasizes content semantically (bold text).",
+    "name": "strong",
+  },
+  {
+    "description": "Defines CSS styles in the document (inline styling).",
+    "name": "style",
+  },
+  {
+    "description": "Defines subscript text.",
+    "name": "sub",
+  },
+  {
+    "description": "A clickable short description for a <details> element.",
+    "name": "summary",
+  },
+  {
+    "description": "Defines superscript text.",
+    "name": "sup",
+  },
+  {
+    "description": "Creates a table.",
+    "name": "table",
+  },
+  {
+    "description": "Groups the table body.",
+    "name": "tbody",
+  },
+  {
+    "description": "Defines a cell in a table row.",
+    "name": "td",
+  },
+  {
+    "description": "Holds client-side content that is rendered later using JavaScript.",
+    "name": "template",
+  },
+  {
+    "description": "Defines a multiline text input field.",
+    "name": "textarea",
+  },
+  {
+    "description": "Defines the footer of a table.",
+    "name": "tfoot",
+  },
+  {
+    "description": "Defines a table header cell.",
+    "name": "th",
+  },
+  {
+    "description": "Defines the header of a table.",
+    "name": "thead",
+  },
+  {
+    "description": "Defines a date or time, machine-readable through the datetime attribute.",
+    "name": "time",
+  },
+  {
+    "description": "Defines the document title (displayed in the browser tab).",
+    "name": "title",
+  },
+  {
+    "description": "Defines a row in a table.",
+    "name": "tr",
+  },
+  {
+    "description": "Defines subtitles or metadata for <audio> or <video>.",
+    "name": "track",
+  },
+  {
+    "description": "Marks underlined text (without special semantic meaning).",
+    "name": "u",
+  },
+  {
+    "description": "Creates an unordered (bulleted) list.",
+    "name": "ul",
+  },
+  {
+    "description": "Marks a variable or placeholder in an expression.",
+    "name": "var",
+  },
+  {
+    "description": "Embeds a video with playback controls.",
+    "name": "video",
+  },
+  {
+    "description": "Indicates a possible line break (e.g. in long words).",
+    "name": "wbr",
+  },
+]
+`;
+
+exports[`English presentation > keeps every HTML tag and attribute description in the approved English catalog 2`] = `
+[
+  {
+    "documentation": "Defines one or more classes for an element (CSS styling).",
+    "label": "class",
+  },
+  {
+    "documentation": "Defines a unique identifier (ID) for an element.",
+    "label": "id",
+  },
+  {
+    "documentation": "Defines inline CSS styles for an element.",
+    "label": "style",
+  },
+  {
+    "documentation": "Displays a tooltip when the pointer hovers over the element.",
+    "label": "title",
+  },
+  {
+    "documentation": "Defines the URL of a resource (e.g. <img>, <script>, <iframe>).",
+    "label": "src",
+  },
+  {
+    "documentation": "Alternative text (displayed if the image cannot be loaded).",
+    "label": "alt",
+  },
+  {
+    "documentation": "Defines the target URL (e.g. for <a>, <link>).",
+    "label": "href",
+  },
+  {
+    "documentation": "Sets the type of an element (e.g. <button type="button">).",
+    "label": "type",
+  },
+  {
+    "documentation": "Defines the name of an element (often in forms or <map>).",
+    "label": "name",
+  },
+  {
+    "documentation": "The value of a form element (<input>, <option>, etc.).",
+    "label": "value",
+  },
+  {
+    "documentation": "Hint text displayed in an empty input field.",
+    "label": "placeholder",
+  },
+  {
+    "documentation": "Disables an input field, button, etc. (not clickable).",
+    "label": "disabled",
+  },
+  {
+    "documentation": "Makes an input field read-only, preventing changes.",
+    "label": "readonly",
+  },
+  {
+    "documentation": "Marks a field as required in a form.",
+    "label": "required",
+  },
+  {
+    "documentation": "Preselects a checkbox or radio button.",
+    "label": "checked",
+  },
+  {
+    "documentation": "Selects an <option> as the default value in a <select>.",
+    "label": "selected",
+  },
+  {
+    "documentation": "Allows multiple selections in <select> or <input type="file">.",
+    "label": "multiple",
+  },
+  {
+    "documentation": "Specifies whether and how the browser automatically completes input.",
+    "label": "autocomplete",
+  },
+  {
+    "documentation": "Gives the element focus when the page loads.",
+    "label": "autofocus",
+  },
+  {
+    "documentation": "The minimum allowed value (e.g. for <input type="number">).",
+    "label": "min",
+  },
+  {
+    "documentation": "The maximum allowed value.",
+    "label": "max",
+  },
+  {
+    "documentation": "The amount by which a value changes per step (for numeric inputs).",
+    "label": "step",
+  },
+  {
+    "documentation": "A regular expression that validates input in <input>.",
+    "label": "pattern",
+  },
+  {
+    "documentation": "Specifies file types for <input type="file"> (e.g. "image/*").",
+    "label": "accept",
+  },
+  {
+    "documentation": "The HTTP method (GET or POST) for a form.",
+    "label": "method",
+  },
+  {
+    "documentation": "The URL to which the form is submitted.",
+    "label": "action",
+  },
+  {
+    "documentation": "The data format used to submit a form (e.g. multipart/form-data).",
+    "label": "enctype",
+  },
+  {
+    "documentation": "Descriptive text for screen readers (accessibility).",
+    "label": "aria-label",
+  },
+  {
+    "documentation": "Indicates whether the element is hidden from assistive technologies (true/false).",
+    "label": "aria-hidden",
+  },
+  {
+    "documentation": "Specifies a semantic role for the element.",
+    "label": "role",
+  },
+  {
+    "documentation": "The position in the tab order for keyboard navigation.",
+    "label": "tabindex",
+  },
+  {
+    "documentation": "A custom data attribute (e.g. data-info="...").",
+    "label": "data-$1",
+  },
+  {
+    "documentation": "Fires when an element is clicked.",
+    "label": "onclick",
+  },
+  {
+    "documentation": "Fires when the element is double-clicked.",
+    "label": "ondblclick",
+  },
+  {
+    "documentation": "Fires when a mouse button is pressed.",
+    "label": "onmousedown",
+  },
+  {
+    "documentation": "Fires when a mouse button is released.",
+    "label": "onmouseup",
+  },
+  {
+    "documentation": "Fires continuously as the pointer moves over an element.",
+    "label": "onmousemove",
+  },
+  {
+    "documentation": "Fires when the pointer moves over the element.",
+    "label": "onmouseover",
+  },
+  {
+    "documentation": "Fires when the pointer leaves the element.",
+    "label": "onmouseout",
+  },
+  {
+    "documentation": "Fires when the mouse wheel or a similar input device moves.",
+    "label": "onwheel",
+  },
+  {
+    "documentation": "Fires when a key is pressed.",
+    "label": "onkeydown",
+  },
+  {
+    "documentation": "Fires when a key is pressed and a character code is generated.",
+    "label": "onkeypress",
+  },
+  {
+    "documentation": "Fires when a key is released.",
+    "label": "onkeyup",
+  },
+  {
+    "documentation": "Fires when the element receives focus.",
+    "label": "onfocus",
+  },
+  {
+    "documentation": "Fires when the element loses focus.",
+    "label": "onblur",
+  },
+  {
+    "documentation": "Fires when text is copied to the clipboard.",
+    "label": "oncopy",
+  },
+  {
+    "documentation": "Fires when text is cut.",
+    "label": "oncut",
+  },
+  {
+    "documentation": "Fires when content is pasted into the element.",
+    "label": "onpaste",
+  },
+  {
+    "documentation": "Fires continuously while an element is dragged.",
+    "label": "ondrag",
+  },
+  {
+    "documentation": "Starts when the user begins dragging an element.",
+    "label": "ondragstart",
+  },
+  {
+    "documentation": "Fires when an element enters a drop area.",
+    "label": "ondragenter",
+  },
+  {
+    "documentation": "Fires continuously while an element is dragged over a drop area.",
+    "label": "ondragover",
+  },
+  {
+    "documentation": "Fires when an element leaves the drop area.",
+    "label": "ondragleave",
+  },
+  {
+    "documentation": "Fires when dragging an element ends.",
+    "label": "ondragend",
+  },
+  {
+    "documentation": "Fires when the dragged element is dropped.",
+    "label": "ondrop",
+  },
+  {
+    "documentation": "Fires when the value of an element changes (e.g. <select>, <input>).",
+    "label": "onchange",
+  },
+  {
+    "documentation": "Fires as soon as the value of an element changes during input.",
+    "label": "oninput",
+  },
+  {
+    "documentation": "Fires when a form field is invalid.",
+    "label": "oninvalid",
+  },
+  {
+    "documentation": "Fires when a form is reset (<form onreset>).",
+    "label": "onreset",
+  },
+  {
+    "documentation": "Fires when a search is confirmed in a search field (<input type="search">).",
+    "label": "onsearch",
+  },
+  {
+    "documentation": "Fires when the user selects text in an input field.",
+    "label": "onselect",
+  },
+  {
+    "documentation": "Fires when a form is submitted.",
+    "label": "onsubmit",
+  },
+  {
+    "documentation": "Fires when an element is scrolled.",
+    "label": "onscroll",
+  },
+  {
+    "documentation": "Fires when a window or element is resized.",
+    "label": "onresize",
+  },
+  {
+    "documentation": "Fires when an element (e.g. <body>, <iframe>, <img>) has fully loaded.",
+    "label": "onload",
+  },
+  {
+    "documentation": "Fires when an error occurs during loading (e.g. image not found).",
+    "label": "onerror",
+  },
+  {
+    "documentation": "Fires before leaving the page (e.g. a warning about changes).",
+    "label": "onbeforeunload",
+  },
+  {
+    "documentation": "Fires when the part of the URL after # changes.",
+    "label": "onhashchange",
+  },
+  {
+    "documentation": "Fires when the active history entry (History API) changes.",
+    "label": "onpopstate",
+  },
+  {
+    "documentation": "A media event that fires when enough data has loaded to play the media.",
+    "label": "oncanplay",
+  },
+  {
+    "documentation": "Fires when video or audio playback starts.",
+    "label": "onplay",
+  },
+  {
+    "documentation": "Fires when video or audio playback is paused.",
+    "label": "onpause",
+  },
+  {
+    "documentation": "A media event that fires when a video or audio ends.",
+    "label": "onended",
+  },
+  {
+    "documentation": "Fires when the volume or mute setting changes.",
+    "label": "onvolumechange",
+  },
+]
+`;

@@ -5,7 +5,7 @@
 - `evolution_phase`: stabilized-foundation
 - `completeness_level`: medium-high
 - `known_gaps`: diagnostics currently rely on message text and optional codes rather than a richer normalized schema
-- `deferred_complexity`: localization policy, severity stratification, and incremental diagnostics
+- `deferred_complexity`: additional locales, severity stratification, and incremental diagnostics
 - `technical_debt_items`: some diagnostics remain plain messages while component diagnostics also expose structured `code` and `data`
 
 ## Description
@@ -44,7 +44,9 @@ Produce structural and semantic diagnostics for `.kpa` documents by composing ex
 - Canonical template expression diagnostics are driven by `{{ ... }}` syntax and dynamic binding attribute expressions introduced by `:` or `bind:`, not legacy single-brace interpolation.
 - Compatibility aliases such as `[html]` are intentionally ignored by structural runtime diagnostics today.
 - Workspace registration discovery is limited to explicit `Core.take(componentSource, "tag-name")` patterns that reference imported `.kpa` files.
-- Some diagnostic messages are currently emitted in German because that is the implemented contract.
+- All package-owned diagnostic messages are English. Identifiers, paths, and
+  user-authored text embedded in messages remain unchanged. Diagnostic codes,
+  structured data, ranges, and ordering semantics are unchanged.
 
 ## Edge Cases
 

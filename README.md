@@ -70,6 +70,9 @@ This repository exists to centralize the reusable language behavior for KoppaJS 
 
 ---
 
+Package-owned diagnostics, completion descriptions, quick-fix titles, and errors
+use English. Identifiers, paths, snippets, and user-authored text are preserved.
+
 ## Ownership Boundaries
 
 This package owns:

@@ -53,6 +53,9 @@ Expose a single editor-agnostic runtime facade for open-document and workspace-b
 
 ## Constraints
 
+- Package-owned completion descriptions, hover prose, code-action titles, and
+  error messages are English. Preserve snippets, identifiers, paths, and
+  user-authored content verbatim.
 - URIs are expected to be file URIs when filesystem-backed behavior is required.
 - Offsets are absolute character offsets into the document text.
 - The service remains transport-agnostic and does not emit LSP objects directly.
